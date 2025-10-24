@@ -1,5 +1,5 @@
 /* ==========================================
-   MODERN BOTTOM NAVIGATION - TÜM SAYFALAR İÇİN
+   MODERN BOTTOM NAVIGATION - SADECE MOBİL
    ========================================== */
 
 .floating-nav {
@@ -13,7 +13,6 @@
     border-top: 2px solid rgba(255, 255, 255, 0.3);
     padding: 12px 0 max(12px, env(safe-area-inset-bottom));
     z-index: 1000;
-    display: flex;
     justify-content: space-around;
     align-items: center;
     box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.3), 
@@ -22,6 +21,16 @@
     max-height: 85px;
     overflow: hidden;
     contain: layout style paint;
+    
+    /* Desktop'ta gizle */
+    display: none;
+}
+
+/* Sadece mobil ve tablet'te göster */
+@media (max-width: 1024px) {
+    .floating-nav {
+        display: flex;
+    }
 }
 
 .nav-item {

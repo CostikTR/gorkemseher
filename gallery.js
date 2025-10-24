@@ -7,17 +7,42 @@ let pendingPhotoFile = null;
 let pendingPhotoData = null;
 
 // Initialize gallery on page load
-document.addEventListener('DOMContentLoaded', function() {
-    loadPhotos();
+document.addEventListener('DOMContentLoaded', async function() {
+    await loadPhotos();
     setupFilterButtons();
     setupDateFilterButtons();
     setupUploadHandlers();
 });
 
-// Load photos from localStorage
-function loadPhotos() {
-    const savedPhotos = localStorage.getItem('lovesite_photos');
-    allPhotos = savedPhotos ? JSON.parse(savedPhotos) : [];
+// Load photos from Firebase (önce) ve localStorage (fallback)
+async function loadPhotos() {
+    try {
+        // Önce Firebase'den yükle
+        if (window.firebaseSync) {
+            const firebasePhotos = await window.firebaseSync.getData('photos', 'list');
+            if (firebasePhotos && Array.isArray(firebasePhotos)) {
+                allPhotos = firebasePhotos;
+                // localStorage'ı da güncelle
+                localStorage.setItem('lovesite_photos', JSON.stringify(allPhotos));
+                console.log(`✅ ${allPhotos.length} fotoğraf Firebase'den yüklendi`);
+            } else {
+                // Firebase'de yoksa localStorage'dan yükle
+                const savedPhotos = localStorage.getItem('lovesite_photos');
+                allPhotos = savedPhotos ? JSON.parse(savedPhotos) : [];
+                console.log(`📦 ${allPhotos.length} fotoğraf localStorage'dan yüklendi`);
+            }
+        } else {
+            // Firebase yok, localStorage kullan
+            const savedPhotos = localStorage.getItem('lovesite_photos');
+            allPhotos = savedPhotos ? JSON.parse(savedPhotos) : [];
+        }
+    } catch (error) {
+        console.error('Fotoğraf yükleme hatası:', error);
+        // Hata durumunda localStorage'dan yükle
+        const savedPhotos = localStorage.getItem('lovesite_photos');
+        allPhotos = savedPhotos ? JSON.parse(savedPhotos) : [];
+    }
+    
     displayPhotos(allPhotos);
     updateStats();
 }
@@ -516,19 +541,27 @@ async function confirmUpload() {
     allPhotos.push(photo);
     localStorage.setItem('lovesite_photos', JSON.stringify(allPhotos));
     
-    // Firebase'e kaydet
+    // Firebase'e kaydet - ZORUNLU
     if (window.firebaseSync) {
         try {
             await window.firebaseSync.saveData('photos', 'list', allPhotos);
-            console.log('Fotoğraf Firebase\'e kaydedildi');
+            console.log('✅ Fotoğraf Firebase\'e kaydedildi, tüm cihazlardan erişilebilir');
+            
+            // Bildirim gönder (diğer kullanıcıya)
+            if (window.notificationSystem) {
+                window.notificationSystem.notifyNewPhoto(currentUser);
+            }
         } catch (error) {
-            console.error('Firebase kayıt hatası:', error);
+            console.error('❌ Firebase kayıt hatası:', error);
+            alert('⚠️ Fotoğraf sadece bu cihaza kaydedildi. İnternet bağlantınızı kontrol edin.');
         }
+    } else {
+        console.warn('⚠️ Firebase bağlantısı yok, sadece localStorage\'a kaydedildi');
     }
     
     // Modalı kapat ve galeriyi yenile
     closeUploadModal();
-    loadPhotos();
+    await loadPhotos(); // Yeniden Firebase'den yükle
     
     // Bir sonraki dosyaya geç
     currentFileIndex++;
@@ -570,6 +603,29 @@ function showNotification(message) {
         notification.style.animation = 'slideOutRight 0.5s ease-out';
         setTimeout(() => notification.remove(), 500);
     }, 3000);
+}
+
+// Delete photo
+async function deletePhoto(index) {
+    if (!confirm('Bu anıyı silmek istediğinizden emin misiniz?')) {
+        return;
+    }
+    
+    allPhotos.splice(index, 1);
+    localStorage.setItem('lovesite_photos', JSON.stringify(allPhotos));
+    
+    // Firebase'den de sil
+    if (window.firebaseSync) {
+        try {
+            await window.firebaseSync.saveData('photos', 'list', allPhotos);
+            console.log('✅ Fotoğraf Firebase\'den silindi');
+        } catch (error) {
+            console.error('❌ Firebase silme hatası:', error);
+        }
+    }
+    
+    await loadPhotos();
+    showNotification('🗑️ Fotoğraf silindi');
 }
 
 // Global fonksiyonları window'a ekle
