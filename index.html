@@ -3,6 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#764ba2">
+    <meta name="description" content="Bizim özel aşk hikayemiz - Sadece biz ikimizin alanı">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="/manifest.json">
     <title>Bizim Hikayemiz 💕</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="navigation.css">
@@ -19,6 +24,10 @@
     <!-- Firebase -->
     <script type="module" src="firebase-config.js"></script>
     <script type="module" src="firebase-sync.js"></script>
+    <!-- PWA & Bildirimler -->
+    <script src="pwa-installer.js"></script>
+    <script src="notification-system.js"></script>
+    <script src="video-manager.js"></script>
     <script>
         // Sayfa yüklendiğinde giriş kontrolü
         if (!checkAuth()) {

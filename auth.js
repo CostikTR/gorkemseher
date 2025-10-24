@@ -4,8 +4,8 @@
 
 // Kullanıcı bilgileri - Bunları değiştirin!
 const users = {
-    'gorkem': 'bindirmail1',      // İlk kullanıcı (örn: 'ahmet': 'ahmet123')
-    'seher': 'seher'   // İkinci kullanıcı (örn: 'ayse': 'ayse123')
+    'Görkem': 'seher',      // İlk kullanıcı (örn: 'ahmet': 'ahmet123')
+    'Seher': 'görkem'   // İkinci kullanıcı (örn: 'ayse': 'ayse123')
 };
 
 // Admin şifresi - Ayarları değiştirmek için

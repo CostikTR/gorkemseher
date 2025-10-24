@@ -309,15 +309,37 @@ function handleFileSelect(event) {
     }
 }
 
+// Bekleyen dosyalar için kuyruk
+let pendingFiles = [];
+let currentFileIndex = 0;
+
 // Handle files
 function handleFiles(files) {
-    const file = files[0]; // İlk dosyayı al
+    // Tüm dosyaları kuyruğa ekle
+    pendingFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
     
-    if (!file.type.startsWith('image/')) {
+    if (pendingFiles.length === 0) {
         alert('Lütfen sadece resim dosyası seçin!');
         return;
     }
     
+    currentFileIndex = 0;
+    console.log(`${pendingFiles.length} fotoğraf seçildi`);
+    
+    // İlk dosyayı işle
+    processNextFile();
+}
+
+function processNextFile() {
+    if (currentFileIndex >= pendingFiles.length) {
+        // Tüm dosyalar işlendi
+        pendingFiles = [];
+        currentFileIndex = 0;
+        showNotification(`✨ ${currentFileIndex} fotoğraf başarıyla eklendi!`);
+        return;
+    }
+    
+    const file = pendingFiles[currentFileIndex];
     pendingPhotoFile = file;
     
     // Dosyayı oku ve önizleme göster
@@ -330,12 +352,23 @@ function handleFiles(files) {
         readExifData(file);
         
         // Modalı aç
-        document.getElementById('uploadModal').classList.add('active');
+        const modal = document.getElementById('uploadModal');
+        modal.classList.add('active');
         document.body.style.overflow = 'hidden';
+        
+        // Modal başlığını güncelle
+        const modalTitle = modal.querySelector('h3');
+        if (modalTitle && pendingFiles.length > 1) {
+            modalTitle.textContent = `Fotoğraf ${currentFileIndex + 1} / ${pendingFiles.length}`;
+        }
         
         // Bugünün tarihini default olarak ayarla
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('uploadDate').value = today;
+        
+        // Önceki değerleri temizle
+        document.getElementById('uploadCaption').value = '';
+        document.getElementById('uploadCategory').value = 'diğer';
     };
     reader.readAsDataURL(file);
 }
@@ -434,13 +467,17 @@ function closeUploadModal() {
     document.getElementById('uploadModal').classList.remove('active');
     document.body.style.overflow = 'auto';
     
-    // Reset form
-    document.getElementById('uploadCaption').value = '';
-    document.getElementById('uploadCategory').value = 'diğer';
-    document.getElementById('uploadDate').value = '';
-    document.getElementById('uploadInput').value = '';
-    pendingPhotoFile = null;
-    pendingPhotoData = null;
+    // Sadece tüm dosyalar işlendiğinde reset et
+    if (currentFileIndex >= pendingFiles.length || pendingFiles.length === 0) {
+        document.getElementById('uploadCaption').value = '';
+        document.getElementById('uploadCategory').value = 'diğer';
+        document.getElementById('uploadDate').value = '';
+        document.getElementById('uploadInput').value = '';
+        pendingPhotoFile = null;
+        pendingPhotoData = null;
+        pendingFiles = [];
+        currentFileIndex = 0;
+    }
 }
 
 // Confirm upload
@@ -473,7 +510,7 @@ async function confirmUpload() {
         category: category,
         uploadedAt: uploadedAt,
         uploadedBy: currentUser,
-        id: Date.now()
+        id: Date.now() + currentFileIndex
     };
     
     allPhotos.push(photo);
@@ -483,19 +520,31 @@ async function confirmUpload() {
     if (window.firebaseSync) {
         try {
             await window.firebaseSync.saveData('photos', 'list', allPhotos);
+            console.log('Fotoğraf Firebase\'e kaydedildi');
         } catch (error) {
             console.error('Firebase kayıt hatası:', error);
         }
     }
     
-    // Modalı kapat
+    // Modalı kapat ve galeriyi yenile
     closeUploadModal();
-    
-    // Galeriyi yenile
     loadPhotos();
     
-    // Başarı mesajı
-    showNotification('✨ Anı başarıyla eklendi!');
+    // Bir sonraki dosyaya geç
+    currentFileIndex++;
+    
+    if (currentFileIndex < pendingFiles.length) {
+        // Bir sonraki dosyayı işle
+        setTimeout(() => {
+            processNextFile();
+        }, 500);
+    } else {
+        // Tüm dosyalar işlendi
+        const totalUploaded = pendingFiles.length;
+        pendingFiles = [];
+        currentFileIndex = 0;
+        showNotification(`✨ ${totalUploaded} fotoğraf başarıyla eklendi!`);
+    }
 }
 
 // Show notification
