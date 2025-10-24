@@ -6,7 +6,7 @@
 
 window.showRandomMessage = function() { console.log('msg'); };
 
-const relationshipStartDate = new Date('2024-01-01T00:00:00');
+let relationshipStartDate = new Date('2024-01-01T00:00:00');
 
 let specialDates = {
     firstMeet: new Date('2023-12-15'),
@@ -64,10 +64,38 @@ function loadSavedData() {
     const savedDates = localStorage.getItem('lovesite_dates');
     if (savedDates) {
         const dates = JSON.parse(savedDates);
-        if (dates.firstMeet) specialDates.firstMeet = new Date(dates.firstMeet);
-        if (dates.relationship) specialDates.relationship = new Date(dates.relationship);
-        if (dates.firstKiss) specialDates.firstKiss = new Date(dates.firstKiss);
-        if (dates.specialDay) specialDates.specialDay = new Date(dates.specialDay);
+        // Admin panelden gelen format: dates.firstMeet.date
+        if (dates.firstMeet && dates.firstMeet.date) {
+            specialDates.firstMeet = new Date(dates.firstMeet.date);
+        } else if (dates.firstMeet) {
+            specialDates.firstMeet = new Date(dates.firstMeet);
+        }
+        
+        if (dates.relationship && dates.relationship.date) {
+            specialDates.relationship = new Date(dates.relationship.date);
+            // İlişki başlangıç tarihi güncelle (sayaç için)
+            relationshipStartDate = new Date(dates.relationship.date);
+        } else if (dates.relationship) {
+            specialDates.relationship = new Date(dates.relationship);
+            relationshipStartDate = new Date(dates.relationship);
+        }
+        
+        if (dates.firstKiss && dates.firstKiss.date) {
+            specialDates.firstKiss = new Date(dates.firstKiss.date);
+        } else if (dates.firstKiss) {
+            specialDates.firstKiss = new Date(dates.firstKiss);
+        }
+        
+        if (dates.specialDay && dates.specialDay.date) {
+            specialDates.specialDay = new Date(dates.specialDay.date);
+        } else if (dates.specialDay) {
+            specialDates.specialDay = new Date(dates.specialDay);
+        }
+        
+        console.log('Tarihler yüklendi:', {
+            relationship: relationshipStartDate,
+            specialDates: specialDates
+        });
     }
     
     const savedPhotos = localStorage.getItem('lovesite_photos');
