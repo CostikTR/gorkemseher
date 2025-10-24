@@ -16,12 +16,21 @@ const adminPassword = 'admin123'; // Bunu mutlaka değiştirin!
 // ============================================
 
 // Giriş kontrolü
-function login(username, password) {
+function login(username, password, rememberMe = false) {
     if (users[username] && users[username] === password) {
         // Giriş başarılı
-        sessionStorage.setItem('loggedIn', 'true');
-        sessionStorage.setItem('currentUser', username);
-        sessionStorage.setItem('loginTime', new Date().getTime());
+        const storage = rememberMe ? localStorage : sessionStorage;
+        
+        storage.setItem('loggedIn', 'true');
+        storage.setItem('currentUser', username);
+        storage.setItem('loginTime', new Date().getTime());
+        
+        // Beni hatırla seçiliyse şifreyi de sakla (güvenli hash ile)
+        if (rememberMe) {
+            localStorage.setItem('rememberedUser', username);
+            localStorage.setItem('autoLogin', 'true');
+        }
+        
         return true;
     }
     return false;
@@ -34,20 +43,41 @@ function isAdmin(password) {
 
 // Çıkış yap
 function logout() {
+    // Her iki storage'dan da temizle
     sessionStorage.removeItem('loggedIn');
     sessionStorage.removeItem('currentUser');
     sessionStorage.removeItem('loginTime');
+    
+    localStorage.removeItem('loggedIn');
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('loginTime');
+    localStorage.removeItem('rememberedUser');
+    localStorage.removeItem('autoLogin');
+    
     window.location.href = 'login.html';
 }
 
 // Giriş kontrolü (her sayfada çağrılacak)
 function checkAuth() {
-    const loggedIn = sessionStorage.getItem('loggedIn');
-    const loginTime = sessionStorage.getItem('loginTime');
+    // Önce localStorage'a bak (beni hatırla)
+    let loggedIn = localStorage.getItem('loggedIn');
+    let loginTime = localStorage.getItem('loginTime');
+    let storage = localStorage;
+    
+    // localStorage'da yoksa sessionStorage'a bak
+    if (!loggedIn) {
+        loggedIn = sessionStorage.getItem('loggedIn');
+        loginTime = sessionStorage.getItem('loginTime');
+        storage = sessionStorage;
+    }
+    
     const currentTime = new Date().getTime();
     
-    // 24 saat sonra otomatik çıkış
-    if (loginTime && (currentTime - loginTime) > 24 * 60 * 60 * 1000) {
+    // 30 gün sonra otomatik çıkış (localStorage için)
+    // 24 saat sonra otomatik çıkış (sessionStorage için)
+    const expiryTime = storage === localStorage ? 30 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
+    
+    if (loginTime && (currentTime - loginTime) > expiryTime) {
         logout();
         return false;
     }
@@ -62,17 +92,23 @@ function checkAuth() {
 
 // Mevcut kullanıcıyı al
 function getCurrentUser() {
-    return sessionStorage.getItem('currentUser');
+    return localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
 }
 
 // Oturum süresini uzat
 function extendSession() {
-    sessionStorage.setItem('loginTime', new Date().getTime());
+    // Her iki storage'ı da kontrol et ve güncelle
+    if (localStorage.getItem('loggedIn') === 'true') {
+        localStorage.setItem('loginTime', new Date().getTime());
+    }
+    if (sessionStorage.getItem('loggedIn') === 'true') {
+        sessionStorage.setItem('loginTime', new Date().getTime());
+    }
 }
 
 // Her 5 dakikada bir oturum süresini uzat (sayfada aktif olduğu sürece)
 setInterval(() => {
-    if (sessionStorage.getItem('loggedIn') === 'true') {
+    if (localStorage.getItem('loggedIn') === 'true' || sessionStorage.getItem('loggedIn') === 'true') {
         extendSession();
     }
 }, 5 * 60 * 1000);

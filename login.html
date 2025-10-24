@@ -158,6 +158,13 @@
                 <input type="password" id="password" placeholder="Şifrenizi girin" required>
             </div>
             
+            <div class="input-group" style="text-align: left; margin-bottom: 30px;">
+                <label style="display: inline-flex; align-items: center; cursor: pointer; user-select: none;">
+                    <input type="checkbox" id="rememberMe" style="width: auto; margin-right: 10px; cursor: pointer;">
+                    <span>Beni Hatırla (30 gün)</span>
+                </label>
+            </div>
+            
             <button type="submit" class="login-btn">Giriş Yap 💝</button>
             
             <div id="errorMessage" class="error-message">
@@ -173,13 +180,33 @@
 
     <script src="auth.js"></script>
     <script>
+        // Sayfa yüklendiğinde otomatik giriş kontrolü
+        window.addEventListener('DOMContentLoaded', () => {
+            const autoLogin = localStorage.getItem('autoLogin');
+            const rememberedUser = localStorage.getItem('rememberedUser');
+            
+            if (autoLogin === 'true' && rememberedUser) {
+                // Otomatik giriş yap
+                const loggedIn = localStorage.getItem('loggedIn');
+                if (loggedIn === 'true') {
+                    window.location.href = 'index.html';
+                }
+            }
+            
+            // Hatırlanan kullanıcı varsa checkbox'ı işaretle
+            if (rememberedUser) {
+                document.getElementById('rememberMe').checked = true;
+            }
+        });
+        
         function handleLogin(event) {
             event.preventDefault();
             
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
             
-            if (login(username, password)) {
+            if (login(username, password, rememberMe)) {
                 window.location.href = 'index.html';
             } else {
                 const errorMsg = document.getElementById('errorMessage');
