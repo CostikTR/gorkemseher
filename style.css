@@ -24,6 +24,15 @@ body {
     z-index: 0;
 }
 
+.floating-heart {
+    position: absolute;
+    bottom: -50px;
+    animation: float 7s linear infinite;
+    font-size: 30px;
+    user-select: none;
+    pointer-events: none;
+}
+
 @keyframes float {
     0% {
         transform: translateY(100vh) rotate(0deg);
@@ -580,12 +589,29 @@ footer {
 
 /* Responsive Tasarım */
 @media (max-width: 768px) {
+    .container {
+        padding: 20px 10px;
+    }
+    
     .main-title {
         font-size: 2.5em;
     }
     
+    .subtitle {
+        font-size: 0.9em;
+    }
+    
     .time-counter {
         grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    
+    .time-box {
+        padding: 15px;
+    }
+    
+    .time-value {
+        font-size: 2em;
     }
     
     .gallery-container {
@@ -594,13 +620,51 @@ footer {
     
     .gallery-btn {
         position: static;
+        margin: 10px auto;
     }
     
     .dates-grid {
         grid-template-columns: 1fr;
+        gap: 15px;
     }
     
     .bucket-grid {
         grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .profile-container {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .profile-photo {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .heart-connector {
+        transform: rotate(90deg);
+    }
+    
+    /* Butonları mobilde daha büyük yap */
+    button {
+        min-height: 44px;
+        font-size: 1em;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-title {
+        font-size: 2em;
+    }
+    
+    .time-counter {
+        grid-template-columns: 1fr;
+    }
+    
+    .profile-photo {
+        width: 120px;
+        height: 120px;
     }
 }

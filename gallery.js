@@ -274,6 +274,18 @@ function setupUploadHandlers() {
     // File input change
     uploadInput.addEventListener('change', handleFileSelect);
     
+    // Upload area click/touch - mobil uyumlu
+    uploadArea.addEventListener('click', (e) => {
+        e.preventDefault();
+        uploadInput.click();
+    });
+    
+    // Touch event support for mobile
+    uploadArea.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        uploadInput.click();
+    });
+    
     // Drag and drop
     uploadArea.addEventListener('dragover', (e) => {
         e.preventDefault();
@@ -442,7 +454,7 @@ function closeUploadModal() {
 }
 
 // Confirm upload
-function confirmUpload() {
+async function confirmUpload() {
     if (!pendingPhotoData) {
         alert('Bir hata oluştu. Lütfen tekrar deneyin.');
         return;
@@ -476,6 +488,15 @@ function confirmUpload() {
     
     allPhotos.push(photo);
     localStorage.setItem('lovesite_photos', JSON.stringify(allPhotos));
+    
+    // Firebase'e kaydet
+    if (window.firebaseSync) {
+        try {
+            await window.firebaseSync.saveData('photos', 'list', allPhotos);
+        } catch (error) {
+            console.error('Firebase kayıt hatası:', error);
+        }
+    }
     
     // Modalı kapat
     closeUploadModal();
