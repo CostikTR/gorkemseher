@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ğŸ’• AnÄ±larÄ±mÄ±z - Galeri</title>
+    <title> Anılarımız - Galeri</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="gallery.css">
     <link rel="stylesheet" href="navigation.css">
@@ -11,7 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
     <style>
         body {
-            padding-bottom: 80px;
+            padding-bottom: 90px;
         }
         .gallery-wrapper {
             padding-bottom: 20px;
@@ -31,18 +31,18 @@
             <div class="hero-content">
                 <h1 class="hero-title">
                     <span class="title-line">Bizim</span>
-                    <span class="title-line highlight">AnÄ±larÄ±mÄ±z</span>
+                    <span class="title-line highlight">Anılarımız</span>
                 </h1>
-                <p class="hero-subtitle">Her fotoÄŸraf bir hikaye, her an deÄŸerli ğŸ’•</p>
+                <p class="hero-subtitle">Her fotoğraf bir hikaye, her an değerli </p>
                 <div class="hero-stats">
                     <div class="stat-item">
                         <span class="stat-number" id="totalPhotos">0</span>
-                        <span class="stat-label">FotoÄŸraf</span>
+                        <span class="stat-label">Fotoğraf</span>
                     </div>
                     <div class="stat-divider"></div>
                     <div class="stat-item">
                         <span class="stat-number" id="totalMemories">0</span>
-                        <span class="stat-label">AnÄ±</span>
+                        <span class="stat-label">Anı</span>
                     </div>
                 </div>
             </div>
@@ -52,22 +52,22 @@
         <div class="filter-bar">
             <div class="filter-container">
                 <div class="filter-section">
-                    <span class="filter-label">ğŸ“‚</span>
+                    <span class="filter-label"></span>
                     <div class="filter-buttons" id="categoryFilters">
-                        <button class="filter-chip active" data-filter="all">TÃ¼mÃ¼</button>
-                        <button class="filter-chip" data-filter="tatil">ğŸ–ï¸ Tatil</button>
-                        <button class="filter-chip" data-filter="selfie">ğŸ¤³ Selfie</button>
-                        <button class="filter-chip" data-filter="Ã¶zel">ğŸ‰ Ã–zel</button>
-                        <button class="filter-chip" data-filter="doÄŸa">ğŸŒ² DoÄŸa</button>
+                        <button class="filter-chip active" data-filter="all">Tümü</button>
+                        <button class="filter-chip" data-filter="tatil"> Tatil</button>
+                        <button class="filter-chip" data-filter="selfie"> Selfie</button>
+                        <button class="filter-chip" data-filter="özel"> Özel</button>
+                        <button class="filter-chip" data-filter="doğa"> Doğa</button>
                     </div>
                 </div>
                 <div class="filter-section">
-                    <span class="filter-label">ğŸ“…</span>
+                    <span class="filter-label"></span>
                     <div class="filter-buttons" id="dateFilters">
-                        <button class="filter-chip date-chip active" data-date="all">TÃ¼mÃ¼</button>
+                        <button class="filter-chip date-chip active" data-date="all">Tümü</button>
                         <button class="filter-chip date-chip" data-date="this-month">Bu Ay</button>
-                        <button class="filter-chip date-chip" data-date="last-month">GeÃ§en Ay</button>
-                        <button class="filter-chip date-chip" data-date="this-year">Bu YÄ±l</button>
+                        <button class="filter-chip date-chip" data-date="last-month">Geçen Ay</button>
+                        <button class="filter-chip date-chip" data-date="this-year">Bu Yıl</button>
                         <button class="filter-chip date-chip" data-date="older">Daha Eski</button>
                     </div>
                 </div>
@@ -77,11 +77,11 @@
         <!-- Upload Section -->
         <div class="upload-section">
             <div class="upload-container">
-                <h3 class="upload-title">ğŸ“¤ Yeni AnÄ± Ekle</h3>
+                <h3 class="upload-title"> Yeni Anı Ekle</h3>
                 <div class="upload-area" id="uploadArea">
-                    <div class="upload-icon">ğŸ“¸</div>
-                    <p class="upload-text">FotoÄŸraf yÃ¼klemek iÃ§in tÄ±klayÄ±n</p>
-                    <p class="upload-hint">veya sÃ¼rÃ¼kle bÄ±rak</p>
+                    <div class="upload-icon"></div>
+                    <p class="upload-text">Fotoğraf yüklemek için tıklayın</p>
+                    <p class="upload-hint">veya sürükle bırak</p>
                     <input type="file" id="uploadInput" accept="image/*" style="display: none;">
                 </div>
             </div>
@@ -90,36 +90,36 @@
         <!-- Upload Modal -->
         <div id="uploadModal" class="upload-modal">
             <div class="modal-content">
-                <button class="modal-close" onclick="closeUploadModal()">âœ•</button>
-                <h3>FotoÄŸraf DetaylarÄ±</h3>
+                <button class="modal-close" onclick="closeUploadModal()"></button>
+                <h3>Fotoğraf Detayları</h3>
                 <div class="modal-preview">
-                    <img id="previewImage" src="" alt="Ã–nizleme">
+                    <img id="previewImage" src="" alt="Önizleme">
                 </div>
                 <div class="modal-form">
                     <div class="form-field">
-                        <label>ğŸ“ AÃ§Ä±klama</label>
-                        <input type="text" id="uploadCaption" placeholder="Bu anÄ± hakkÄ±nda bir ÅŸeyler yazÄ±n...">
+                        <label> Açıklama</label>
+                        <input type="text" id="uploadCaption" placeholder="Bu anı hakkında bir şeyler yazın...">
                     </div>
                     <div class="form-field">
-                        <label>ğŸ“‚ Kategori</label>
+                        <label> Kategori</label>
                         <select id="uploadCategory">
-                            <option value="diÄŸer">ğŸ“· DiÄŸer</option>
-                            <option value="tatil">ğŸ–ï¸ Tatil</option>
-                            <option value="selfie">ğŸ¤³ Selfie</option>
-                            <option value="Ã¶zel">ğŸ‰ Ã–zel</option>
-                            <option value="doÄŸa">ğŸŒ² DoÄŸa</option>
+                            <option value="diğer"> Diğer</option>
+                            <option value="tatil"> Tatil</option>
+                            <option value="selfie"> Selfie</option>
+                            <option value="özel"> Özel</option>
+                            <option value="doğa"> Doğa</option>
                         </select>
                     </div>
                     <div class="form-field">
-                        <label>ğŸ“… Tarih (boÅŸ bÄ±rakÄ±lÄ±rsa bugÃ¼nÃ¼n tarihi kullanÄ±lÄ±r)</label>
+                        <label> Tarih (boş bırakılırsa bugünün tarihi kullanılır)</label>
                         <input type="date" id="uploadDate" placeholder="Opsiyonel">
                     </div>
                     <div id="exifInfo" class="exif-info" style="display: none;">
-                        <h4>ğŸ“· FotoÄŸraf Bilgileri</h4>
+                        <h4> Fotoğraf Bilgileri</h4>
                         <div id="exifDetails"></div>
                     </div>
                     <button class="upload-btn" onclick="confirmUpload()">
-                        <span>âœ¨</span> AnÄ±yÄ± Kaydet
+                        <span></span> Anıyı Kaydet
                     </button>
                 </div>
             </div>
@@ -135,21 +135,21 @@
             <div id="emptyState" class="empty-gallery" style="display: none;">
                 <div class="empty-animation">
                     <div class="empty-circle"></div>
-                    <div class="empty-icon">ğŸ“¸</div>
+                    <div class="empty-icon"></div>
                 </div>
-                <h2 class="empty-title">HenÃ¼z FotoÄŸraf Yok</h2>
-                <p class="empty-text">GÃ¼zel anÄ±larÄ±nÄ±zÄ± paylaÅŸmaya baÅŸlayÄ±n!</p>
+                <h2 class="empty-title">Henüz Fotoğraf Yok</h2>
+                <p class="empty-text">Güzel anılarınızı paylaşmaya başlayın!</p>
                 <button onclick="window.location.href='admin.html'" class="empty-button">
-                    <span>âœ¨</span> Ä°lk AnÄ±yÄ± Ekle
+                    <span></span> İlk Anıyı Ekle
                 </button>
             </div>
         </div>
 
         <!-- Lightbox -->
         <div id="lightbox" class="lightbox-overlay">
-            <button class="lightbox-close" onclick="closeLightbox()">âœ•</button>
-            <button class="lightbox-arrow left" onclick="navigateLightbox(-1)">â€¹</button>
-            <button class="lightbox-arrow right" onclick="navigateLightbox(1)">â€º</button>
+            <button class="lightbox-close" onclick="closeLightbox()"></button>
+            <button class="lightbox-arrow left" onclick="navigateLightbox(-1)"></button>
+            <button class="lightbox-arrow right" onclick="navigateLightbox(1)"></button>
             
             <div class="lightbox-container">
                 <div class="lightbox-image-wrapper">
