@@ -1,4 +1,359 @@
-﻿console.log('Love site loaded');
-window.nextImage = function() { console.log('next'); };
-window.previousImage = function() { console.log('prev'); };
+﻿// ============================================console.log('Love site loaded');
+
+// AŞK SİTESİ - ANA SCRIPTwindow.nextImage = function() { console.log('next'); };
+
+// ============================================window.previousImage = function() { console.log('prev'); };
+
 window.showRandomMessage = function() { console.log('msg'); };
+
+const relationshipStartDate = new Date('2024-01-01T00:00:00');
+
+let specialDates = {
+    firstMeet: new Date('2023-12-15'),
+    relationship: new Date('2024-01-01'),
+    firstKiss: new Date('2024-01-14'),
+    specialDay: new Date('2024-06-15')
+};
+
+let photos = [{
+    src: 'https://via.placeholder.com/600x400/667eea/ffffff?text=Örnek+Fotoğraf+1+💕',
+    caption: 'Admin panelden fotoğraflarınızı ekleyin'
+}];
+
+const loveMessages = [
+    "Seninle geçirdiğim her an, hayatımın en değerli anıları 💕",
+    "Sen benim için sadece bir sevgili değil, en yakın arkadaşım ve sırdaşımsın ❤️",
+    "Gözlerinin içine baktığımda, geleceğimi görüyorum 🌟",
+    "Seninle olmak, evde olmak gibi... Huzurlu ve güvenli 🏡",
+    "Her gün sana olan aşkım biraz daha artıyor 💝"
+];
+
+let currentPhotoIndex = 0;
+
+document.addEventListener('DOMContentLoaded', function() {
+    const currentUser = getCurrentUser();
+    if (currentUser) {
+        const welcomeEl = document.getElementById('welcomeUser');
+        if (welcomeEl) welcomeEl.textContent = `Hoş geldin, ${currentUser} 💕`;
+    }
+    
+    loadSavedData();
+    initializeCounters();
+    updateTimeCounter();
+    setInterval(updateTimeCounter, 1000);
+    
+    updateSpecialDates();
+    initializeGallery();
+    showRandomMessage();
+    createFloatingHearts();
+    updateCurrentDate();
+    
+    if (document.querySelector('.hearts-container')) {
+        setInterval(createFloatingHearts, 10000);
+    }
+    
+    initializeProfilePhotos();
+    initializeTypewriter();
+    
+    if (document.getElementById('bucketListPreview')) {
+        loadBucketListPreview();
+    }
+});
+
+function loadSavedData() {
+    const savedDates = localStorage.getItem('lovesite_dates');
+    if (savedDates) {
+        const dates = JSON.parse(savedDates);
+        if (dates.firstMeet) specialDates.firstMeet = new Date(dates.firstMeet);
+        if (dates.relationship) specialDates.relationship = new Date(dates.relationship);
+        if (dates.firstKiss) specialDates.firstKiss = new Date(dates.firstKiss);
+        if (dates.specialDay) specialDates.specialDay = new Date(dates.specialDay);
+    }
+    
+    const savedPhotos = localStorage.getItem('lovesite_photos');
+    if (savedPhotos) {
+        photos = JSON.parse(savedPhotos);
+    }
+}
+
+function initializeProfilePhotos() {
+    const profile1 = localStorage.getItem('lovesite_profile1');
+    const profile2 = localStorage.getItem('lovesite_profile2');
+    
+    if (profile1) {
+        const img1 = document.getElementById('profileImg1');
+        const placeholder1 = document.getElementById('placeholder1');
+        if (img1 && placeholder1) {
+            img1.src = profile1;
+            img1.style.display = 'block';
+            placeholder1.style.display = 'none';
+        }
+    }
+    
+    if (profile2) {
+        const img2 = document.getElementById('profileImg2');
+        const placeholder2 = document.getElementById('placeholder2');
+        if (img2 && placeholder2) {
+            img2.src = profile2;
+            img2.style.display = 'block';
+            placeholder2.style.display = 'none';
+        }
+    }
+    
+    const upload1 = document.getElementById('profileUpload1');
+    const upload2 = document.getElementById('profileUpload2');
+    
+    if (upload1) upload1.addEventListener('change', (e) => handleProfileUpload(e, 1));
+    if (upload2) upload2.addEventListener('change', (e) => handleProfileUpload(e, 2));
+}
+
+function handleProfileUpload(event, profileNum) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            let width = img.width;
+            let height = img.height;
+            const maxSize = 800;
+            
+            if (width > height && width > maxSize) {
+                height = (height / width) * maxSize;
+                width = maxSize;
+            } else if (height > maxSize) {
+                width = (width / height) * maxSize;
+                height = maxSize;
+            }
+            
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            const compressed = canvas.toDataURL('image/jpeg', 0.7);
+            localStorage.setItem(`lovesite_profile${profileNum}`, compressed);
+            
+            const imgElement = document.getElementById(`profileImg${profileNum}`);
+            const placeholder = document.getElementById(`placeholder${profileNum}`);
+            
+            if (imgElement && placeholder) {
+                imgElement.src = compressed;
+                imgElement.style.display = 'block';
+                placeholder.style.display = 'none';
+            }
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
+function initializeTypewriter() {
+    const texts = [
+        "Seninle her anım özel 💕",
+        "Birlikte geçirdiğimiz günler çok değerli ❤️",
+        "Sen benim en güzel sürprizimsin 🎁",
+        "Seninle gülmek en güzel terapi 😊",
+        "Hayatımın aşkı sensin 💝"
+    ];
+    
+    let textIndex = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+    const typewriterElement = document.getElementById('typewriterText');
+    
+    if (!typewriterElement) return;
+    
+    function type() {
+        const currentText = texts[textIndex];
+        
+        if (isDeleting) {
+            typewriterElement.textContent = currentText.substring(0, charIndex - 1);
+            charIndex--;
+        } else {
+            typewriterElement.textContent = currentText.substring(0, charIndex + 1);
+            charIndex++;
+        }
+        
+        let typeSpeed = isDeleting ? 50 : 100;
+        
+        if (!isDeleting && charIndex === currentText.length) {
+            typeSpeed = 2000;
+            isDeleting = true;
+        } else if (isDeleting && charIndex === 0) {
+            isDeleting = false;
+            textIndex = (textIndex + 1) % texts.length;
+            typeSpeed = 500;
+        }
+        
+        setTimeout(type, typeSpeed);
+    }
+    
+    type();
+}
+
+function initializeCounters() {}
+
+function updateTimeCounter() {
+    const now = new Date();
+    const diff = now - relationshipStartDate;
+    
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+    
+    const daysEl = document.getElementById('days');
+    const hoursEl = document.getElementById('hours');
+    const minutesEl = document.getElementById('minutes');
+    const secondsEl = document.getElementById('seconds');
+    
+    if (daysEl) daysEl.textContent = days;
+    if (hoursEl) hoursEl.textContent = hours;
+    if (minutesEl) minutesEl.textContent = minutes;
+    if (secondsEl) secondsEl.textContent = seconds;
+}
+
+function updateSpecialDates() {
+    const dateElements = {
+        'firstMeet': specialDates.firstMeet,
+        'relationship': specialDates.relationship,
+        'firstKiss': specialDates.firstKiss,
+        'specialDay': specialDates.specialDay
+    };
+    
+    for (const [key, date] of Object.entries(dateElements)) {
+        const dateEl = document.getElementById(key);
+        const daysEl = document.getElementById(`${key}Days`);
+        
+        if (dateEl && date) {
+            dateEl.textContent = date.toLocaleDateString('tr-TR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+        
+        if (daysEl && date) {
+            const daysPassed = Math.floor((new Date() - date) / (1000 * 60 * 60 * 24));
+            daysEl.textContent = `${daysPassed} gün önce`;
+        }
+    }
+}
+
+function initializeGallery() {
+    if (photos.length === 0) return;
+    showPhoto(currentPhotoIndex);
+    updateDots();
+}
+
+function showPhoto(index) {
+    const imgEl = document.getElementById('galleryImage');
+    const captionEl = document.getElementById('photoCaption');
+    
+    if (imgEl && photos[index]) imgEl.src = photos[index].src;
+    if (captionEl && photos[index]) captionEl.textContent = photos[index].caption || '';
+}
+
+function nextImage() {
+    currentPhotoIndex = (currentPhotoIndex + 1) % photos.length;
+    showPhoto(currentPhotoIndex);
+    updateDots();
+}
+
+function previousImage() {
+    currentPhotoIndex = (currentPhotoIndex - 1 + photos.length) % photos.length;
+    showPhoto(currentPhotoIndex);
+    updateDots();
+}
+
+function updateDots() {
+    const dotsContainer = document.getElementById('galleryDots');
+    if (!dotsContainer) return;
+    
+    dotsContainer.innerHTML = '';
+    
+    photos.forEach((_, index) => {
+        const dot = document.createElement('span');
+        dot.className = 'dot' + (index === currentPhotoIndex ? ' active' : '');
+        dot.onclick = () => {
+            currentPhotoIndex = index;
+            showPhoto(currentPhotoIndex);
+            updateDots();
+        };
+        dotsContainer.appendChild(dot);
+    });
+}
+
+function showRandomMessage() {
+    const messageEl = document.getElementById('loveMessage');
+    if (!messageEl) return;
+    
+    const randomIndex = Math.floor(Math.random() * loveMessages.length);
+    messageEl.textContent = loveMessages[randomIndex];
+    messageEl.style.opacity = '0';
+    
+    setTimeout(() => { messageEl.style.opacity = '1'; }, 100);
+}
+
+function createFloatingHearts() {
+    const container = document.querySelector('.hearts-container');
+    if (!container) return;
+    
+    const heart = document.createElement('div');
+    heart.className = 'floating-heart';
+    heart.textContent = '❤️';
+    heart.style.left = Math.random() * 100 + '%';
+    heart.style.animationDuration = (Math.random() * 3 + 4) + 's';
+    heart.style.fontSize = (Math.random() * 20 + 20) + 'px';
+    
+    container.appendChild(heart);
+    setTimeout(() => heart.remove(), 7000);
+}
+
+function updateCurrentDate() {
+    const dateEl = document.getElementById('currentDate');
+    if (!dateEl) return;
+    
+    const now = new Date();
+    dateEl.textContent = now.toLocaleDateString('tr-TR', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+}
+
+function loadBucketListPreview() {
+    const saved = localStorage.getItem('lovesite_bucketlist');
+    const items = saved ? JSON.parse(saved) : [];
+    
+    const container = document.getElementById('bucketListPreview');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    const previewItems = items.slice(0, 6);
+    
+    if (previewItems.length === 0) {
+        container.innerHTML = '<p style="text-align: center; opacity: 0.7;">Henüz hedef eklenmemiş</p>';
+        return;
+    }
+    
+    previewItems.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'bucket-item' + (item.completed ? ' completed' : '');
+        card.innerHTML = `
+            <span class="bucket-emoji">${item.emoji}</span>
+            <span class="bucket-text">${item.text}</span>
+            ${item.completed ? '<span class="bucket-check">✓</span>' : ''}
+        `;
+        container.appendChild(card);
+    });
+}
+
+window.nextImage = nextImage;
+window.previousImage = previousImage;
+window.showRandomMessage = showRandomMessage;
