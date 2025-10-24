@@ -85,15 +85,15 @@
         <div class="upload-section">
             <div class="upload-container">
                 <h3 class="upload-title">📷 Yeni Anı Ekle</h3>
-                <div class="upload-area" id="uploadArea">
-                    <div class="upload-emoji-btn" id="uploadEmojiBtn">
+                <input type="file" id="uploadInput" accept="image/*" capture="environment" multiple style="display: none;">
+                <label for="uploadInput" class="upload-area" id="uploadArea">
+                    <div class="upload-emoji-btn">
                         📸
                     </div>
                     <div class="upload-icon"></div>
                     <p class="upload-text">Fotoğraf yüklemek için tıklayın</p>
                     <p class="upload-hint">veya sürükle bırak</p>
-                    <input type="file" id="uploadInput" accept="image/*" capture="environment" multiple style="display: none;">
-                </div>
+                </label>
             </div>
         </div>
 

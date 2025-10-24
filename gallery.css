@@ -295,6 +295,15 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    /* Label için ekstra */
+    display: block;
+}
+
+label.upload-area {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .upload-area:hover,

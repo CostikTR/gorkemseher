@@ -270,86 +270,35 @@ window.addEventListener('focus', function() {
 function setupUploadHandlers() {
     const uploadInput = document.getElementById('uploadInput');
     const uploadArea = document.querySelector('.upload-area');
-    const uploadEmojiBtn = document.getElementById('uploadEmojiBtn');
     
-    // File input change
+    // File input change - tek gereken bu
     uploadInput.addEventListener('change', handleFileSelect);
     
-    // Emoji button - MOBİL UYUMLU
-    if (uploadEmojiBtn) {
-        let touchStarted = false;
-        
-        // Touch start - mobil için
-        uploadEmojiBtn.addEventListener('touchstart', (e) => {
-            e.stopPropagation();
-            touchStarted = true;
-            console.log('Touch started on emoji');
-        }, { passive: true });
-        
-        // Touch end - dosya seçiciyi aç
-        uploadEmojiBtn.addEventListener('touchend', (e) => {
+    // Drag and drop için event'ler (desktop)
+    if (uploadArea) {
+        uploadArea.addEventListener('dragover', (e) => {
             e.preventDefault();
-            e.stopPropagation();
-            if (touchStarted) {
-                console.log('Opening file picker from touch');
-                // Kısa gecikme ile dosya seçiciyi aç (mobil uyumluluk için)
-                setTimeout(() => {
-                    uploadInput.click();
-                }, 100);
-                touchStarted = false;
+            uploadArea.style.borderColor = 'rgba(255, 255, 255, 0.6)';
+            uploadArea.style.background = 'rgba(255, 255, 255, 0.15)';
+        });
+        
+        uploadArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+            uploadArea.style.background = 'rgba(255, 255, 255, 0.05)';
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+            uploadArea.style.background = 'rgba(255, 255, 255, 0.05)';
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFiles(files);
             }
-        }, { passive: false });
-        
-        // Desktop için normal click
-        uploadEmojiBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log('Opening file picker from click');
-            uploadInput.click();
         });
     }
-    
-    // Upload area click/touch - mobil uyumlu
-    uploadArea.addEventListener('click', (e) => {
-        if (e.target === uploadEmojiBtn || e.target.closest('.upload-emoji-btn')) return;
-        e.preventDefault();
-        console.log('Upload area clicked!');
-        uploadInput.click();
-    });
-    
-    // Touch event support for mobile
-    uploadArea.addEventListener('touchend', (e) => {
-        if (e.target === uploadEmojiBtn || e.target.closest('.upload-emoji-btn')) return;
-        e.preventDefault();
-        console.log('Upload area touched!');
-        setTimeout(() => {
-            uploadInput.click();
-        }, 100);
-    }, { passive: false });
-    
-    // Drag and drop
-    uploadArea.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        uploadArea.style.borderColor = 'rgba(255, 255, 255, 0.6)';
-        uploadArea.style.background = 'rgba(255, 255, 255, 0.15)';
-    });
-    
-    uploadArea.addEventListener('dragleave', (e) => {
-        e.preventDefault();
-        uploadArea.style.borderColor = 'rgba(255, 255, 255, 0.3)';
-        uploadArea.style.background = 'rgba(255, 255, 255, 0.05)';
-    });
-    
-    uploadArea.addEventListener('drop', (e) => {
-        e.preventDefault();
-        uploadArea.style.borderColor = 'rgba(255, 255, 255, 0.3)';
-        uploadArea.style.background = 'rgba(255, 255, 255, 0.05)';
-        
-        const files = e.dataTransfer.files;
-        if (files.length > 0) {
-            handleFiles(files);
-        }
-    });
 }
 
 // Handle file selection
