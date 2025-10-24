@@ -314,6 +314,54 @@
     animation: pulse 2s ease-in-out infinite;
 }
 
+.upload-emoji-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 5em;
+    cursor: pointer;
+    z-index: 1002;
+    background: linear-gradient(135deg, rgba(255, 20, 147, 0.3), rgba(255, 105, 180, 0.3));
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 32px rgba(255, 20, 147, 0.4);
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    animation: floatUpload 3s ease-in-out infinite;
+}
+
+.upload-emoji-btn:hover {
+    transform: translate(-50%, -50%) scale(1.1);
+    box-shadow: 0 12px 40px rgba(255, 20, 147, 0.6);
+    background: linear-gradient(135deg, rgba(255, 20, 147, 0.5), rgba(255, 105, 180, 0.5));
+}
+
+.upload-emoji-btn:active {
+    transform: translate(-50%, -50%) scale(0.95);
+}
+
+@keyframes floatUpload {
+    0%, 100% { 
+        transform: translate(-50%, -50%) translateY(0px); 
+    }
+    50% { 
+        transform: translate(-50%, -50%) translateY(-10px); 
+    }
+}
+
+@media (max-width: 480px) {
+    .upload-emoji-btn {
+        width: 100px;
+        height: 100px;
+        font-size: 4em;
+    }
+}
+
 .upload-text {
     font-size: 1.2em;
     font-weight: 600;
