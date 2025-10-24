@@ -280,12 +280,32 @@
     cursor: pointer;
     transition: all 0.3s ease;
     background: rgba(255, 255, 255, 0.05);
+    position: relative;
+    z-index: 10;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
-.upload-area:hover {
-    border-color: rgba(255, 255, 255, 0.5);
-    background: rgba(255, 255, 255, 0.1);
+.upload-area:hover,
+.upload-area:active {
+    border-color: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.15);
     transform: translateY(-3px);
+}
+
+@media (max-width: 768px) {
+    .upload-area {
+        padding: 60px 30px;
+        min-height: 220px;
+        border-width: 4px;
+    }
 }
 
 .upload-icon {

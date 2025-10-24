@@ -6,7 +6,13 @@
     <title>🌈 Birlikte Yapacaklarımız</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="bucket-list.css">
+    <link rel="stylesheet" href="navigation.css">
     <link rel="stylesheet" href="theme-switcher.css">
+    <style>
+        body {
+            padding-bottom: 80px;
+        }
+    </style>
 </head>
 <body>
     <div class="hearts-container"></div>
@@ -15,26 +21,6 @@
     <script>if (!checkAuth()) window.location.href = 'login.html';</script>
 
     <div class="bucket-wrapper">
-        <!-- Navigation -->
-        <nav class="floating-nav">
-            <button onclick="window.location.href='index.html'" class="nav-item">
-                <span class="nav-icon">🏠</span>
-                <span class="nav-text">Ana Sayfa</span>
-            </button>
-            <button onclick="window.location.href='gallery.html'" class="nav-item">
-                <span class="nav-icon">📸</span>
-                <span class="nav-text">Galeri</span>
-            </button>
-            <button onclick="window.location.href='admin.html'" class="nav-item">
-                <span class="nav-icon">⚙️</span>
-                <span class="nav-text">Yönetim</span>
-            </button>
-            <button onclick="logout()" class="nav-item">
-                <span class="nav-icon">🚪</span>
-                <span class="nav-text">Çıkış</span>
-            </button>
-        </nav>
-
         <!-- Hero Section -->
         <div class="bucket-hero">
             <div class="hero-bg"></div>
@@ -150,5 +136,29 @@
     <script src="theme-switcher.js"></script>
     <script src="bucket-list.js"></script>
     <script src="script.js"></script>
+    
+    <!-- Bottom Navigation -->
+    <nav class="floating-nav">
+        <button onclick="window.location.href='index.html'" class="nav-item">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-text">Ana Sayfa</span>
+        </button>
+        <button onclick="window.location.href='gallery.html'" class="nav-item">
+            <span class="nav-icon">📸</span>
+            <span class="nav-text">Galeri</span>
+        </button>
+        <button onclick="window.location.href='bucket-list.html'" class="nav-item active">
+            <span class="nav-icon">🌈</span>
+            <span class="nav-text">Hedefler</span>
+        </button>
+        <button onclick="window.location.href='admin.html'" class="nav-item">
+            <span class="nav-icon">⚙️</span>
+            <span class="nav-text">Ayarlar</span>
+        </button>
+        <button onclick="logout()" class="nav-item">
+            <span class="nav-icon">🚪</span>
+            <span class="nav-text">Çıkış</span>
+        </button>
+    </nav>
 </body>
 </html>

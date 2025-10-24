@@ -11,6 +11,9 @@ body {
     min-height: 100vh;
     color: #fff;
     overflow-x: hidden;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 /* Kalp Animasyonları */
@@ -655,8 +658,20 @@ footer {
 }
 
 @media (max-width: 480px) {
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        font-size: 16px;
+    }
+    
     .main-title {
         font-size: 2em;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+        line-height: 1.2;
+    }
+    
+    .subtitle {
+        font-size: 1.1em;
+        line-height: 1.4;
     }
     
     .time-counter {
@@ -666,5 +681,51 @@ footer {
     .profile-photo {
         width: 120px;
         height: 120px;
+    }
+    
+    /* Daha iyi okunabilirlik */
+    .card, .feature-card, .admin-section {
+        background: rgba(255, 255, 255, 0.15) !important;
+        backdrop-filter: blur(15px);
+        padding: 20px !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+    }
+    
+    /* Yazı kontrastı artır */
+    h1, h2, h3, h4, h5, h6 {
+        text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.5);
+        color: #ffffff;
+    }
+    
+    p, span, label {
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
+    }
+    
+    /* Buton boyutları */
+    button, .btn, a.btn {
+        min-height: 48px;
+        padding: 12px 24px;
+        font-size: 16px;
+        font-weight: 600;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* Input alanları */
+    input, textarea, select {
+        font-size: 16px;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.25) !important;
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    input::placeholder, textarea::placeholder {
+        color: rgba(255, 255, 255, 0.7);
+        font-weight: 500;
+    }
+    
+    /* Container padding */
+    .container {
+        padding: 20px 15px;
     }
 }

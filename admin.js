@@ -25,24 +25,54 @@ document.addEventListener('DOMContentLoaded', async function() {
 // Tarihleri yükle (Firebase'den)
 async function loadDates() {
     try {
+        // Önce Firebase'den dene
         const datesData = await firebaseSync.getData('dates', 'main');
+        let dates = null;
+        
         if (datesData && datesData.data) {
-            const dates = datesData.data;
+            dates = datesData.data;
+        } else {
+            // Firebase'de yoksa localStorage'dan al
+            const savedDates = localStorage.getItem(STORAGE_KEYS.DATES);
+            dates = savedDates ? JSON.parse(savedDates) : {};
+        }
         
         if (dates.firstMeet) {
-            document.getElementById('firstMeet').value = dates.firstMeet.date;
+            document.getElementById('firstMeet').value = dates.firstMeet.date || '';
             document.getElementById('firstMeetDesc').value = dates.firstMeet.desc || '';
         }
         if (dates.relationship) {
-            document.getElementById('relationship').value = dates.relationship.date;
+            document.getElementById('relationship').value = dates.relationship.date || '';
             document.getElementById('relationshipDesc').value = dates.relationship.desc || '';
         }
         if (dates.firstKiss) {
-            document.getElementById('firstKiss').value = dates.firstKiss.date;
+            document.getElementById('firstKiss').value = dates.firstKiss.date || '';
             document.getElementById('firstKissDesc').value = dates.firstKiss.desc || '';
         }
         if (dates.specialDay) {
-            document.getElementById('specialDay').value = dates.specialDay.date;
+            document.getElementById('specialDay').value = dates.specialDay.date || '';
+            document.getElementById('specialDayDesc').value = dates.specialDay.desc || '';
+        }
+    } catch (error) {
+        console.error('Tarih yükleme hatası:', error);
+        // Hata durumunda localStorage'dan yükle
+        const savedDates = localStorage.getItem(STORAGE_KEYS.DATES);
+        const dates = savedDates ? JSON.parse(savedDates) : {};
+        
+        if (dates.firstMeet) {
+            document.getElementById('firstMeet').value = dates.firstMeet.date || '';
+            document.getElementById('firstMeetDesc').value = dates.firstMeet.desc || '';
+        }
+        if (dates.relationship) {
+            document.getElementById('relationship').value = dates.relationship.date || '';
+            document.getElementById('relationshipDesc').value = dates.relationship.desc || '';
+        }
+        if (dates.firstKiss) {
+            document.getElementById('firstKiss').value = dates.firstKiss.date || '';
+            document.getElementById('firstKissDesc').value = dates.firstKiss.desc || '';
+        }
+        if (dates.specialDay) {
+            document.getElementById('specialDay').value = dates.specialDay.date || '';
             document.getElementById('specialDayDesc').value = dates.specialDay.desc || '';
         }
     }
