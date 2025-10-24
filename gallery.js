@@ -571,3 +571,9 @@ function showNotification(message) {
         setTimeout(() => notification.remove(), 500);
     }, 3000);
 }
+
+// Global fonksiyonları window'a ekle
+window.confirmUpload = confirmUpload;
+window.closeUploadModal = closeUploadModal;
+window.switchFilter = switchFilter;
+window.deletePhoto = deletePhoto;

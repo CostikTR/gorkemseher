@@ -1,22 +1,24 @@
 // Service Worker - PWA Offline Desteği
 const CACHE_NAME = 'love-site-v1';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/gallery.html',
-  '/bucket-list.html',
-  '/chat.html',
-  '/admin.html',
-  '/login.html',
-  '/style.css',
-  '/gallery.css',
-  '/navigation.css',
-  '/script.js',
-  '/gallery.js',
-  '/auth.js',
-  '/firebase-config.js',
-  '/firebase-sync.js',
-  '/notification-system.js'
+  './',
+  './index.html',
+  './gallery.html',
+  './bucket-list.html',
+  './chat.html',
+  './admin.html',
+  './login.html',
+  './style.css',
+  './gallery.css',
+  './navigation.css',
+  './script.js',
+  './gallery.js',
+  './auth.js',
+  './firebase-config.js',
+  './firebase-sync.js',
+  './notification-system.js',
+  './pwa-installer.js',
+  './video-manager.js'
 ];
 
 // Install event - cache dosyaları
@@ -72,7 +74,7 @@ self.addEventListener('fetch', event => {
             }
             // Offline sayfası göster
             if (event.request.mode === 'navigate') {
-              return caches.match('/index.html');
+              return caches.match('./index.html');
             }
           });
       })
@@ -112,7 +114,7 @@ self.addEventListener('notificationclick', event => {
 
   if (event.action === 'open' || !event.action) {
     event.waitUntil(
-      clients.openWindow(event.notification.data || '/')
+      clients.openWindow(event.notification.data || './')
     );
   }
 });

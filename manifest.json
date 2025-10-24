@@ -2,12 +2,12 @@
   "name": "Bizim Hikayemiz 💕",
   "short_name": "Aşkımız",
   "description": "Bizim özel aşk hikayemiz - Sadece biz ikimizin alanı",
-  "start_url": "/index.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#667eea",
   "theme_color": "#764ba2",
   "orientation": "portrait-primary",
-  "scope": "/",
+  "scope": "./",
   "icons": [
     {
       "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23667eea'/><text x='50' y='70' font-size='60' text-anchor='middle'>💕</text></svg>",
@@ -29,7 +29,7 @@
       "name": "Galeri",
       "short_name": "Galeri",
       "description": "Fotoğraflarımıza bak",
-      "url": "/gallery.html",
+      "url": "./gallery.html",
       "icons": [
         {
           "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text x='50' y='70' font-size='60' text-anchor='middle'>📸</text></svg>",
@@ -41,7 +41,7 @@
       "name": "Mesajlar",
       "short_name": "Mesajlar",
       "description": "Mesajlaşmaya git",
-      "url": "/chat.html",
+      "url": "./chat.html",
       "icons": [
         {
           "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text x='50' y='70' font-size='60' text-anchor='middle'>💌</text></svg>",
@@ -53,7 +53,7 @@
       "name": "Hedefler",
       "short_name": "Hedefler",
       "description": "Bucket list'imize bak",
-      "url": "/bucket-list.html",
+      "url": "./bucket-list.html",
       "icons": [
         {
           "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text x='50' y='70' font-size='60' text-anchor='middle'>🌈</text></svg>",
@@ -63,7 +63,7 @@
     }
   ],
   "share_target": {
-    "action": "/gallery.html",
+    "action": "./gallery.html",
     "method": "POST",
     "enctype": "multipart/form-data",
     "params": {

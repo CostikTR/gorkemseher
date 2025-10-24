@@ -8,7 +8,7 @@ class PWAInstaller {
     init() {
         // Service Worker'ı kaydet
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/service-worker.js')
+            navigator.serviceWorker.register('./service-worker.js')
                 .then(registration => {
                     console.log('✅ Service Worker kayıtlı:', registration.scope);
                 })
@@ -56,11 +56,12 @@ class PWAInstaller {
         
         installBtn.onclick = () => this.promptInstall();
         
-        // Sadece login olmamışsa göster
-        const isLoggedIn = localStorage.getItem('loggedIn') || sessionStorage.getItem('loggedIn');
-        if (isLoggedIn === 'true') {
+        // Butonu ekle (eğer zaten yoksa)
+        if (!document.getElementById('pwa-install-btn')) {
             document.body.appendChild(installBtn);
         }
+        
+        console.log('✅ PWA Install butonu eklendi');
     }
     
     hideInstallButton() {
@@ -70,7 +71,44 @@ class PWAInstaller {
     
     async promptInstall() {
         if (!this.deferredPrompt) {
-            console.log('Install prompt mevcut değil');
+            console.log('⚠️ Install prompt mevcut değil - tarayıcı desteklemiyor veya zaten yüklü');
+            
+            // Alternatif mesaj göster
+            const message = document.createElement('div');
+            message.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 30px 40px;
+                border-radius: 20px;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                z-index: 99999;
+                text-align: center;
+                max-width: 400px;
+            `;
+            
+            message.innerHTML = `
+                <div style="font-size: 3em; margin-bottom: 15px;">📱</div>
+                <div style="font-size: 1.3em; font-weight: bold; margin-bottom: 10px;">
+                    Manuel Kurulum
+                </div>
+                <div style="font-size: 0.95em; line-height: 1.5;">
+                    <strong>Chrome/Edge:</strong> Adres çubuğundaki ⋮ → "Yükle"<br>
+                    <strong>Safari:</strong> Paylaş → "Ana Ekrana Ekle"<br>
+                    <strong>Firefox:</strong> ⋮ → "Ana Ekrana Ekle"
+                </div>
+                <button onclick="this.parentElement.remove()" 
+                    style="margin-top: 20px; padding: 10px 30px; background: white; 
+                    color: #667eea; border: none; border-radius: 20px; 
+                    font-weight: bold; cursor: pointer;">
+                    Anladım
+                </button>
+            `;
+            
+            document.body.appendChild(message);
             return;
         }
         
@@ -158,6 +196,13 @@ class PWAInstaller {
 // PWA Installer'ı başlat
 const pwaInstaller = new PWAInstaller();
 pwaInstaller.handleConnectionChange();
+
+// Manuel install butonu ekle (her zaman görünsün)
+setTimeout(() => {
+    if (!document.getElementById('pwa-install-btn') && !window.matchMedia('(display-mode: standalone)').matches) {
+        pwaInstaller.showInstallButton();
+    }
+}, 2000);
 
 // Animasyonlar
 const pwaStyles = document.createElement('style');
