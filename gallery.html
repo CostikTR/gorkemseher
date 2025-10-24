@@ -11,10 +11,17 @@
     <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
     <style>
         body {
-            padding-bottom: 90px;
+            padding-bottom: 90px !important;
+            margin-bottom: 0 !important;
         }
         .gallery-wrapper {
             padding-bottom: 20px;
+            margin-bottom: 0;
+        }
+        .floating-nav {
+            position: fixed !important;
+            bottom: 0 !important;
+            top: auto !important;
         }
     </style>
 </head>
@@ -78,8 +85,8 @@
         <div class="upload-section">
             <div class="upload-container">
                 <h3 class="upload-title">📷 Yeni Anı Ekle</h3>
-                <div class="upload-area" id="uploadArea" style="z-index: 1001;">
-                    <div class="upload-emoji-btn" onclick="document.getElementById('uploadInput').click()">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-emoji-btn" id="uploadEmojiBtn">
                         📸
                     </div>
                     <div class="upload-icon"></div>

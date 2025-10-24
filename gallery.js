@@ -270,21 +270,43 @@ window.addEventListener('focus', function() {
 function setupUploadHandlers() {
     const uploadInput = document.getElementById('uploadInput');
     const uploadArea = document.querySelector('.upload-area');
+    const uploadEmojiBtn = document.getElementById('uploadEmojiBtn');
     
     // File input change
     uploadInput.addEventListener('change', handleFileSelect);
     
+    // Emoji button click - EN ÖNCELİKLİ
+    if (uploadEmojiBtn) {
+        uploadEmojiBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Emoji button clicked!');
+            uploadInput.click();
+        });
+        
+        uploadEmojiBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Emoji button touched!');
+            uploadInput.click();
+        }, { passive: false });
+    }
+    
     // Upload area click/touch - mobil uyumlu
     uploadArea.addEventListener('click', (e) => {
+        if (e.target === uploadEmojiBtn) return;
         e.preventDefault();
+        console.log('Upload area clicked!');
         uploadInput.click();
     });
     
     // Touch event support for mobile
     uploadArea.addEventListener('touchend', (e) => {
+        if (e.target === uploadEmojiBtn) return;
         e.preventDefault();
+        console.log('Upload area touched!');
         uploadInput.click();
-    });
+    }, { passive: false });
     
     // Drag and drop
     uploadArea.addEventListener('dragover', (e) => {

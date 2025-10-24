@@ -254,6 +254,8 @@
     max-width: 1400px;
     margin: 0 auto 40px;
     animation: fadeInUp 1s ease-out 1s both;
+    position: relative;
+    z-index: 10;
 }
 
 .upload-container {
@@ -263,6 +265,8 @@
     border-radius: 20px;
     padding: 30px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 10;
 }
 
 .upload-title {
@@ -281,7 +285,7 @@
     transition: all 0.3s ease;
     background: rgba(255, 255, 255, 0.05);
     position: relative;
-    z-index: 10;
+    z-index: 100;
     -webkit-tap-highlight-color: transparent;
     user-select: none;
     -webkit-user-select: none;
@@ -321,7 +325,7 @@
     transform: translate(-50%, -50%);
     font-size: 5em;
     cursor: pointer;
-    z-index: 1002;
+    z-index: 101;
     background: linear-gradient(135deg, rgba(255, 20, 147, 0.3), rgba(255, 105, 180, 0.3));
     border-radius: 50%;
     width: 120px;
@@ -333,6 +337,10 @@
     box-shadow: 0 8px 32px rgba(255, 20, 147, 0.4);
     border: 3px solid rgba(255, 255, 255, 0.3);
     animation: floatUpload 3s ease-in-out infinite;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .upload-emoji-btn:hover {
@@ -343,6 +351,7 @@
 
 .upload-emoji-btn:active {
     transform: translate(-50%, -50%) scale(0.95);
+    box-shadow: 0 15px 50px rgba(255, 20, 147, 0.8);
 }
 
 @keyframes floatUpload {
@@ -359,6 +368,12 @@
         width: 100px;
         height: 100px;
         font-size: 4em;
+        animation: none;
+        transform: translate(-50%, -50%);
+    }
+    
+    .upload-emoji-btn:active {
+        transform: translate(-50%, -50%) scale(0.9);
     }
 }
 
