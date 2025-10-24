@@ -49,7 +49,7 @@ async function loadDates() {
 }
 
 // Tarih güncelle
-async function updateDate(dateType) {
+function updateDate(dateType) {
     const dateInput = document.getElementById(dateType).value;
     const descInput = document.getElementById(dateType + 'Desc').value;
     
@@ -66,14 +66,7 @@ async function updateDate(dateType) {
         desc: descInput
     };
     
-    // localStorage'a kaydet
     localStorage.setItem(STORAGE_KEYS.DATES, JSON.stringify(dates));
-    
-    // Firebase'e kaydet
-    if (window.firebaseSync) {
-        await window.firebaseSync.saveData('dates', 'main', { data: dates });
-        console.log('Tarih Firebase kayded');
-    }
     
     showSuccess('dateSuccess');
 }
@@ -109,7 +102,7 @@ function getDefaultMessages() {
 }
 
 // Yeni mesaj ekle
-async function addMessage() {
+function addMessage() {
     const newMessage = document.getElementById('newMessage').value.trim();
     
     if (!newMessage) {
@@ -122,11 +115,6 @@ async function addMessage() {
     
     messages.push(newMessage);
     localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(messages));
-    
-    // Firebase'e kaydet
-    if (window.firebaseSync) {
-        await window.firebaseSync.saveData('messages', 'list', { data: messages });
-    }
     
     document.getElementById('newMessage').value = '';
     loadMessages();
@@ -414,17 +402,3 @@ function restoreData(event) {
     
     event.target.value = '';
 }
-
-// Global fonksiyonları export et
-window.updateDate = updateDate;
-window.addMessage = addMessage;
-window.deleteMessage = deleteMessage;
-window.addPhoto = addPhoto;
-window.deletePhoto = deletePhoto;
-window.movePhotoUp = movePhotoUp;
-window.movePhotoDown = movePhotoDown;
-window.addBucketItem = addBucketItem;
-window.deleteBucketItem = deleteBucketItem;
-window.toggleBucketItem = toggleBucketItem;
-window.backupData = backupData;
-window.restoreData = restoreData;

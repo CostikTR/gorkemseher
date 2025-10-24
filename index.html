@@ -179,6 +179,23 @@
     </div>
 
     <script src="theme-switcher.js"></script>
+    <script type="module">
+        // Firebase Sync'i import et
+        import firebaseSync from './firebase-sync.js';
+        
+        // Global olarak erişilebilir yap
+        window.firebaseSync = firebaseSync;
+        
+        // localStorage'dan Firebase'e veri taşı (ilk seferlik)
+        const migrated = localStorage.getItem('firebase_migrated');
+        if (!migrated) {
+            console.log('🔄 Firebase migration başlatılıyor...');
+            firebaseSync.migrateFromLocalStorage().then(() => {
+                localStorage.setItem('firebase_migrated', 'true');
+                console.log('✅ Migration tamamlandı!');
+            });
+        }
+    </script>
     <script type="module" src="script.js"></script>
 </body>
 </html>
