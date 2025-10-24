@@ -134,7 +134,7 @@ async function addMessage() {
 }
 
 // Mesaj sil
-function deleteMessage(index) {
+async function deleteMessage(index) {
     if (!confirm('Bu mesajı silmek istediğinizden emin misiniz?')) {
         return;
     }
@@ -144,6 +144,11 @@ function deleteMessage(index) {
     
     messages.splice(index, 1);
     localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(messages));
+    
+    // Firebase'e kaydet
+    if (window.firebaseSync) {
+        await window.firebaseSync.saveData('messages', 'list', { data: messages });
+    }
     
     loadMessages();
 }
@@ -219,6 +224,12 @@ function handlePhotoUpload(event) {
             // Tüm dosyalar yüklendiğinde
             if (uploadCount === totalFiles) {
                 localStorage.setItem(STORAGE_KEYS.PHOTOS, JSON.stringify(photos));
+                
+                // Firebase'e kaydet
+                if (window.firebaseSync) {
+                    window.firebaseSync.saveData('photos', 'gallery', { data: photos });
+                }
+                
                 loadPhotos();
                 showSuccess('photoSuccess');
                 document.getElementById('photoCaption1').value = '';
@@ -261,6 +272,11 @@ function addPhotoUrl() {
     
     localStorage.setItem(STORAGE_KEYS.PHOTOS, JSON.stringify(photos));
     
+    // Firebase'e kaydet
+    if (window.firebaseSync) {
+        window.firebaseSync.saveData('photos', 'gallery', { data: photos });
+    }
+    
     document.getElementById('photoUrl').value = '';
     document.getElementById('photoCaption2').value = '';
     document.getElementById('photoCategory2').value = 'diğer';
@@ -270,7 +286,7 @@ function addPhotoUrl() {
 }
 
 // Fotoğraf sil
-function deletePhoto(index) {
+async function deletePhoto(index) {
     if (!confirm('Bu fotoğrafı silmek istediğinizden emin misiniz?')) {
         return;
     }
@@ -280,6 +296,11 @@ function deletePhoto(index) {
     
     photos.splice(index, 1);
     localStorage.setItem(STORAGE_KEYS.PHOTOS, JSON.stringify(photos));
+    
+    // Firebase'e kaydet
+    if (window.firebaseSync) {
+        await window.firebaseSync.saveData('photos', 'gallery', { data: photos });
+    }
     
     loadPhotos();
 }
@@ -317,7 +338,7 @@ function getDefaultBucket() {
 }
 
 // Bucket item ekle
-function addBucketItem() {
+async function addBucketItem() {
     const emoji = document.getElementById('newBucketEmoji').value.trim();
     const text = document.getElementById('newBucketText').value.trim();
     
@@ -332,6 +353,11 @@ function addBucketItem() {
     bucketItems.push({ emoji, text });
     localStorage.setItem(STORAGE_KEYS.BUCKET, JSON.stringify(bucketItems));
     
+    // Firebase'e kaydet
+    if (window.firebaseSync) {
+        await window.firebaseSync.saveData('bucketlist', 'items', { data: bucketItems });
+    }
+    
     document.getElementById('newBucketEmoji').value = '';
     document.getElementById('newBucketText').value = '';
     
@@ -340,7 +366,7 @@ function addBucketItem() {
 }
 
 // Bucket item sil
-function deleteBucketItem(index) {
+async function deleteBucketItem(index) {
     if (!confirm('Bu etkinliği silmek istediğinizden emin misiniz?')) {
         return;
     }
@@ -350,6 +376,11 @@ function deleteBucketItem(index) {
     
     bucketItems.splice(index, 1);
     localStorage.setItem(STORAGE_KEYS.BUCKET, JSON.stringify(bucketItems));
+    
+    // Firebase'e kaydet
+    if (window.firebaseSync) {
+        await window.firebaseSync.saveData('bucketlist', 'items', { data: bucketItems });
+    }
     
     loadBucketList();
 }
