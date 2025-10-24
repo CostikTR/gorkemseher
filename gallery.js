@@ -275,26 +275,43 @@ function setupUploadHandlers() {
     // File input change
     uploadInput.addEventListener('change', handleFileSelect);
     
-    // Emoji button click - EN ÖNCELİKLİ
+    // Emoji button - MOBİL UYUMLU
     if (uploadEmojiBtn) {
-        uploadEmojiBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log('Emoji button clicked!');
-            uploadInput.click();
-        });
+        let touchStarted = false;
         
+        // Touch start - mobil için
+        uploadEmojiBtn.addEventListener('touchstart', (e) => {
+            e.stopPropagation();
+            touchStarted = true;
+            console.log('Touch started on emoji');
+        }, { passive: true });
+        
+        // Touch end - dosya seçiciyi aç
         uploadEmojiBtn.addEventListener('touchend', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            console.log('Emoji button touched!');
-            uploadInput.click();
+            if (touchStarted) {
+                console.log('Opening file picker from touch');
+                // Kısa gecikme ile dosya seçiciyi aç (mobil uyumluluk için)
+                setTimeout(() => {
+                    uploadInput.click();
+                }, 100);
+                touchStarted = false;
+            }
         }, { passive: false });
+        
+        // Desktop için normal click
+        uploadEmojiBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Opening file picker from click');
+            uploadInput.click();
+        });
     }
     
     // Upload area click/touch - mobil uyumlu
     uploadArea.addEventListener('click', (e) => {
-        if (e.target === uploadEmojiBtn) return;
+        if (e.target === uploadEmojiBtn || e.target.closest('.upload-emoji-btn')) return;
         e.preventDefault();
         console.log('Upload area clicked!');
         uploadInput.click();
@@ -302,10 +319,12 @@ function setupUploadHandlers() {
     
     // Touch event support for mobile
     uploadArea.addEventListener('touchend', (e) => {
-        if (e.target === uploadEmojiBtn) return;
+        if (e.target === uploadEmojiBtn || e.target.closest('.upload-emoji-btn')) return;
         e.preventDefault();
         console.log('Upload area touched!');
-        uploadInput.click();
+        setTimeout(() => {
+            uploadInput.click();
+        }, 100);
     }, { passive: false });
     
     // Drag and drop

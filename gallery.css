@@ -370,10 +370,14 @@
         font-size: 4em;
         animation: none;
         transform: translate(-50%, -50%);
+        pointer-events: auto;
+        -webkit-touch-callout: none;
+        will-change: transform;
     }
     
     .upload-emoji-btn:active {
         transform: translate(-50%, -50%) scale(0.9);
+        background: linear-gradient(135deg, rgba(255, 20, 147, 0.6), rgba(255, 105, 180, 0.6));
     }
 }
 
