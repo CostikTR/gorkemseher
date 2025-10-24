@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎁 Hediye Listemiz</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="theme-switcher.css">
+    <link rel="stylesheet" href="navigation.css">
+    <link rel="stylesheet" href="gifts.css">
+</head>
+<body>
+    <div class="gifts-wrapper">
+        <nav class="floating-nav">
+            <a href="index.html" class="nav-item">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-text">Ana Sayfa</span>
+            </a>
+            <a href="stats.html" class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">İstatistikler</span>
+            </a>
+            <a href="quiz.html" class="nav-item">
+                <span class="nav-icon">🎯</span>
+                <span class="nav-text">Quiz</span>
+            </a>
+            <a href="chat.html" class="nav-item">
+                <span class="nav-icon">💌</span>
+                <span class="nav-text">Mesajlar</span>
+            </a>
+            <a href="playlist.html" class="nav-item">
+                <span class="nav-icon">🎵</span>
+                <span class="nav-text">Müzik</span>
+            </a>
+            <a href="reminders.html" class="nav-item">
+                <span class="nav-icon">📅</span>
+                <span class="nav-text">Günler</span>
+            </a>
+            <a href="gallery.html" class="nav-item">
+                <span class="nav-icon">📸</span>
+                <span class="nav-text">Galeri</span>
+            </a>
+            <button onclick="logout()" class="nav-item">
+                <span class="nav-icon">🚪</span>
+                <span class="nav-text">Çıkış</span>
+            </button>
+        </nav>
+
+        <div class="gifts-header">
+            <h1>🎁 Hediye Listemiz</h1>
+            <p class="subtitle">Birbirimize almak istediğimiz hediyeler</p>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <span class="stat-icon">🎁</span>
+                    <span class="stat-value" id="total-gifts">0</span>
+                    <span class="stat-label">Toplam</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-icon">✓</span>
+                    <span class="stat-value" id="bought-gifts">0</span>
+                    <span class="stat-label">Alındı</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-icon">💰</span>
+                    <span class="stat-value" id="total-price">0₺</span>
+                    <span class="stat-label">Toplam</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="add-gift-section">
+            <h2>➕ Yeni Hediye Ekle</h2>
+            <form id="add-gift-form">
+                <input type="text" id="gift-name" placeholder="🎁 Hediye adı" required>
+                <input type="text" id="gift-for" placeholder="👤 Kime? (Ben/Sen)" required>
+                <input type="number" id="gift-price" placeholder="💰 Fiyat (₺)" min="0" step="0.01">
+                <select id="gift-priority">
+                    <option value="low">⭐ Düşük Öncelik</option>
+                    <option value="medium" selected>⭐⭐ Orta Öncelik</option>
+                    <option value="high">⭐⭐⭐ Yüksek Öncelik</option>
+                </select>
+                <textarea id="gift-note" placeholder="📝 Not (opsiyonel)" rows="2"></textarea>
+                <button type="submit" class="add-btn">➕ Hediye Ekle</button>
+            </form>
+        </div>
+
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">📦 Tümü</button>
+            <button class="filter-btn" data-filter="pending">⏳ Bekleyenler</button>
+            <button class="filter-btn" data-filter="bought">✓ Alınanlar</button>
+        </div>
+
+        <div class="gifts-grid" id="gifts-grid"></div>
+    </div>
+
+    <script src="theme-switcher.js"></script>
+    <script src="gifts.js"></script>
+    <script src="auth.js"></script>
+</body>
+</html>

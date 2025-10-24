@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎵 Müzik Listemiz</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="theme-switcher.css">
+    <link rel="stylesheet" href="navigation.css">
+    <link rel="stylesheet" href="playlist.css">
+</head>
+<body>
+    <div class="playlist-wrapper">
+        <!-- Navigation -->
+        <nav class="floating-nav">
+            <a href="index.html" class="nav-item">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-text">Ana Sayfa</span>
+            </a>
+            <a href="stats.html" class="nav-item">
+                <span class="nav-icon">�</span>
+                <span class="nav-text">İstatistikler</span>
+            </a>
+            <a href="quiz.html" class="nav-item">
+                <span class="nav-icon">🎯</span>
+                <span class="nav-text">Quiz</span>
+            </a>
+            <a href="chat.html" class="nav-item">
+                <span class="nav-icon">💌</span>
+                <span class="nav-text">Mesajlar</span>
+            </a>
+            <a href="gifts.html" class="nav-item">
+                <span class="nav-icon">🎁</span>
+                <span class="nav-text">Hediyeler</span>
+            </a>
+            <a href="reminders.html" class="nav-item">
+                <span class="nav-icon">📅</span>
+                <span class="nav-text">Günler</span>
+            </a>
+            <a href="gallery.html" class="nav-item">
+                <span class="nav-icon">📸</span>
+                <span class="nav-text">Galeri</span>
+            </a>
+            <button onclick="logout()" class="nav-item">
+                <span class="nav-icon">🚪</span>
+                <span class="nav-text">Çıkış</span>
+            </button>
+        </nav>
+
+        <!-- Header -->
+        <div class="playlist-header">
+            <h1>🎵 Müzik Listemiz</h1>
+            <p class="playlist-subtitle">Bizim için özel şarkılar</p>
+            <div class="playlist-stats">
+                <div class="stat-item">
+                    <span class="stat-icon">🎵</span>
+                    <span class="stat-value" id="total-songs">0</span>
+                    <span class="stat-label">Şarkı</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon">⭐</span>
+                    <span class="stat-value" id="favorite-songs">0</span>
+                    <span class="stat-label">Favori</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Song Form -->
+        <div class="add-song-section">
+            <h2>➕ Yeni Şarkı Ekle</h2>
+            <form id="add-song-form">
+                <div class="form-group">
+                    <label>🎤 Şarkı Adı</label>
+                    <input type="text" id="song-title" placeholder="Örn: Şarkının Sözleri Var" required>
+                </div>
+                <div class="form-group">
+                    <label>👨‍🎤 Sanatçı</label>
+                    <input type="text" id="song-artist" placeholder="Örn: Şarkıcı Adı" required>
+                </div>
+                <div class="form-group">
+                    <label>🔗 YouTube Video ID</label>
+                    <input type="text" id="song-youtube" placeholder="Örn: dQw4w9WgXcQ" required>
+                    <small>YouTube URL'den video ID'yi kopyalayın (youtube.com/watch?v=<strong>VIDEO_ID</strong>)</small>
+                </div>
+                <div class="form-group">
+                    <label>💭 Neden Özel?</label>
+                    <textarea id="song-note" placeholder="Bu şarkı bizim için neden özel?" rows="3"></textarea>
+                </div>
+                <button type="submit" class="add-btn">➕ Şarkı Ekle</button>
+            </form>
+        </div>
+
+        <!-- Filter Buttons -->
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">📀 Tümü</button>
+            <button class="filter-btn" data-filter="favorites">⭐ Favoriler</button>
+        </div>
+
+        <!-- Current Playing -->
+        <div class="now-playing" id="now-playing" style="display: none;">
+            <div class="now-playing-header">
+                <h3>▶️ Şimdi Çalıyor</h3>
+                <button class="close-player-btn" id="close-player">✕</button>
+            </div>
+            <div class="video-wrapper">
+                <div id="youtube-player"></div>
+            </div>
+            <div class="now-playing-info">
+                <h4 id="playing-title"></h4>
+                <p id="playing-artist"></p>
+            </div>
+        </div>
+
+        <!-- Playlist Grid -->
+        <div class="playlist-grid" id="playlist-grid">
+            <!-- Songs will be dynamically added -->
+        </div>
+    </div>
+
+    <!-- YouTube IFrame API -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script src="theme-switcher.js"></script>
+    <script src="playlist.js"></script>
+    <script src="auth.js"></script>
+</body>
+</html>

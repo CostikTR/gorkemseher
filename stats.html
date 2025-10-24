@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 İlişki İstatistikleri</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="theme-switcher.css">
+    <link rel="stylesheet" href="navigation.css">
+    <link rel="stylesheet" href="stats.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="hearts-container"></div>
+
+    <script src="auth.js"></script>
+    <script>if (!checkAuth()) window.location.href = 'login.html';</script>
+
+    <div class="stats-wrapper">
+        <!-- Navigation -->
+        <nav class="floating-nav">
+            <a href="index.html" class="nav-item">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-text">Ana Sayfa</span>
+            </a>
+            <a href="quiz.html" class="nav-item">
+                <span class="nav-icon">🎯</span>
+                <span class="nav-text">Quiz</span>
+            </a>
+            <a href="chat.html" class="nav-item">
+                <span class="nav-icon">💌</span>
+                <span class="nav-text">Mesajlar</span>
+            </a>
+            <a href="playlist.html" class="nav-item">
+                <span class="nav-icon">🎵</span>
+                <span class="nav-text">Müzik</span>
+            </a>
+            <a href="gifts.html" class="nav-item">
+                <span class="nav-icon">🎁</span>
+                <span class="nav-text">Hediyeler</span>
+            </a>
+            <a href="reminders.html" class="nav-item">
+                <span class="nav-icon">�</span>
+                <span class="nav-text">Günler</span>
+            </a>
+            <a href="gallery.html" class="nav-item">
+                <span class="nav-icon">📸</span>
+                <span class="nav-text">Galeri</span>
+            </a>
+            <a href="bucket-list.html" class="nav-item">
+                <span class="nav-icon">🌈</span>
+                <span class="nav-text">Hedefler</span>
+            </a>
+            <button onclick="logout()" class="nav-item">
+                <span class="nav-icon">🚪</span>
+                <span class="nav-text">Çıkış</span>
+            </button>
+        </nav>
+
+        <!-- Hero Section -->
+        <div class="stats-hero">
+            <h1 class="hero-title">
+                <span class="icon">📊</span>
+                <span>İlişki İstatistiklerimiz</span>
+            </h1>
+            <p class="hero-subtitle">Birlikte geçirdiğimiz zamanın analizi</p>
+        </div>
+
+        <!-- Main Stats Grid -->
+        <div class="stats-container">
+            <!-- Time Together Card -->
+            <div class="stat-card large">
+                <div class="card-header">
+                    <h3>⏰ Birlikte Geçirdiğimiz Zaman</h3>
+                </div>
+                <div class="card-body">
+                    <div class="big-number" id="totalDays">0</div>
+                    <div class="big-label">Gün</div>
+                    <div class="time-breakdown">
+                        <div class="time-item">
+                            <span class="time-value" id="totalHours">0</span>
+                            <span class="time-label">Saat</span>
+                        </div>
+                        <div class="time-item">
+                            <span class="time-value" id="totalMinutes">0</span>
+                            <span class="time-label">Dakika</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Photos Stats -->
+            <div class="stat-card">
+                <div class="card-header">
+                    <h3>📸 Anılarımız</h3>
+                </div>
+                <div class="card-body">
+                    <div class="big-number" id="totalPhotos">0</div>
+                    <div class="big-label">Fotoğraf</div>
+                    <canvas id="photosChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Bucket List Stats -->
+            <div class="stat-card">
+                <div class="card-header">
+                    <h3>🌈 Hedeflerimiz</h3>
+                </div>
+                <div class="card-body">
+                    <div class="progress-circle" id="goalsProgress">
+                        <svg width="150" height="150">
+                            <circle class="progress-bg" cx="75" cy="75" r="65"></circle>
+                            <circle class="progress-bar" cx="75" cy="75" r="65" id="progressCircle"></circle>
+                        </svg>
+                        <div class="progress-text">
+                            <div class="progress-percentage" id="goalsPercentage">0%</div>
+                            <div class="progress-label">Tamamlandı</div>
+                        </div>
+                    </div>
+                    <div class="goals-summary">
+                        <div class="goal-stat">
+                            <span class="goal-icon">✅</span>
+                            <span class="goal-count" id="completedGoals">0</span>
+                            <span class="goal-label">Tamamlanan</span>
+                        </div>
+                        <div class="goal-stat">
+                            <span class="goal-icon">⏳</span>
+                            <span class="goal-count" id="pendingGoals">0</span>
+                            <span class="goal-label">Devam Eden</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline Chart -->
+            <div class="stat-card full-width">
+                <div class="card-header">
+                    <h3>📈 Aktivite Zaman Çizelgesi</h3>
+                </div>
+                <div class="card-body">
+                    <canvas id="timelineChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Category Distribution -->
+            <div class="stat-card">
+                <div class="card-header">
+                    <h3>🎯 Kategori Dağılımı</h3>
+                </div>
+                <div class="card-body">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Fun Facts -->
+            <div class="stat-card">
+                <div class="card-header">
+                    <h3>✨ İlginç Bilgiler</h3>
+                </div>
+                <div class="card-body">
+                    <div class="fun-facts" id="funFacts">
+                        <div class="fun-fact">
+                            <span class="fact-icon">💕</span>
+                            <span class="fact-text">Yükleniyor...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Milestones -->
+            <div class="stat-card full-width">
+                <div class="card-header">
+                    <h3>🎯 Kilometre Taşları</h3>
+                </div>
+                <div class="card-body">
+                    <div class="milestones" id="milestones">
+                        <!-- Will be populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="theme-switcher.js"></script>
+    <script src="stats.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📅 Özel Günlerimiz</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="theme-switcher.css">
+    <link rel="stylesheet" href="navigation.css">
+    <link rel="stylesheet" href="reminders.css">
+</head>
+<body>
+    <div class="reminders-wrapper">
+        <nav class="floating-nav">
+            <a href="index.html" class="nav-item">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-text">Ana Sayfa</span>
+            </a>
+            <a href="stats.html" class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">İstatistikler</span>
+            </a>
+            <a href="quiz.html" class="nav-item">
+                <span class="nav-icon">🎯</span>
+                <span class="nav-text">Quiz</span>
+            </a>
+            <a href="chat.html" class="nav-item">
+                <span class="nav-icon">💌</span>
+                <span class="nav-text">Mesajlar</span>
+            </a>
+            <a href="playlist.html" class="nav-item">
+                <span class="nav-icon">🎵</span>
+                <span class="nav-text">Müzik</span>
+            </a>
+            <a href="gifts.html" class="nav-item">
+                <span class="nav-icon">🎁</span>
+                <span class="nav-text">Hediyeler</span>
+            </a>
+            <a href="gallery.html" class="nav-item">
+                <span class="nav-icon">📸</span>
+                <span class="nav-text">Galeri</span>
+            </a>
+            <button onclick="logout()" class="nav-item">
+                <span class="nav-icon">🚪</span>
+                <span class="nav-text">Çıkış</span>
+            </button>
+        </nav>
+
+        <div class="reminders-header">
+            <h1>📅 Özel Günlerimiz</h1>
+            <p class="subtitle">Unutulması gereken değil, hatırlanması gereken günler</p>
+        </div>
+
+        <!-- Upcoming Events -->
+        <div class="upcoming-section">
+            <h2>⏰ Yaklaşan Özel Günler</h2>
+            <div class="upcoming-grid" id="upcoming-grid"></div>
+        </div>
+
+        <!-- Add Reminder Form -->
+        <div class="add-reminder-section">
+            <h2>➕ Yeni Özel Gün Ekle</h2>
+            <form id="add-reminder-form">
+                <input type="text" id="reminder-title" placeholder="🎉 Başlık (örn: Yıldönümümüz)" required>
+                <input type="date" id="reminder-date" required>
+                <select id="reminder-type">
+                    <option value="anniversary">💕 Yıldönümü</option>
+                    <option value="birthday">🎂 Doğum Günü</option>
+                    <option value="special">⭐ Özel Gün</option>
+                    <option value="vacation">✈️ Tatil/Gezi</option>
+                    <option value="other">📌 Diğer</option>
+                </select>
+                <textarea id="reminder-note" placeholder="📝 Not (opsiyonel)" rows="3"></textarea>
+                <label style="display: flex; align-items: center; gap: 10px; padding: 10px; cursor: pointer;">
+                    <input type="checkbox" id="reminder-recurring" style="width: 20px; height: 20px; cursor: pointer;">
+                    <span>🔄 Her yıl tekrarla (yıllık hatırlatma)</span>
+                </label>
+                <button type="submit" class="add-btn">➕ Hatırlatma Ekle</button>
+            </form>
+        </div>
+
+        <!-- All Reminders -->
+        <div class="all-reminders-section">
+            <h2>📋 Tüm Hatırlatmalar</h2>
+            <div class="filters">
+                <button class="filter-btn active" data-filter="all">📅 Tümü</button>
+                <button class="filter-btn" data-filter="upcoming">⏰ Yaklaşanlar</button>
+                <button class="filter-btn" data-filter="past">📚 Geçmişte</button>
+            </div>
+            <div class="reminders-list" id="reminders-list"></div>
+        </div>
+    </div>
+
+    <script src="theme-switcher.js"></script>
+    <script src="reminders.js"></script>
+    <script src="auth.js"></script>
+</body>
+</html>

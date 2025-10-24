@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✨ Özellik Durumu</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="theme-switcher.css">
+    <link rel="stylesheet" href="navigation.css">
+    <style>
+        .features-wrapper {
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .features-header {
+            text-align: center;
+            padding: 60px 20px 40px;
+            background: var(--glass-background);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 25px;
+            margin-bottom: 30px;
+        }
+
+        .features-header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: var(--glass-background);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .feature-card.used {
+            border: 2px solid #4ade80;
+        }
+
+        .feature-card.unused {
+            border: 2px solid #fbbf24;
+            animation: pulse-glow 2s infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.4); }
+            50% { box-shadow: 0 0 20px 10px rgba(251, 191, 36, 0); }
+        }
+
+        .feature-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .feature-icon {
+            font-size: 3em;
+        }
+
+        .feature-info h3 {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+
+        .feature-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .status-used {
+            background: rgba(74, 222, 128, 0.3);
+            border: 1px solid #4ade80;
+            color: #4ade80;
+        }
+
+        .status-unused {
+            background: rgba(251, 191, 36, 0.3);
+            border: 1px solid #fbbf24;
+            color: #fbbf24;
+        }
+
+        .feature-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.95em;
+        }
+
+        .stat-label {
+            opacity: 0.8;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            color: var(--primary-gradient-start);
+        }
+
+        .feature-description {
+            font-size: 0.95em;
+            line-height: 1.6;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .try-now-btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary-gradient-start), var(--primary-gradient-end));
+            color: white;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .try-now-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .summary-card {
+            background: var(--glass-background);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 25px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .summary-stats {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .summary-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .summary-stat-value {
+            font-size: 3em;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary-gradient-start), var(--primary-gradient-end));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .summary-stat-label {
+            font-size: 1.1em;
+            opacity: 0.8;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="hearts-container"></div>
+    
+    <script src="auth.js"></script>
+    <script>if (!checkAuth()) window.location.href = 'login.html';</script>
+
+    <div class="features-wrapper">
+        <nav class="floating-nav">
+            <a href="index.html" class="nav-item">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-text">Ana Sayfa</span>
+            </a>
+            <a href="stats.html" class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">İstatistikler</span>
+            </a>
+            <button onclick="logout()" class="nav-item">
+                <span class="nav-icon">🚪</span>
+                <span class="nav-text">Çıkış</span>
+            </button>
+        </nav>
+
+        <div class="features-header">
+            <h1>✨ Özellik Durumu</h1>
+            <p style="font-size: 1.2em; opacity: 0.8;">Hangi özellikleri kullandınız?</p>
+        </div>
+
+        <div class="summary-card">
+            <h2 style="font-size: 2em; margin-bottom: 10px;">📊 Genel Durum</h2>
+            <div class="summary-stats">
+                <div class="summary-stat">
+                    <div class="summary-stat-value" id="used-count">0</div>
+                    <div class="summary-stat-label">✅ Denendi</div>
+                </div>
+                <div class="summary-stat">
+                    <div class="summary-stat-value" id="unused-count">0</div>
+                    <div class="summary-stat-label">⚠️ Denenmedi</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="features-grid" id="features-grid"></div>
+    </div>
+
+    <script>
+        const features = [
+            {
+                id: 'quiz',
+                name: 'Quiz Oyunu',
+                icon: '🎯',
+                url: 'quiz.html',
+                storageKey: 'quizQuestions',
+                description: 'Birbirinizi ne kadar tanıdığınızı test edin! 3 zorluk seviyesi, zamanlayıcı, skor takibi.',
+                getStats: () => {
+                    const questions = JSON.parse(localStorage.getItem('quizQuestions') || '[]');
+                    const stats = JSON.parse(localStorage.getItem('quizStats') || '{}');
+                    return {
+                        'Toplam Soru': questions.length,
+                        'Oynama Sayısı': stats.totalPlays || 0,
+                        'En Yüksek Skor': stats.highScore || 0
+                    };
+                }
+            },
+            {
+                id: 'chat',
+                name: 'Mesaj Kutusu',
+                icon: '💌',
+                url: 'chat.html',
+                storageKey: 'chatMessages',
+                description: 'Birbirinize özel mesajlar gönderin! Emoji desteği, favoriler, düzenleme/silme özellikleri.',
+                getStats: () => {
+                    const messages = JSON.parse(localStorage.getItem('chatMessages') || '[]');
+                    const loved = messages.filter(m => m.loved).length;
+                    return {
+                        'Toplam Mesaj': messages.length,
+                        'Favoriler': loved,
+                        'Son Mesaj': messages.length > 0 ? 'Var' : 'Yok'
+                    };
+                }
+            },
+            {
+                id: 'playlist',
+                name: 'Müzik Playlist',
+                icon: '🎵',
+                url: 'playlist.html',
+                storageKey: 'playlist',
+                description: 'Özel şarkılarınızı ekleyin! YouTube entegrasyonu, favoriler, direkt çalma.',
+                getStats: () => {
+                    const songs = JSON.parse(localStorage.getItem('playlist') || '[]');
+                    const favorites = songs.filter(s => s.favorite).length;
+                    return {
+                        'Toplam Şarkı': songs.length,
+                        'Favoriler': favorites,
+                        'Son Ekleme': songs.length > 0 ? 'Var' : 'Yok'
+                    };
+                }
+            },
+            {
+                id: 'gifts',
+                name: 'Hediye Listesi',
+                icon: '🎁',
+                url: 'gifts.html',
+                storageKey: 'gifts',
+                description: 'Almak istediğiniz hediyeleri takip edin! Fiyat, öncelik, durum takibi.',
+                getStats: () => {
+                    const gifts = JSON.parse(localStorage.getItem('gifts') || '[]');
+                    const bought = gifts.filter(g => g.bought).length;
+                    const totalPrice = gifts.reduce((sum, g) => sum + (g.price || 0), 0);
+                    return {
+                        'Toplam Hediye': gifts.length,
+                        'Alınan': bought,
+                        'Toplam Fiyat': totalPrice.toFixed(2) + '₺'
+                    };
+                }
+            },
+            {
+                id: 'reminders',
+                name: 'Özel Günler',
+                icon: '📅',
+                url: 'reminders.html',
+                storageKey: 'reminders',
+                description: 'Özel günlerinizi unutmayın! Geri sayım, yıllık tekrar, yaklaşan günler.',
+                getStats: () => {
+                    const reminders = JSON.parse(localStorage.getItem('reminders') || '[]');
+                    const upcoming = reminders.filter(r => {
+                        const date = new Date(r.date);
+                        const today = new Date();
+                        const diff = Math.ceil((date - today) / (1000 * 60 * 60 * 24));
+                        return diff >= 0 && diff <= 30;
+                    }).length;
+                    return {
+                        'Toplam Gün': reminders.length,
+                        'Yaklaşan (30 gün)': upcoming,
+                        'Yıllık Tekrar': reminders.filter(r => r.recurring).length
+                    };
+                }
+            }
+        ];
+
+        function renderFeatures() {
+            const grid = document.getElementById('features-grid');
+            let usedCount = 0;
+            let unusedCount = 0;
+
+            grid.innerHTML = '';
+
+            features.forEach(feature => {
+                const data = localStorage.getItem(feature.storageKey);
+                const hasData = data && JSON.parse(data).length > 0;
+                const isUsed = hasData;
+
+                if (isUsed) usedCount++;
+                else unusedCount++;
+
+                const stats = feature.getStats();
+
+                const card = document.createElement('div');
+                card.className = `feature-card ${isUsed ? 'used' : 'unused'}`;
+                card.innerHTML = `
+                    <div class="feature-header">
+                        <div class="feature-icon">${feature.icon}</div>
+                        <div class="feature-info">
+                            <h3>${feature.name}</h3>
+                            <span class="feature-status ${isUsed ? 'status-used' : 'status-unused'}">
+                                ${isUsed ? '✅ Kullanılıyor' : '⚠️ Henüz Denenmedi'}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="feature-description">${feature.description}</div>
+
+                    <div class="feature-stats">
+                        ${Object.entries(stats).map(([label, value]) => `
+                            <div class="stat-row">
+                                <span class="stat-label">${label}:</span>
+                                <span class="stat-value">${value}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <button class="try-now-btn" onclick="window.location.href='${feature.url}'">
+                        ${isUsed ? '🔍 Görüntüle' : '🚀 Şimdi Dene'}
+                    </button>
+                `;
+
+                grid.appendChild(card);
+            });
+
+            // Update summary
+            document.getElementById('used-count').textContent = usedCount;
+            document.getElementById('unused-count').textContent = unusedCount;
+        }
+
+        document.addEventListener('DOMContentLoaded', renderFeatures);
+    </script>
+
+    <script src="theme-switcher.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

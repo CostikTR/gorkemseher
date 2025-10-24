@@ -1,0 +1,254 @@
+/* ==========================================
+   THEME SWITCHER - TEMA DEĞİŞTİRİCİ
+   ========================================== */
+
+/* Theme Variables */
+:root {
+    /* Default Theme - Romantic Pink */
+    --primary-gradient-start: #f093fb;
+    --primary-gradient-end: #f5576c;
+    --background-overlay: rgba(240, 147, 251, 0.1);
+    --accent-color: #f5576c;
+    --accent-light: rgba(245, 87, 108, 0.3);
+    --glass-background: rgba(255, 255, 255, 0.1);
+    --glass-border: rgba(255, 255, 255, 0.2);
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.9);
+    --success-color: #4ade80;
+    --warning-color: #fb923c;
+    --danger-color: #ef4444;
+}
+
+/* Classic Red Theme */
+[data-theme="red"] {
+    --primary-gradient-start: #ff0844;
+    --primary-gradient-end: #ffb199;
+    --background-overlay: rgba(255, 8, 68, 0.1);
+    --accent-color: #ff0844;
+    --accent-light: rgba(255, 8, 68, 0.3);
+}
+
+/* Modern Purple Theme */
+[data-theme="purple"] {
+    --primary-gradient-start: #667eea;
+    --primary-gradient-end: #764ba2;
+    --background-overlay: rgba(102, 126, 234, 0.1);
+    --accent-color: #764ba2;
+    --accent-light: rgba(118, 75, 162, 0.3);
+}
+
+/* Ocean Blue Theme */
+[data-theme="blue"] {
+    --primary-gradient-start: #4facfe;
+    --primary-gradient-end: #00f2fe;
+    --background-overlay: rgba(79, 172, 254, 0.1);
+    --accent-color: #00f2fe;
+    --accent-light: rgba(0, 242, 254, 0.3);
+}
+
+/* Sunset Orange Theme */
+[data-theme="orange"] {
+    --primary-gradient-start: #fa709a;
+    --primary-gradient-end: #fee140;
+    --background-overlay: rgba(250, 112, 154, 0.1);
+    --accent-color: #fa709a;
+    --accent-light: rgba(250, 112, 154, 0.3);
+}
+
+/* Dark Mode */
+[data-theme-mode="dark"] {
+    --glass-background: rgba(0, 0, 0, 0.4);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.8);
+}
+
+/* Light Mode */
+[data-theme-mode="light"] {
+    --glass-background: rgba(255, 255, 255, 0.3);
+    --glass-border: rgba(0, 0, 0, 0.1);
+    --text-primary: #1f2937;
+    --text-secondary: rgba(31, 41, 55, 0.8);
+}
+
+/* Theme Switcher Button */
+.theme-switcher {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.theme-toggle-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid var(--glass-border);
+    background: var(--glass-background);
+    backdrop-filter: blur(20px);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5em;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+}
+
+.theme-toggle-btn:hover {
+    transform: scale(1.1) rotate(15deg);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+}
+
+.theme-menu {
+    position: absolute;
+    top: 0;
+    right: 70px;
+    background: var(--glass-background);
+    backdrop-filter: blur(30px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 15px;
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 200px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    animation: slideInRight 0.3s ease-out;
+}
+
+.theme-menu.active {
+    display: flex;
+}
+
+.theme-menu-title {
+    font-weight: 700;
+    font-size: 0.9em;
+    opacity: 0.8;
+    margin-bottom: 5px;
+    color: var(--text-primary);
+}
+
+.theme-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+}
+
+.theme-option:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(-5px);
+}
+
+.theme-option.active {
+    border-color: var(--accent-color);
+    background: var(--accent-light);
+}
+
+.theme-color-dot {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.theme-color-dot.pink {
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+}
+
+.theme-color-dot.red {
+    background: linear-gradient(135deg, #ff0844, #ffb199);
+}
+
+.theme-color-dot.purple {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.theme-color-dot.blue {
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+}
+
+.theme-color-dot.orange {
+    background: linear-gradient(135deg, #fa709a, #fee140);
+}
+
+.theme-divider {
+    height: 1px;
+    background: var(--glass-border);
+    margin: 5px 0;
+}
+
+/* Mode Switch */
+.mode-switch {
+    display: flex;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 25px;
+    padding: 5px;
+    gap: 5px;
+}
+
+.mode-option {
+    flex: 1;
+    padding: 8px;
+    border-radius: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.85em;
+    color: var(--text-secondary);
+}
+
+.mode-option.active {
+    background: linear-gradient(135deg, var(--primary-gradient-start), var(--primary-gradient-end));
+    color: white;
+    box-shadow: 0 4px 15px var(--accent-light);
+}
+
+/* Animation */
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Theme Transition */
+* {
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .theme-switcher {
+        top: auto;
+        bottom: 80px;
+        right: 15px;
+    }
+    
+    .theme-menu {
+        right: auto;
+        left: -220px;
+        bottom: 0;
+    }
+    
+    .theme-toggle-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 1.3em;
+    }
+}

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 Çift Quizi</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="theme-switcher.css">
+    <link rel="stylesheet" href="navigation.css">
+    <link rel="stylesheet" href="quiz.css">
+</head>
+<body>
+    <div class="hearts-container"></div>
+    
+    <script src="auth.js"></script>
+    <script>if (!checkAuth()) window.location.href = 'login.html';</script>
+
+    <div class="quiz-wrapper">
+        <!-- Navigation -->
+        <nav class="floating-nav">
+            <a href="index.html" class="nav-item">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-text">Ana Sayfa</span>
+            </a>
+            <a href="stats.html" class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">İstatistikler</span>
+            </a>
+            <a href="chat.html" class="nav-item">
+                <span class="nav-icon">💌</span>
+                <span class="nav-text">Mesajlar</span>
+            </a>
+            <a href="playlist.html" class="nav-item">
+                <span class="nav-icon">🎵</span>
+                <span class="nav-text">Müzik</span>
+            </a>
+            <a href="gifts.html" class="nav-item">
+                <span class="nav-icon">🎁</span>
+                <span class="nav-text">Hediyeler</span>
+            </a>
+            <a href="reminders.html" class="nav-item">
+                <span class="nav-icon">📅</span>
+                <span class="nav-text">Günler</span>
+            </a>
+            <a href="bucket-list.html" class="nav-item">
+                <span class="nav-icon">🌈</span>
+                <span class="nav-text">Hedefler</span>
+            </a>
+            <a href="gallery.html" class="nav-item">
+                <span class="nav-icon">📸</span>
+                <span class="nav-text">Galeri</span>
+            </a>
+            <button onclick="logout()" class="nav-item">
+                <span class="nav-icon">🚪</span>
+                <span class="nav-text">Çıkış</span>
+            </button>
+        </nav>
+
+        <!-- Quiz Start Screen -->
+        <div id="start-screen" class="quiz-screen active">
+            <div class="quiz-hero">
+                <h1 class="quiz-title">
+                    <span class="icon">🎮</span>
+                    <span>Çift Quizi</span>
+                </h1>
+                <p class="quiz-subtitle">Birbirinizi ne kadar iyi tanıyorsunuz?</p>
+            </div>
+
+            <div class="quiz-stats-grid">
+                <div class="stat-box">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-value" id="totalQuestions">0</div>
+                    <div class="stat-label">Toplam Soru</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-icon">🏆</div>
+                    <div class="stat-value" id="highScore">0</div>
+                    <div class="stat-label">En Yüksek Skor</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-icon">⭐</div>
+                    <div class="stat-value" id="totalPlays">0</div>
+                    <div class="stat-label">Oynanma Sayısı</div>
+                </div>
+            </div>
+
+            <div class="difficulty-selection">
+                <h3>Zorluk Seviyesi Seç</h3>
+                <div class="difficulty-buttons">
+                    <button class="difficulty-btn easy" id="easy-btn">
+                        <span class="diff-icon">😊</span>
+                        <span>Kolay</span>
+                        <span class="diff-desc">5 Soru</span>
+                    </button>
+                    <button class="difficulty-btn medium" id="medium-btn">
+                        <span class="diff-icon">🤔</span>
+                        <span>Orta</span>
+                        <span class="diff-desc">10 Soru</span>
+                    </button>
+                    <button class="difficulty-btn hard" id="hard-btn">
+                        <span class="diff-icon">🔥</span>
+                        <span>Zor</span>
+                        <span class="diff-desc">15 Soru</span>
+                    </button>
+                </div>
+            </div>
+
+            <button class="manage-questions-btn" id="manage-btn">
+                ⚙️ Soruları Yönet
+            </button>
+        </div>
+
+        <!-- Quiz Game Screen -->
+        <div id="game-screen" class="quiz-screen">
+            <div class="quiz-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <div class="progress-text" id="progress-text">
+                    Soru 1 / 5
+                </div>
+            </div>
+
+            <div class="question-card">
+                <div class="question-number" id="question-number">Soru #1</div>
+                <h2 class="question-text" id="question-text">Soru yükleniyor...</h2>
+                
+                <div class="answers-grid" id="answers-grid">
+                    <!-- Answers will be inserted here -->
+                </div>
+
+                <div class="question-timer">
+                    <div class="timer-icon">⏱️</div>
+                    <div class="timer-value" id="timer-value">30</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Result Screen -->
+        <div id="result-screen" class="quiz-screen">
+            <div class="result-container">
+                <div class="result-animation">
+                    <div class="result-circle">🎉</div>
+                </div>
+                
+                <h2 class="result-title" id="result-title">Harika!</h2>
+                <p class="result-subtitle" id="result-subtitle">Quiz tamamlandı!</p>
+                
+                <div class="result-score">
+                    <div class="score-display">
+                        <span class="score-label">Skorunuz</span>
+                        <span class="score-value" id="score-value">0</span>
+                        <span class="score-max" id="score-max">/ 100</span>
+                    </div>
+                    
+                    <div class="score-percentage" id="score-percentage">0%</div>
+                </div>
+
+                <div class="result-stats">
+                    <div class="result-stat">
+                        <span class="stat-icon">✅</span>
+                        <span class="stat-text"><span id="correct-count">0</span> Doğru</span>
+                    </div>
+                    <div class="result-stat">
+                        <span class="stat-icon">❌</span>
+                        <span class="stat-text"><span id="wrong-count">0</span> Yanlış</span>
+                    </div>
+                    <div class="result-stat">
+                        <span class="stat-icon">⏱️</span>
+                        <span class="stat-text"><span id="time-spent">0</span>s</span>
+                    </div>
+                </div>
+
+                <div class="result-badge" id="result-badge">🏆</div>
+
+                <div class="result-buttons">
+                    <button class="result-btn primary" id="play-again-btn">🔄 Tekrar Oyna</button>
+                    <button class="result-btn secondary" id="new-difficulty-btn">🎯 Yeni Zorluk</button>
+                    <button class="result-btn secondary" id="edit-questions-btn">✏️ Soruları Düzenle</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Question Manager Screen -->
+        <div id="manager-screen" class="quiz-screen">
+            <div class="manager-header">
+                <h2>📝 Soru Yöneticisi</h2>
+                <button class="close-manager" id="close-manager">✕</button>
+            </div>
+
+            <div class="add-question-form" id="add-question-form">
+                <h3>Yeni Soru Ekle</h3>
+                <input type="text" id="new-question" placeholder="Soru metni..." required>
+                <input type="text" id="correct-answer" placeholder="Doğru cevap" required>
+                <input type="text" id="wrong-answer-1" placeholder="Yanlış cevap 1" required>
+                <input type="text" id="wrong-answer-2" placeholder="Yanlış cevap 2" required>
+                <input type="text" id="wrong-answer-3" placeholder="Yanlış cevap 3" required>
+                <button type="submit" class="add-question-btn">➕ Soru Ekle</button>
+            </div>
+
+            <div class="questions-list" id="questions-list">
+                <!-- Questions will be listed here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="theme-switcher.js"></script>
+    <script src="quiz.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

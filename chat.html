@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💌 Mesaj Kutumuz</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="theme-switcher.css">
+    <link rel="stylesheet" href="navigation.css">
+    <link rel="stylesheet" href="chat.css">
+</head>
+<body>
+    <div class="chat-wrapper">
+        <!-- Navigation -->
+        <nav class="floating-nav">
+            <a href="index.html" class="nav-item">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-text">Ana Sayfa</span>
+            </a>
+            <a href="stats.html" class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">İstatistikler</span>
+            </a>
+            <a href="quiz.html" class="nav-item">
+                <span class="nav-icon">🎯</span>
+                <span class="nav-text">Quiz</span>
+            </a>
+            <a href="playlist.html" class="nav-item">
+                <span class="nav-icon">🎵</span>
+                <span class="nav-text">Müzik</span>
+            </a>
+            <a href="gifts.html" class="nav-item">
+                <span class="nav-icon">🎁</span>
+                <span class="nav-text">Hediyeler</span>
+            </a>
+            <a href="reminders.html" class="nav-item">
+                <span class="nav-icon">📅</span>
+                <span class="nav-text">Günler</span>
+            </a>
+            <a href="gallery.html" class="nav-item">
+                <span class="nav-icon">📸</span>
+                <span class="nav-text">Galeri</span>
+            </a>
+            <button onclick="logout()" class="nav-item">
+                <span class="nav-icon">🚪</span>
+                <span class="nav-text">Çıkış</span>
+            </button>
+        </nav>
+
+        <!-- Chat Header -->
+        <div class="chat-header">
+            <div class="chat-title">
+                <h1>💌 Mesaj Kutumuz</h1>
+                <p class="chat-subtitle">Birbirimize özel mesajlar</p>
+            </div>
+            <div class="chat-stats">
+                <div class="stat-badge">
+                    <span class="stat-icon">💌</span>
+                    <span class="stat-value" id="total-messages">0</span>
+                    <span class="stat-label">Mesaj</span>
+                </div>
+                <div class="stat-badge">
+                    <span class="stat-icon">❤️</span>
+                    <span class="stat-value" id="loved-messages">0</span>
+                    <span class="stat-label">Favoriler</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Buttons -->
+        <div class="chat-filters">
+            <button class="filter-btn active" data-filter="all">
+                📩 Tüm Mesajlar
+            </button>
+            <button class="filter-btn" data-filter="loved">
+                ❤️ Favoriler
+            </button>
+            <button class="filter-btn" data-filter="from-me">
+                📤 Benden
+            </button>
+            <button class="filter-btn" data-filter="to-me">
+                📥 Sana
+            </button>
+        </div>
+
+        <!-- Messages Container -->
+        <div class="messages-container" id="messages-container">
+            <!-- Messages will be dynamically added here -->
+        </div>
+
+        <!-- Message Input -->
+        <div class="message-input-container">
+            <div class="input-wrapper">
+                <button class="emoji-btn" id="emoji-btn">😊</button>
+                <textarea 
+                    id="message-input" 
+                    placeholder="Mesajını yaz..."
+                    rows="1"
+                    maxlength="500"
+                ></textarea>
+                <div class="char-counter">
+                    <span id="char-count">0</span>/500
+                </div>
+                <button class="send-btn" id="send-btn">
+                    ✉️ Gönder
+                </button>
+            </div>
+            
+            <!-- Emoji Picker -->
+            <div class="emoji-picker" id="emoji-picker">
+                <div class="emoji-category">
+                    <div class="emoji-category-title">Kalpler</div>
+                    <div class="emoji-grid">
+                        <button class="emoji">❤️</button>
+                        <button class="emoji">💕</button>
+                        <button class="emoji">💖</button>
+                        <button class="emoji">💗</button>
+                        <button class="emoji">💓</button>
+                        <button class="emoji">💞</button>
+                        <button class="emoji">💘</button>
+                        <button class="emoji">💝</button>
+                        <button class="emoji">💟</button>
+                        <button class="emoji">❣️</button>
+                    </div>
+                </div>
+                <div class="emoji-category">
+                    <div class="emoji-category-title">Yüzler</div>
+                    <div class="emoji-grid">
+                        <button class="emoji">😊</button>
+                        <button class="emoji">😍</button>
+                        <button class="emoji">🥰</button>
+                        <button class="emoji">😘</button>
+                        <button class="emoji">😚</button>
+                        <button class="emoji">🤗</button>
+                        <button class="emoji">🤭</button>
+                        <button class="emoji">😇</button>
+                        <button class="emoji">🥺</button>
+                        <button class="emoji">😢</button>
+                    </div>
+                </div>
+                <div class="emoji-category">
+                    <div class="emoji-category-title">Semboller</div>
+                    <div class="emoji-grid">
+                        <button class="emoji">🌹</button>
+                        <button class="emoji">🌺</button>
+                        <button class="emoji">🌸</button>
+                        <button class="emoji">💐</button>
+                        <button class="emoji">🎁</button>
+                        <button class="emoji">🎈</button>
+                        <button class="emoji">🎉</button>
+                        <button class="emoji">⭐</button>
+                        <button class="emoji">✨</button>
+                        <button class="emoji">🌟</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Modal -->
+        <div class="edit-modal" id="edit-modal">
+            <div class="edit-modal-content">
+                <div class="edit-modal-header">
+                    <h3>✏️ Mesajı Düzenle</h3>
+                    <button class="close-edit-btn" id="close-edit-btn">✕</button>
+                </div>
+                <textarea 
+                    id="edit-message-input"
+                    rows="4"
+                    maxlength="500"
+                ></textarea>
+                <div class="edit-modal-footer">
+                    <button class="cancel-edit-btn" id="cancel-edit-btn">İptal</button>
+                    <button class="save-edit-btn" id="save-edit-btn">💾 Kaydet</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="theme-switcher.js"></script>
+    <script src="chat.js"></script>
+    <script src="auth.js"></script>
+</body>
+</html>

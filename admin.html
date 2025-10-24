@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ayarlar - Bizim Hikayemiz 💕</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="theme-switcher.css">
+    <style>
+        .admin-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .admin-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .admin-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .admin-section h2 {
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 1em;
+            font-family: inherit;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .date-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .date-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .message-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .message-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .photo-upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .photo-upload-area:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .photo-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .photo-preview-item {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+        
+        .photo-preview-item:hover {
+            transform: scale(1.05);
+        }
+
+        .photo-preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-preview-item .delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(255, 0, 0, 0.8);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .photo-preview-item .delete-btn:hover {
+            background: rgba(255, 0, 0, 1);
+            transform: scale(1.1);
+        }
+
+        .success-message {
+            background: rgba(0, 255, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .nav-buttons {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .bucket-list-editor {
+            display: grid;
+            gap: 10px;
+        }
+
+        .bucket-item-edit {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .bucket-item-edit input {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>⚙️ Ayarlar ve Özelleştirme</h1>
+            <p>Anılarınızı ve mesajlarınızı buradan düzenleyebilirsiniz</p>
+        </div>
+
+        <div class="nav-buttons">
+            <button class="btn btn-primary" onclick="window.location.href='index.html'">🏠 Ana Sayfa</button>
+            <button class="btn btn-primary" onclick="window.location.href='bucket-list.html'">🌈 Hedefler</button>
+            <button class="btn btn-primary" onclick="window.location.href='gallery.html'">📸 Galeri</button>
+            <button class="btn btn-secondary" onclick="logout()">🚪 Çıkış Yap</button>
+        </div>
+
+        <!-- Özel Günler -->
+        <div class="admin-section">
+            <h2>📅 Özel Günler</h2>
+            <div class="date-list">
+                <div class="date-item">
+                    <div>
+                        <label>İlk Tanışma</label>
+                        <input type="date" id="firstMeet" class="form-control">
+                    </div>
+                    <div>
+                        <label>Açıklama</label>
+                        <input type="text" id="firstMeetDesc" placeholder="İlk tanışma günümüz" class="form-control">
+                    </div>
+                    <button class="btn btn-primary" onclick="updateDate('firstMeet')">Kaydet</button>
+                </div>
+                
+                <div class="date-item">
+                    <div>
+                        <label>İlişki Başlangıcı</label>
+                        <input type="date" id="relationship" class="form-control">
+                    </div>
+                    <div>
+                        <label>Açıklama</label>
+                        <input type="text" id="relationshipDesc" placeholder="İlişkimizin başlangıcı" class="form-control">
+                    </div>
+                    <button class="btn btn-primary" onclick="updateDate('relationship')">Kaydet</button>
+                </div>
+                
+                <div class="date-item">
+                    <div>
+                        <label>İlk Öpücük</label>
+                        <input type="date" id="firstKiss" class="form-control">
+                    </div>
+                    <div>
+                        <label>Açıklama</label>
+                        <input type="text" id="firstKissDesc" placeholder="İlk öpücüğümüz" class="form-control">
+                    </div>
+                    <button class="btn btn-primary" onclick="updateDate('firstKiss')">Kaydet</button>
+                </div>
+                
+                <div class="date-item">
+                    <div>
+                        <label>En Özel Anımız</label>
+                        <input type="date" id="specialDay" class="form-control">
+                    </div>
+                    <div>
+                        <label>Açıklama</label>
+                        <input type="text" id="specialDayDesc" placeholder="En özel anımız" class="form-control">
+                    </div>
+                    <button class="btn btn-primary" onclick="updateDate('specialDay')">Kaydet</button>
+                </div>
+            </div>
+            <div id="dateSuccess" class="success-message">✅ Tarih başarıyla güncellendi!</div>
+        </div>
+
+        <!-- Aşk Mesajları -->
+        <div class="admin-section">
+            <h2>💌 Aşk Mesajları</h2>
+            <div class="form-group">
+                <label>Yeni Mesaj Ekle</label>
+                <textarea id="newMessage" placeholder="Sevgilinize özel bir mesaj yazın..."></textarea>
+            </div>
+            <button class="btn btn-primary" onclick="addMessage()">➕ Mesaj Ekle</button>
+            
+            <h3 style="margin-top: 30px; margin-bottom: 15px;">Mevcut Mesajlar:</h3>
+            <div class="message-list" id="messageList"></div>
+            <div id="messageSuccess" class="success-message">✅ Mesaj başarıyla eklendi!</div>
+        </div>
+
+        <!-- Fotoğraflar -->
+        <div class="admin-section">
+            <h2>📸 Fotoğraf Yönetimi</h2>
+            <p style="margin-bottom: 20px; opacity: 0.9; font-size: 0.95em; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px;">
+                � <strong>Fotoğraf eklemek için:</strong><br>
+                <a href="gallery.html" style="color: #ffd700; text-decoration: none; font-weight: 600;">
+                    📸 Galeri sayfasına gidin →
+                </a><br>
+                Galeri sayfasında fotoğraf yükleme alanını kullanarak anılarınızı ekleyebilirsiniz.
+            </p>
+            
+            <!-- Mevcut Fotoğraflar -->
+            <h3 style="margin: 30px 0 15px 0;">📸 Yüklenen Fotoğraflar</h3>
+            <div class="photo-preview" id="photoPreview"></div>
+            <div id="photoSuccess" class="success-message">✅ Fotoğraf başarıyla silindi!</div>
+        </div>
+
+        <!-- Birlikte Yapacaklarımız -->
+        <div class="admin-section">
+            <h2>🌈 Birlikte Yapacaklarımız</h2>
+            <div class="form-group">
+                <label>Yeni Etkinlik Ekle</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="newBucketEmoji" placeholder="Emoji (ör: 🎬)" style="width: 100px;">
+                    <input type="text" id="newBucketText" placeholder="Etkinlik açıklaması" style="flex: 1;">
+                    <button class="btn btn-primary" onclick="addBucketItem()">➕ Ekle</button>
+                </div>
+            </div>
+            
+            <div class="bucket-list-editor" id="bucketList"></div>
+            <div id="bucketSuccess" class="success-message">✅ Etkinlik başarıyla eklendi!</div>
+        </div>
+
+        <!-- Yedekleme -->
+        <div class="admin-section">
+            <h2>💾 Yedekleme ve Geri Yükleme</h2>
+            <p style="margin-bottom: 20px;">Tüm verilerinizi yedekleyin veya önceki yedeği geri yükleyin</p>
+            <button class="btn btn-primary" onclick="backupData()">📥 Verileri İndir (Yedekle)</button>
+            <button class="btn btn-secondary" onclick="document.getElementById('restoreInput').click()">📤 Yedekten Geri Yükle</button>
+            <input type="file" id="restoreInput" accept=".json" style="display: none;" onchange="restoreData(event)">
+        </div>
+    </div>
+
+    <script src="theme-switcher.js"></script>
+    <script src="auth.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bizim Hikayemiz 💕</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="theme-switcher.css">
+</head>
+<body>
+    <!-- Giriş Kontrolü -->
+    <script src="auth.js"></script>
+    <!-- Firebase -->
+    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="firebase-sync.js"></script>
+    <script>
+        // Sayfa yüklendiğinde giriş kontrolü
+        if (!checkAuth()) {
+            window.location.href = 'login.html';
+        }
+    </script>
+    <!-- Kalp animasyonları için container -->
+    <div class="hearts-container"></div>
+    
+    <!-- Ana içerik -->
+    <div class="container">
+        <!-- Başlık -->
+        <header>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                <div></div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button onclick="window.location.href='stats.html'" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-size: 1em;">📊 İstatistikler</button>
+                    <button onclick="window.location.href='quiz.html'" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-size: 1em;">🎯 Quiz</button>
+                    <button onclick="window.location.href='chat.html'" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-size: 1em;">💌 Mesajlar</button>
+                    <button onclick="window.location.href='playlist.html'" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-size: 1em;">🎵 Müzik</button>
+                    <button onclick="window.location.href='gifts.html'" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-size: 1em;">🎁 Hediyeler</button>
+                    <button onclick="window.location.href='reminders.html'" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-size: 1em;">📅 Özel Günler</button>
+                    <button onclick="window.location.href='bucket-list.html'" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-size: 1em;">🌈 Hedefler</button>
+                    <button onclick="window.location.href='gallery.html'" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-size: 1em;">📸 Galeri</button>
+                    <button onclick="window.location.href='admin.html'" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-size: 1em;">⚙️ Ayarlar</button>
+                    <button onclick="logout()" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-size: 1em;">🚪 Çıkış</button>
+                </div>
+            </div>
+            
+            <!-- Profile Photos Section -->
+            <div class="profile-section">
+                <div class="profile-container">
+                    <div class="profile-photo" id="profile1">
+                        <img id="profileImg1" src="" alt="Profil 1" style="display: none;">
+                        <div class="profile-placeholder" id="placeholder1">
+                            <span class="profile-icon">👤</span>
+                            <span class="upload-text">Fotoğraf Ekle</span>
+                        </div>
+                        <input type="file" id="profileUpload1" accept="image/*" style="display: none;">
+                        <button class="profile-upload-btn" onclick="document.getElementById('profileUpload1').click()">📷</button>
+                    </div>
+                    
+                    <div class="heart-connector">
+                        <span class="big-heart">💕</span>
+                    </div>
+                    
+                    <div class="profile-photo" id="profile2">
+                        <img id="profileImg2" src="" alt="Profil 2" style="display: none;">
+                        <div class="profile-placeholder" id="placeholder2">
+                            <span class="profile-icon">👤</span>
+                            <span class="upload-text">Fotoğraf Ekle</span>
+                        </div>
+                        <input type="file" id="profileUpload2" accept="image/*" style="display: none;">
+                        <button class="profile-upload-btn" onclick="document.getElementById('profileUpload2').click()">📷</button>
+                    </div>
+                </div>
+            </div>
+            
+            <h1 class="main-title">Bizim Hikayemiz 💕</h1>
+            
+            <!-- Typewriter Effect -->
+            <div class="typewriter-container">
+                <p class="typewriter-text" id="typewriterText"></p>
+                <span class="cursor">|</span>
+            </div>
+            
+            <p class="subtitle">Her anımız özel, her günümüz değerli...</p>
+            <p class="subtitle" id="welcomeUser" style="margin-top: 10px; font-size: 1em;"></p>
+        </header>
+
+        <!-- Zaman Sayacı -->
+        <section class="counter-section">
+            <h2>Birlikte Geçirdiğimiz Zaman ⏰</h2>
+            <div class="time-counter">
+                <div class="time-box">
+                    <span class="time-value" id="days">0</span>
+                    <span class="time-label">Gün</span>
+                </div>
+                <div class="time-box">
+                    <span class="time-value" id="hours">0</span>
+                    <span class="time-label">Saat</span>
+                </div>
+                <div class="time-box">
+                    <span class="time-value" id="minutes">0</span>
+                    <span class="time-label">Dakika</span>
+                </div>
+                <div class="time-box">
+                    <span class="time-value" id="seconds">0</span>
+                    <span class="time-label">Saniye</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Özel Günler -->
+        <section class="special-dates">
+            <h2>Özel Günlerimiz 🎉</h2>
+            <div class="dates-grid">
+                <div class="date-card">
+                    <div class="date-icon">💑</div>
+                    <h3>İlk Tanışma</h3>
+                    <p class="date-text" id="firstMeet">-</p>
+                    <p class="days-ago" id="firstMeetDays">-</p>
+                </div>
+                <div class="date-card">
+                    <div class="date-icon">❤️</div>
+                    <h3>İlişkimizin Başlangıcı</h3>
+                    <p class="date-text" id="relationship">-</p>
+                    <p class="days-ago" id="relationshipDays">-</p>
+                </div>
+                <div class="date-card">
+                    <div class="date-icon">💏</div>
+                    <h3>İlk Öpücük</h3>
+                    <p class="date-text" id="firstKiss">-</p>
+                    <p class="days-ago" id="firstKissDays">-</p>
+                </div>
+                <div class="date-card">
+                    <div class="date-icon">🌟</div>
+                    <h3>En Özel Anımız</h3>
+                    <p class="date-text" id="specialDay">-</p>
+                    <p class="days-ago" id="specialDayDays">-</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Fotoğraf Galerisi -->
+        <section class="gallery-section">
+            <h2>Anılarımız 📸</h2>
+            <div class="gallery-container">
+                <button class="gallery-btn prev-btn" onclick="previousImage()">❮</button>
+                <div class="gallery-display">
+                    <img id="galleryImage" src="https://via.placeholder.com/600x400/ff69b4/ffffff?text=Admin+Panelden+Fotoğraf+Ekleyin+📸" alt="Bizim fotoğrafımız">
+                    <p class="photo-caption" id="photoCaption">Admin panelden fotoğraf ekleyin 💕</p>
+                </div>
+                <button class="gallery-btn next-btn" onclick="nextImage()">❯</button>
+            </div>
+            <div class="gallery-dots" id="galleryDots"></div>
+        </section>
+
+        <!-- Aşk Mesajları -->
+        <section class="messages-section">
+            <h2>Sana Söylemek İstediklerim 💌</h2>
+            <div class="message-display">
+                <p class="love-message" id="loveMessage">Yükleniyor...</p>
+                <button class="new-message-btn" onclick="showRandomMessage()">Yeni Mesaj 💝</button>
+            </div>
+        </section>
+
+        <!-- Birlikte Yapacaklarımız -->
+        <section class="bucket-list">
+            <h2>Birlikte Yapacaklarımız 🌈</h2>
+            <div class="bucket-grid" id="bucketListPreview"></div>
+            <div style="text-align: center; margin-top: 30px;">
+                <button onclick="window.location.href='bucket-list.html'" class="new-message-btn">
+                    🎯 Tüm Hedefleri Gör
+                </button>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <p class="footer-text">Seninle her an özel ❤️</p>
+            <p class="footer-date" id="currentDate"></p>
+        </footer>
+    </div>
+
+    <script src="theme-switcher.js"></script>
+    <script type="module" src="script.js"></script>
+</body>
+</html>

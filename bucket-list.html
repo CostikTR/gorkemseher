@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌈 Birlikte Yapacaklarımız</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="bucket-list.css">
+    <link rel="stylesheet" href="theme-switcher.css">
+</head>
+<body>
+    <div class="hearts-container"></div>
+
+    <script src="auth.js"></script>
+    <script>if (!checkAuth()) window.location.href = 'login.html';</script>
+
+    <div class="bucket-wrapper">
+        <!-- Navigation -->
+        <nav class="floating-nav">
+            <button onclick="window.location.href='index.html'" class="nav-item">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-text">Ana Sayfa</span>
+            </button>
+            <button onclick="window.location.href='gallery.html'" class="nav-item">
+                <span class="nav-icon">📸</span>
+                <span class="nav-text">Galeri</span>
+            </button>
+            <button onclick="window.location.href='admin.html'" class="nav-item">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-text">Yönetim</span>
+            </button>
+            <button onclick="logout()" class="nav-item">
+                <span class="nav-icon">🚪</span>
+                <span class="nav-text">Çıkış</span>
+            </button>
+        </nav>
+
+        <!-- Hero Section -->
+        <div class="bucket-hero">
+            <div class="hero-bg"></div>
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    <span class="title-line">Birlikte</span>
+                    <span class="title-line highlight">Yapacaklarımız</span>
+                </h1>
+                <p class="hero-subtitle">Her hayalimiz bir macera, her anımız değerli 🌟</p>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <span class="stat-number" id="totalItems">0</span>
+                        <span class="stat-label">Toplam</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <span class="stat-number completed-color" id="completedItems">0</span>
+                        <span class="stat-label">Tamamlandı</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <span class="stat-number pending-color" id="pendingItems">0</span>
+                        <span class="stat-label">Bekliyor</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add New Item -->
+        <div class="add-section">
+            <div class="add-container">
+                <h3>✨ Yeni Hedef Ekle</h3>
+                <div class="add-form">
+                    <input type="text" id="newItemEmoji" placeholder="Emoji (ör: 🎬)" maxlength="2">
+                    <input type="text" id="newItemText" placeholder="Ne yapmak istiyorsunuz?">
+                    <button onclick="addNewItem()" class="add-btn">
+                        <span>➕</span> Ekle
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bucket List Items -->
+        <div class="bucket-container">
+            <!-- Pending Items Section -->
+            <div class="section-header pending-section">
+                <h2 class="section-title">
+                    <span class="section-icon">⏳</span>
+                    <span>Yapılacaklar</span>
+                    <span class="section-count" id="pendingCount">0</span>
+                </h2>
+            </div>
+            <div class="items-grid" id="pendingGrid">
+                <!-- Pending items will be loaded here -->
+            </div>
+            <div id="emptyPending" class="empty-section" style="display: none;">
+                <p>🎉 Harika! Tüm hedeflerinizi tamamladınız!</p>
+            </div>
+
+            <!-- Completed Items Section -->
+            <div class="section-header completed-section">
+                <h2 class="section-title">
+                    <span class="section-icon">✅</span>
+                    <span>Tamamlananlar</span>
+                    <span class="section-count" id="completedCount">0</span>
+                </h2>
+            </div>
+            <div class="items-grid" id="completedGrid">
+                <!-- Completed items will be loaded here -->
+            </div>
+            <div id="emptyCompleted" class="empty-section" style="display: none;">
+                <p>📝 Henüz tamamlanmış hedef yok. İlk hedefi tamamlayın!</p>
+            </div>
+
+            <div id="emptyState" class="empty-bucket" style="display: none;">
+                <div class="empty-animation">
+                    <div class="empty-circle"></div>
+                    <div class="empty-icon">🌈</div>
+                </div>
+                <h2 class="empty-title">Henüz Hedef Yok</h2>
+                <p class="empty-text">Birlikte yapmak istediğiniz şeyleri eklemeye başlayın!</p>
+            </div>
+        </div>
+
+        <!-- Photo Upload Modal -->
+        <div id="photoModal" class="photo-modal">
+            <div class="modal-content">
+                <button class="modal-close" onclick="closePhotoModal()">✕</button>
+                <h3>🎉 Tebrikler! Hedef Tamamlandı</h3>
+                <p class="modal-subtitle">Bu özel anın fotoğrafını yüklemek ister misiniz?</p>
+                
+                <div class="modal-buttons">
+                    <button onclick="skipPhoto()" class="skip-btn">
+                        <span>⏭️</span> Fotoğraf Yükleme
+                    </button>
+                    <button onclick="document.getElementById('completionPhoto').click()" class="upload-photo-btn">
+                        <span>📸</span> Fotoğraf Yükle
+                    </button>
+                </div>
+                
+                <input type="file" id="completionPhoto" accept="image/*" style="display: none;">
+                
+                <div id="photoPreviewContainer" style="display: none;">
+                    <img id="photoPreview" class="photo-preview" src="" alt="Önizleme">
+                    <button onclick="confirmPhotoUpload()" class="confirm-photo-btn">
+                        ✨ Anıya Ekle
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="theme-switcher.js"></script>
+    <script src="bucket-list.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

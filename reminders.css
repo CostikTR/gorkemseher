@@ -1,0 +1,346 @@
+/* Reminders Page Styles */
+.reminders-wrapper {
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.reminders-header {
+    text-align: center;
+    padding: 60px 20px 40px;
+    background: var(--glass-background);
+    backdrop-filter: blur(30px);
+    border: 1px solid var(--glass-border);
+    border-radius: 25px;
+    margin-bottom: 30px;
+}
+
+.reminders-header h1 {
+    font-size: 3em;
+    margin-bottom: 10px;
+}
+
+.upcoming-section {
+    margin-bottom: 40px;
+}
+
+.upcoming-section h2 {
+    text-align: center;
+    font-size: 2em;
+    margin-bottom: 25px;
+}
+
+.upcoming-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto 30px;
+}
+
+.upcoming-card {
+    background: var(--glass-background);
+    backdrop-filter: blur(30px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 25px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    animation: cardPop 0.5s ease-out;
+}
+
+.upcoming-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-gradient-start), var(--primary-gradient-end));
+}
+
+.upcoming-card.urgent {
+    border-color: #ef4444;
+    animation: urgentPulse 2s infinite;
+}
+
+.countdown {
+    font-size: 3em;
+    font-weight: 900;
+    margin: 15px 0;
+    background: linear-gradient(135deg, var(--primary-gradient-start), var(--primary-gradient-end));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.countdown-label {
+    font-size: 0.9em;
+    opacity: 0.7;
+}
+
+.upcoming-title {
+    font-size: 1.3em;
+    font-weight: 700;
+    margin: 15px 0 10px;
+}
+
+.upcoming-date {
+    font-size: 1em;
+    opacity: 0.8;
+}
+
+.add-reminder-section {
+    max-width: 700px;
+    margin: 0 auto 40px;
+    padding: 35px;
+    background: var(--glass-background);
+    backdrop-filter: blur(30px);
+    border: 1px solid var(--glass-border);
+    border-radius: 25px;
+}
+
+.add-reminder-section h2 {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+#add-reminder-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+#add-reminder-form input,
+#add-reminder-form select,
+#add-reminder-form textarea {
+    padding: 15px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.1);
+    color: white;
+    font-size: 1em;
+    font-family: inherit;
+}
+
+#add-reminder-form input::placeholder,
+#add-reminder-form textarea::placeholder {
+    color: rgba(255,255,255,0.5);
+}
+
+#add-reminder-form input[type="date"] {
+    color-scheme: dark;
+}
+
+.add-btn {
+    padding: 18px;
+    border: none;
+    border-radius: 15px;
+    background: linear-gradient(135deg, var(--primary-gradient-start), var(--primary-gradient-end));
+    color: white;
+    font-size: 1.2em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.add-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+}
+
+.all-reminders-section {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.all-reminders-section h2 {
+    text-align: center;
+    font-size: 2em;
+    margin-bottom: 25px;
+}
+
+.filters {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 12px 28px;
+    border-radius: 15px;
+    border: 2px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.1);
+    color: white;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+.filter-btn.active {
+    background: linear-gradient(135deg, var(--primary-gradient-start), var(--primary-gradient-end));
+    border-color: transparent;
+}
+
+.reminders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.reminder-card {
+    background: var(--glass-background);
+    backdrop-filter: blur(30px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    transition: all 0.3s ease;
+}
+
+.reminder-card:hover {
+    transform: translateX(10px);
+    box-shadow: 0 10px 35px rgba(0,0,0,0.3);
+}
+
+.reminder-card.past {
+    opacity: 0.6;
+}
+
+.reminder-type-icon {
+    font-size: 3em;
+    flex-shrink: 0;
+}
+
+.reminder-content {
+    flex: 1;
+}
+
+.reminder-title {
+    font-size: 1.4em;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.reminder-date {
+    font-size: 1em;
+    opacity: 0.8;
+    margin-bottom: 10px;
+}
+
+.reminder-note {
+    font-size: 0.95em;
+    opacity: 0.7;
+    font-style: italic;
+    padding: 10px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+    margin-top: 10px;
+}
+
+.reminder-meta {
+    display: flex;
+    gap: 15px;
+    font-size: 0.9em;
+    opacity: 0.7;
+    margin-top: 10px;
+}
+
+.reminder-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.reminder-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.delete-reminder-btn {
+    background: rgba(239, 68, 68, 0.3);
+    border: 1px solid #ef4444;
+    color: white;
+}
+
+.delete-reminder-btn:hover {
+    background: rgba(239, 68, 68, 0.5);
+    transform: scale(1.05);
+}
+
+/* Animations */
+@keyframes cardPop {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes urgentPulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 0 15px rgba(239, 68, 68, 0);
+    }
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    opacity: 0.7;
+}
+
+.empty-icon {
+    font-size: 4em;
+    margin-bottom: 20px;
+}
+
+.empty-text {
+    font-size: 1.2em;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .reminders-header h1 {
+        font-size: 2.2em;
+    }
+    
+    .upcoming-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .reminder-card {
+        flex-direction: column;
+    }
+    
+    .reminder-actions {
+        flex-direction: row;
+        width: 100%;
+    }
+    
+    .reminder-btn {
+        flex: 1;
+    }
+}
