@@ -1,5 +1,6 @@
 // Modern Gallery System
 import { FirebaseSync } from './firebase-sync.js';
+import dbStorage from './indexeddb-storage.js';
 
 // Firebase sync instance
 const firebaseSync = new FirebaseSync();
@@ -14,7 +15,16 @@ let pendingPhotoData = null;
 
 // Initialize gallery on page load
 document.addEventListener('DOMContentLoaded', async function() {
-    // Mevcut localStorage verilerini Firebase'e aktar (ilk çalıştırmada)
+    // IndexedDB'yi başlat
+    await dbStorage.init();
+    
+    // localStorage'dan IndexedDB'ye migrate et (ilk kez)
+    const migrated = await dbStorage.getSetting('migrated_from_localstorage');
+    if (!migrated) {
+        await dbStorage.migrateFromLocalStorage();
+    }
+    
+    // Mevcut verileri Firebase'e aktar (metadata)
     await migrateLocalStorageToFirebase();
     
     await loadPhotos();
@@ -23,53 +33,49 @@ document.addEventListener('DOMContentLoaded', async function() {
     setupUploadHandlers();
 });
 
-// localStorage'dan Firebase'e veri taşıma (sadece ilk kez)
+// localStorage'dan Firebase'e veri taşıma (sadece metadata)
 async function migrateLocalStorageToFirebase() {
     try {
-        const migrated = localStorage.getItem('photos_migrated_to_firebase');
+        const migrated = await dbStorage.getSetting('metadata_migrated_to_firebase');
         if (migrated) {
             console.log('📋 Metadata zaten Firebase\'e taşınmış');
             return;
         }
         
-        // localStorage'daki fotoğrafları kontrol et
-        const localPhotos = localStorage.getItem('lovesite_photos');
-        if (localPhotos) {
-            const photos = JSON.parse(localPhotos);
-            if (photos && photos.length > 0) {
-                console.log(`🔄 ${photos.length} fotoğraf metadata'sı Firebase'e aktarılıyor...`);
-                
-                // Sadece metadata'yı kaydet (Base64 olmadan)
-                const photoMetadata = photos.map(p => ({
-                    id: p.id,
-                    caption: p.caption,
-                    category: p.category,
-                    uploadedAt: p.uploadedAt,
-                    uploadedBy: p.uploadedBy,
-                }));
-                
-                await firebaseSync.saveData('photos', 'metadata', { 
-                    data: photoMetadata,
-                    count: photos.length,
-                    lastUpdate: Date.now()
-                });
-                localStorage.setItem('photos_migrated_to_firebase', 'true');
-                console.log('✅ Fotoğraf metadata\'sı Firebase\'e aktarıldı!');
-            }
+        // IndexedDB'deki fotoğrafları kontrol et
+        const photos = await dbStorage.getAllPhotos();
+        if (photos && photos.length > 0) {
+            console.log(`🔄 ${photos.length} fotoğraf metadata'sı Firebase'e aktarılıyor...`);
+            
+            // Sadece metadata'yı kaydet (Base64 olmadan)
+            const photoMetadata = photos.map(p => ({
+                id: p.id,
+                caption: p.caption,
+                category: p.category,
+                uploadedAt: p.uploadedAt,
+                uploadedBy: p.uploadedBy,
+            }));
+            
+            await firebaseSync.saveData('photos', 'metadata', { 
+                data: photoMetadata,
+                count: photos.length,
+                lastUpdate: Date.now()
+            });
+            await dbStorage.saveSetting('metadata_migrated_to_firebase', true);
+            console.log('✅ Fotoğraf metadata\'sı Firebase\'e aktarıldı!');
         }
     } catch (error) {
         console.error('⚠️ Migration hatası:', error);
     }
 }
 
-// Load photos from localStorage (ana kaynak) ve Firebase metadata (sync kontrolü)
+// Load photos from IndexedDB (ana kaynak) ve Firebase metadata (sync kontrolü)
 async function loadPhotos() {
     try {
-        // localStorage'dan yükle (Base64 fotoğraflar burada)
-        const savedPhotos = localStorage.getItem('lovesite_photos');
-        allPhotos = savedPhotos ? JSON.parse(savedPhotos) : [];
+        // IndexedDB'den yükle (Base64 fotoğraflar burada)
+        allPhotos = await dbStorage.getAllPhotos();
         
-        console.log(`📦 ${allPhotos.length} fotoğraf localStorage'dan yüklendi`);
+        console.log(`📦 ${allPhotos.length} fotoğraf IndexedDB'den yüklendi`);
         
         // Firebase'den metadata'yı kontrol et (sadece bilgi amaçlı)
         try {
@@ -77,7 +83,7 @@ async function loadPhotos() {
             if (firebaseData && firebaseData.count !== undefined) {
                 console.log(`🔍 Firebase metadata: ${firebaseData.count} fotoğraf`);
                 if (firebaseData.count !== allPhotos.length) {
-                    console.warn('⚠️ localStorage ve Firebase sayıları uyuşmuyor');
+                    console.warn('⚠️ IndexedDB ve Firebase sayıları uyuşmuyor');
                 }
             }
         } catch (error) {
@@ -665,8 +671,15 @@ async function confirmUpload() {
         
         allPhotos.push(photo);
         console.log('📸 Fotoğraf array\'e eklendi. Toplam:', allPhotos.length);
-        localStorage.setItem('lovesite_photos', JSON.stringify(allPhotos));
-        console.log('💾 localStorage güncellendi');
+        
+        // IndexedDB'ye kaydet
+        try {
+            await dbStorage.savePhoto(photo);
+            console.log('💾 IndexedDB\'ye kaydedildi');
+        } catch (dbError) {
+            console.error('❌ IndexedDB kayıt hatası:', dbError);
+            throw new Error('Fotoğraf kaydedilemedi. Tarayıcı depolama alanı dolu olabilir.');
+        }
         
         // Firebase'e kaydet - SADECE METADATA (Base64 olmadan)
         try {
@@ -787,13 +800,33 @@ async function deletePhoto(index) {
         return;
     }
     
+    const photoToDelete = allPhotos[index];
     allPhotos.splice(index, 1);
-    localStorage.setItem('lovesite_photos', JSON.stringify(allPhotos));
     
-    // Firebase'den de sil (obje içinde array olarak)
+    // IndexedDB'den sil
     try {
-        await firebaseSync.saveData('photos', 'list', { data: allPhotos });
-        console.log('✅ Fotoğraf Firebase\'den silindi');
+        await dbStorage.deletePhoto(photoToDelete.id);
+        console.log('💾 IndexedDB\'den silindi');
+    } catch (error) {
+        console.error('❌ IndexedDB silme hatası:', error);
+    }
+    
+    // Firebase metadata'yı güncelle
+    try {
+        const photoMetadata = allPhotos.map(p => ({
+            id: p.id,
+            caption: p.caption,
+            category: p.category,
+            uploadedAt: p.uploadedAt,
+            uploadedBy: p.uploadedBy,
+        }));
+        
+        await firebaseSync.saveData('photos', 'metadata', { 
+            data: photoMetadata,
+            count: allPhotos.length,
+            lastUpdate: Date.now()
+        });
+        console.log('✅ Firebase metadata güncellendi');
     } catch (error) {
         console.error('❌ Firebase silme hatası:', error);
     }
