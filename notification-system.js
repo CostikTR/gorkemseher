@@ -381,17 +381,21 @@ class NotificationSystem {
     async notifyNewBucketItem(itemName, addedBy) {
         const currentUser = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
         
-        // Kendine bildirim gösterme
-        if (addedBy === currentUser) {
+        // TEST MODU: Kendine de bildirim göster (normalde kapalı olmalı)
+        const TEST_MODE = true; // false yap üretim için
+        
+        if (!TEST_MODE && addedBy === currentUser) {
             return;
         }
         
         // Browser notification (bu cihazda)
-        this.sendNotification(
-            '🌈 Yeni Hedef Eklendi!',
-            `${addedBy} yeni bir hedef ekledi: "${itemName}" 🎯`,
-            '🌟'
-        );
+        if (addedBy !== currentUser || TEST_MODE) {
+            this.sendNotification(
+                '🌈 Yeni Hedef Eklendi!',
+                `${addedBy} yeni bir hedef ekledi: "${itemName}" 🎯`,
+                '🌟'
+            );
+        }
         
         // FCM push notification (diğer cihazlarda)
         if (window.fcmManager) {
@@ -406,6 +410,17 @@ class NotificationSystem {
                     { url: '/bucket-list.html', type: 'bucket', icon: '🌈' }
                 );
                 console.log(`✅ Bucket list bildirimi gönderildi: ${otherUser}`);
+                
+                // TEST MODU: Kendine de gönder
+                if (TEST_MODE) {
+                    await window.fcmManager.sendNotificationToUser(
+                        currentUser,
+                        '🧪 TEST: Yeni Hedef!',
+                        `Kendi eklediğin: "${itemName}" (test modu)`,
+                        { url: '/bucket-list.html', type: 'bucket-test', icon: '🌈' }
+                    );
+                    console.log(`🧪 TEST: Kendine bildirim gönderildi: ${currentUser}`);
+                }
             } catch (error) {
                 console.error('❌ FCM bucket bildirim hatası:', error);
             }
