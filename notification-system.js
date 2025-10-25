@@ -304,10 +304,11 @@ class NotificationSystem {
         const currentUser = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
         console.log('📱 currentUser:', currentUser);
         
-        const TEST_MODE = true; // Test modu: kendine de bildirim gönder
+        const TEST_MODE = false; // Test modu kapatıldı
+        const SINGLE_DEVICE_TEST = true; // ⚠️ Tek cihazda test için: kendine VE diğer kullanıcıya bildirim gönder
         
-        // Kendine bildirim gösterme (TEST_MODE hariç)
-        if (uploaderName === currentUser && !TEST_MODE) {
+        // Kendine bildirim gösterme (TEST_MODE veya SINGLE_DEVICE_TEST hariç)
+        if (uploaderName === currentUser && !TEST_MODE && !SINGLE_DEVICE_TEST) {
             console.log('⏭️ Kendi fotoğrafı, bildirim gönderilmiyor');
             return;
         }
@@ -334,6 +335,18 @@ class NotificationSystem {
                     { url: '/gallery.html', type: 'photo', icon: '📸' }
                 );
                 console.log(`✅ Fotoğraf bildirimi gönderildi: ${otherUser}`);
+                
+                // SINGLE_DEVICE_TEST: Kendine de Firestore üzerinden gönder (Service Worker testi için)
+                if (SINGLE_DEVICE_TEST) {
+                    console.log('🧪 SINGLE_DEVICE_TEST aktif - kendine de bildirim gönderiliyor...');
+                    await window.fcmManager.sendNotificationToUser(
+                        currentUser,
+                        '📸 Test: Push Notification',
+                        `Service Worker testi: Bu bildirim telefon kilitliyken de gelmeli! 🔒📱`,
+                        { url: '/gallery.html', type: 'photo', icon: '📸' }
+                    );
+                    console.log(`✅ Test bildirimi gönderildi: ${currentUser}`);
+                }
             } catch (error) {
                 console.error('❌ FCM fotoğraf bildirim hatası:', error);
             }
