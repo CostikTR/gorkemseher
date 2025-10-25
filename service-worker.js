@@ -52,6 +52,12 @@ self.addEventListener('activate', event => {
 
 // Fetch event - Network First, fallback to Cache
 self.addEventListener('fetch', event => {
+  // POST isteklerini cache'leme (Firebase istekleri için)
+  if (event.request.method !== 'GET') {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+  
   event.respondWith(
     fetch(event.request)
       .then(response => {

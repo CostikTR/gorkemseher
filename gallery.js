@@ -164,18 +164,23 @@ function applyFilters() {
 // Display photos in grid
 function displayPhotos(photos) {
     console.log('🖼️ displayPhotos çağrıldı, fotoğraf sayısı:', photos.length);
-    const grid = document.getElementById('photosGrid');
+    const grid = document.getElementById('photoGrid');
     const emptyState = document.getElementById('emptyState');
+    
+    if (!grid) {
+        console.error('❌ photoGrid elementi bulunamadı!');
+        return;
+    }
     
     if (!photos || photos.length === 0) {
         console.log('⚠️ Gösterilecek fotoğraf yok');
         grid.style.display = 'none';
-        emptyState.style.display = 'flex';
+        if (emptyState) emptyState.style.display = 'flex';
         return;
     }
     
     grid.style.display = 'block';
-    emptyState.style.display = 'none';
+    if (emptyState) emptyState.style.display = 'none';
     grid.innerHTML = '';
     console.log('✅ Grid temizlendi, fotoğraflar ekleniyor...');
     
