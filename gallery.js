@@ -911,8 +911,16 @@ async function confirmUpload() {
             console.log('✅ Firestore\'a kaydedildi (Base64 dahil)');
             
             // Bildirim gönder
+            console.log('🔔 Bildirim sistemi kontrol ediliyor...');
+            console.log('notificationSystem:', window.notificationSystem);
+            console.log('currentUser:', currentUser);
+            
             if (window.notificationSystem) {
+                console.log('📤 notifyNewPhoto çağrılıyor...');
                 window.notificationSystem.notifyNewPhoto(currentUser);
+                console.log('✅ notifyNewPhoto çağrıldı');
+            } else {
+                console.error('❌ window.notificationSystem yok!');
             }
             
             showNotification(`✅ "${fileName}" başarıyla eklendi!`, 'success');
