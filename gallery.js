@@ -1,5 +1,6 @@
 // Modern Gallery System
 import { FirebaseSync } from './firebase-sync.js';
+import { storage, ref, uploadString, getDownloadURL, deleteObject } from './firebase-config.js';
 import dbStorage from './indexeddb-storage.js';
 
 // Firebase sync instance
@@ -31,37 +32,78 @@ document.addEventListener('DOMContentLoaded', async function() {
     setupLightboxHandlers();
 });
 
-// Load photos from IndexedDB (ana kaynak) ve Firebase metadata (sync kontrolü)
+// Load photos from Firebase Storage (cloud) and cache to IndexedDB
 async function loadPhotos() {
     try {
-        // IndexedDB'den yükle (Base64 fotoğraflar burada)
-        allPhotos = await dbStorage.getAllPhotos();
+        console.log('🔄 Fotoğraflar yükleniyor...');
         
-        console.log(`📦 ${allPhotos.length} fotoğraf IndexedDB'den yüklendi`);
-        
-        // Firebase'e güncel metadata'yı kaydet (her yüklemede)
-        if (allPhotos.length > 0) {
-            try {
-                const photoMetadata = allPhotos.map(p => ({
-                    id: p.id,
-                    caption: p.caption,
-                    category: p.category,
-                    uploadedAt: p.uploadedAt,
-                    uploadedBy: p.uploadedBy,
-                }));
+        // 1. Firebase Firestore'dan fotoğrafları yükle
+        try {
+            console.log('☁️ Firebase\'den yükleniyor...');
+            const firestorePhotos = await firebaseSync.loadData('photos');
+            
+            if (firestorePhotos && Object.keys(firestorePhotos).length > 0) {
+                // Firestore'dan gelen fotoğrafları array'e çevir
+                allPhotos = Object.entries(firestorePhotos)
+                    .filter(([key, value]) => key !== 'metadata' && value && typeof value === 'object')
+                    .map(([_, photo]) => photo)
+                    .sort((a, b) => (b.uploadedAt || 0) - (a.uploadedAt || 0));
                 
-                await firebaseSync.saveData('photos', 'metadata', { 
-                    data: photoMetadata,
-                    count: allPhotos.length,
-                    lastUpdate: Date.now()
-                });
-                console.log(`✅ ${allPhotos.length} fotoğraf metadata'sı Firebase'e senkronize edildi`);
-            } catch (error) {
-                console.log('ℹ️ Firebase sync hatası (offline olabilirsiniz):', error.message);
+                console.log(`☁️ ${allPhotos.length} fotoğraf Firebase\'den yüklendi`);
+                
+                // Firebase'den yüklenen fotoğrafları IndexedDB'ye cache'le
+                try {
+                    for (const photo of allPhotos) {
+                        // Eğer cache'de yoksa veya URL farklıysa güncelle
+                        const cached = await dbStorage.getAllPhotos();
+                        const cachedPhoto = cached.find(p => p.id === photo.id);
+                        
+                        if (!cachedPhoto || cachedPhoto.src !== photo.src) {
+                            // URL'den Base64'e çevir ve cache'le
+                            try {
+                                const response = await fetch(photo.src);
+                                const blob = await response.blob();
+                                const reader = new FileReader();
+                                
+                                await new Promise((resolve) => {
+                                    reader.onloadend = async () => {
+                                        const base64 = reader.result;
+                                        await dbStorage.savePhoto({ ...photo, src: base64 });
+                                        resolve();
+                                    };
+                                    reader.readAsDataURL(blob);
+                                });
+                            } catch (cacheError) {
+                                console.warn('⚠️ Cache hatası:', photo.id, cacheError);
+                            }
+                        }
+                    }
+                    console.log('💾 Firebase fotoğrafları cache\'lendi');
+                } catch (cacheError) {
+                    console.warn('⚠️ Cache işlemi hatası:', cacheError);
+                }
+            } else {
+                console.log('ℹ️ Firebase\'de fotoğraf bulunamadı, cache kontrol ediliyor...');
+                
+                // Firebase'de yoksa IndexedDB'den yükle
+                const cachedPhotos = await dbStorage.getAllPhotos();
+                if (cachedPhotos && cachedPhotos.length > 0) {
+                    allPhotos = cachedPhotos.sort((a, b) => (b.uploadedAt || 0) - (a.uploadedAt || 0));
+                    console.log(`💾 ${allPhotos.length} fotoğraf cache\'den yüklendi`);
+                }
+            }
+        } catch (firebaseError) {
+            console.log('⚠️ Firebase yükleme hatası, cache\'den yükleniyor:', firebaseError.message);
+            
+            // Firebase hatası olursa IndexedDB'den yükle
+            const cachedPhotos = await dbStorage.getAllPhotos();
+            if (cachedPhotos && cachedPhotos.length > 0) {
+                allPhotos = cachedPhotos.sort((a, b) => (b.uploadedAt || 0) - (a.uploadedAt || 0));
+                console.log(`💾 ${allPhotos.length} fotoğraf cache\'den yüklendi`);
             }
         }
     } catch (error) {
-        console.error('Fotoğraf yükleme hatası:', error);
+        console.error('❌ Fotoğraf yükleme hatası:', error);
         allPhotos = [];
     }
     
@@ -636,18 +678,39 @@ async function confirmUpload() {
         // Benzersiz ID oluştur (timestamp + random)
         const uniqueId = Date.now() + Math.random().toString(36).substr(2, 9);
         
-        // Fotoğrafı kaydet
+        // Firebase Storage'a yükle
+        let photoURL = null;
+        try {
+            console.log('☁️ Fotoğraf Firebase Storage\'a yükleniyor...');
+            
+            // Storage referansı oluştur
+            const storageRef = ref(storage, `photos/${currentUser}/${uniqueId}`);
+            
+            // Base64 string'i yükle
+            await uploadString(storageRef, pendingPhotoData, 'data_url');
+            
+            // Download URL al
+            photoURL = await getDownloadURL(storageRef);
+            console.log('✅ Fotoğraf Storage\'a yüklendi:', photoURL);
+            
+        } catch (storageError) {
+            console.error('❌ Storage yükleme hatası:', storageError);
+            throw new Error('Fotoğraf yüklenemedi. İnternet bağlantınızı kontrol edin.');
+        }
+        
+        // Fotoğraf objesini oluştur (URL ile)
         const photo = {
-            src: pendingPhotoData,
+            src: photoURL, // Firebase Storage URL
             caption: caption || 'İsimsiz Anı',
             category: category,
             uploadedAt: uploadedAt,
             uploadedBy: currentUser,
-            id: uniqueId
+            id: uniqueId,
+            storageRef: `photos/${currentUser}/${uniqueId}` // Silme için
         };
         
-        // Çift yüklemeyi önle - aynı src varsa ekleme
-        const existingPhoto = allPhotos.find(p => p.src === pendingPhotoData);
+        // Çift yüklemeyi önle
+        const existingPhoto = allPhotos.find(p => p.id === uniqueId);
         if (existingPhoto) {
             console.warn('⚠️ Bu fotoğraf zaten mevcut, tekrar eklenmedi');
             showNotification(`⚠️ "${fileName}" zaten galeriye eklenmiş`, 'warning');
@@ -665,46 +728,34 @@ async function confirmUpload() {
         allPhotos.push(photo);
         console.log('📸 Fotoğraf array\'e eklendi. Toplam:', allPhotos.length);
         
-        // IndexedDB'ye kaydet
+        // IndexedDB'ye cache olarak kaydet
         try {
-            await dbStorage.savePhoto(photo);
-            console.log('💾 IndexedDB\'ye kaydedildi');
+            const cachedPhoto = { ...photo, src: pendingPhotoData }; // Base64 ile cache
+            await dbStorage.savePhoto(cachedPhoto);
+            console.log('💾 IndexedDB cache\'e kaydedildi');
         } catch (dbError) {
-            console.error('❌ IndexedDB kayıt hatası:', dbError);
-            throw new Error('Fotoğraf kaydedilemedi. Tarayıcı depolama alanı dolu olabilir.');
+            console.warn('⚠️ IndexedDB cache kayıt hatası:', dbError);
+            // Cache hatası kritik değil, devam et
         }
         
-        // Firebase'e kaydet - SADECE METADATA (Base64 olmadan)
+        // Firebase Firestore'a metadata kaydet
         try {
-            console.log('🔄 Firebase\'e metadata kaydediliyor...');
+            console.log('🔄 Firestore\'a kayıt ediliyor...');
             
-            // Metadata oluştur (Base64 olmadan, sadece bilgiler)
-            const photoMetadata = allPhotos.map(p => ({
-                id: p.id,
-                caption: p.caption,
-                category: p.category,
-                uploadedAt: p.uploadedAt,
-                uploadedBy: p.uploadedBy,
-                // src yok, çünkü çok büyük
-            }));
+            // Fotoğrafı Firestore collection'a ekle
+            await firebaseSync.saveData('photos', uniqueId, photo);
             
-            await firebaseSync.saveData('photos', 'metadata', { 
-                data: photoMetadata,
-                count: allPhotos.length,
-                lastUpdate: Date.now()
-            });
-            console.log('✅ Metadata Firebase\'e kaydedildi');
-            console.log('📊 Toplam fotoğraf sayısı:', allPhotos.length);
+            console.log('✅ Firestore\'a kaydedildi');
             
-            // Bildirim gönder (diğer kullanıcıya)
+            // Bildirim gönder
             if (window.notificationSystem) {
                 window.notificationSystem.notifyNewPhoto(currentUser);
             }
             
             showNotification(`✅ "${fileName}" başarıyla eklendi!`, 'success');
-        } catch (firebaseError) {
-            console.error('❌ Firebase kayıt hatası:', firebaseError);
-            showNotification(`⚠️ "${fileName}" sadece bu cihaza kaydedildi. İnternet bağlantınızı kontrol edin.`, 'warning');
+        } catch (firestoreError) {
+            console.error('❌ Firestore kayıt hatası:', firestoreError);
+            showNotification(`⚠️ "${fileName}" yüklendi ama senkronize edilemedi.`, 'warning');
         }
         
         // Galeriyi hemen güncelle
@@ -794,35 +845,35 @@ async function deletePhoto(index) {
     }
     
     const photoToDelete = allPhotos[index];
-    allPhotos.splice(index, 1);
     
-    // IndexedDB'den sil
+    // Firebase Storage'dan sil
+    if (photoToDelete.storageRef) {
+        try {
+            const storageRef = ref(storage, photoToDelete.storageRef);
+            await deleteObject(storageRef);
+            console.log('☁️ Firebase Storage\'dan silindi');
+        } catch (error) {
+            console.error('❌ Storage silme hatası:', error);
+        }
+    }
+    
+    // Firestore'dan sil
+    try {
+        await firebaseSync.deleteData('photos', photoToDelete.id);
+        console.log('✅ Firestore\'dan silindi');
+    } catch (error) {
+        console.error('❌ Firestore silme hatası:', error);
+    }
+    
+    // IndexedDB cache'den sil
     try {
         await dbStorage.deletePhoto(photoToDelete.id);
-        console.log('💾 IndexedDB\'den silindi');
+        console.log('💾 Cache\'den silindi');
     } catch (error) {
-        console.error('❌ IndexedDB silme hatası:', error);
+        console.error('❌ Cache silme hatası:', error);
     }
     
-    // Firebase metadata'yı güncelle
-    try {
-        const photoMetadata = allPhotos.map(p => ({
-            id: p.id,
-            caption: p.caption,
-            category: p.category,
-            uploadedAt: p.uploadedAt,
-            uploadedBy: p.uploadedBy,
-        }));
-        
-        await firebaseSync.saveData('photos', 'metadata', { 
-            data: photoMetadata,
-            count: allPhotos.length,
-            lastUpdate: Date.now()
-        });
-        console.log('✅ Firebase metadata güncellendi');
-    } catch (error) {
-        console.error('❌ Firebase silme hatası:', error);
-    }
+    allPhotos.splice(index, 1);
     
     await loadPhotos();
     showNotification('🗑️ Fotoğraf silindi');

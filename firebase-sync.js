@@ -65,6 +65,24 @@ class FirebaseSync {
         }
     }
 
+    // Koleksiyonun tüm verilerini object olarak getir (photo sync için)
+    async loadData(collectionName) {
+        try {
+            const collectionRef = collection(db, this.getCollectionPath(collectionName));
+            const querySnapshot = await getDocs(collectionRef);
+            
+            const data = {};
+            querySnapshot.forEach((doc) => {
+                data[doc.id] = doc.data();
+            });
+            
+            return data;
+        } catch (error) {
+            console.error('Firebase load error:', error);
+            return {};
+        }
+    }
+
     // Veri güncelle
     async updateData(collectionName, documentId, updates) {
         try {

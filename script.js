@@ -17,10 +17,8 @@ let specialDates = {
     specialDay: new Date('2024-06-15')
 };
 
-let photos = [{
-    src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400'%3E%3Crect width='600' height='400' fill='%23667eea'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='24' fill='white'%3EÖrnek Fotoğraf 1 💕%3C/text%3E%3C/svg%3E",
-    caption: 'Örnek fotoğraf - Admin panelden değiştirin'
-}];
+// Fotoğraflar Firebase'den yüklenecek
+let photos = [];
 
 const loveMessages = [
     "Seninle geçirdiğim her an, hayatımın en değerli anıları 💕",
@@ -40,6 +38,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
     
     await loadSavedData();
+    await loadPhotosFromFirebase(); // Firebase'den fotoğrafları yükle
     initializeCounters();
     updateTimeCounter();
     setInterval(updateTimeCounter, 1000);
@@ -61,6 +60,38 @@ document.addEventListener('DOMContentLoaded', async function() {
         loadBucketListPreview();
     }
 });
+
+async function loadPhotosFromFirebase() {
+    try {
+        console.log('📸 Ana sayfa fotoğrafları yükleniyor...');
+        
+        // Firebase'den fotoğrafları yükle
+        const firestorePhotos = await firebaseSync.loadData('photos');
+        
+        if (firestorePhotos && Object.keys(firestorePhotos).length > 0) {
+            // Firestore'dan gelen fotoğrafları array'e çevir
+            photos = Object.entries(firestorePhotos)
+                .filter(([key, value]) => key !== 'metadata' && value && typeof value === 'object' && value.src)
+                .map(([_, photo]) => photo)
+                .sort((a, b) => (b.uploadedAt || 0) - (a.uploadedAt || 0));
+            
+            console.log(`☁️ ${photos.length} fotoğraf Firebase\'den yüklendi`);
+        } else {
+            console.log('ℹ️ Firebase\'de fotoğraf bulunamadı');
+            // Placeholder fotoğraf
+            photos = [{
+                src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400'%3E%3Crect width='600' height='400' fill='%23667eea'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='24' fill='white'%3EGaleri\'den Fotoğraf Ekleyin 📸%3C/text%3E%3C/svg%3E",
+                caption: 'Galeri sayfasından fotoğraf ekleyin'
+            }];
+        }
+    } catch (error) {
+        console.error('❌ Fotoğraf yükleme hatası:', error);
+        photos = [{
+            src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400'%3E%3Crect width='600' height='400' fill='%23667eea'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='24' fill='white'%3EGaleri\'den Fotoğraf Ekleyin 📸%3C/text%3E%3C/svg%3E",
+            caption: 'Galeri sayfasından fotoğraf ekleyin'
+        }];
+    }
+}
 
 async function loadSavedData() {
     try {
