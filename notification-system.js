@@ -299,7 +299,7 @@ class NotificationSystem {
     }
     
     // Yeni fotoğraf bildirim
-    notifyNewPhoto(uploaderName) {
+    async notifyNewPhoto(uploaderName) {
         const currentUser = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
         
         if (uploaderName !== currentUser) {
@@ -308,11 +308,21 @@ class NotificationSystem {
                 `${uploaderName} yeni bir anı ekledi. Görmeye gitmez misin? 💕`,
                 '📷'
             );
+            
+            // FCM ile push notification gönder
+            if (window.fcmManager) {
+                await window.fcmManager.sendNotificationToUser(
+                    currentUser,
+                    '📸 Yeni Fotoğraf!',
+                    `${uploaderName} yeni bir anı ekledi. Görmeye gitmez misin? 💕`,
+                    { url: '/gallery.html', type: 'photo', icon: '📸' }
+                );
+            }
         }
     }
     
     // Yeni mesaj bildirimi
-    notifyNewMessage(senderName, messagePreview) {
+    async notifyNewMessage(senderName, messagePreview) {
         const currentUser = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
         
         if (senderName !== currentUser) {
@@ -321,6 +331,16 @@ class NotificationSystem {
                 messagePreview.substring(0, 50) + '...',
                 '💬'
             );
+            
+            // FCM ile push notification gönder
+            if (window.fcmManager) {
+                await window.fcmManager.sendNotificationToUser(
+                    currentUser,
+                    `💌 ${senderName}`,
+                    messagePreview.substring(0, 50) + '...',
+                    { url: '/chat.html', type: 'message', icon: '💌' }
+                );
+            }
         }
     }
     
@@ -334,7 +354,7 @@ class NotificationSystem {
     }
     
     // Yeni bucket list item eklendi
-    notifyNewBucketItem(itemName, addedBy) {
+    async notifyNewBucketItem(itemName, addedBy) {
         const currentUser = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
         
         if (addedBy !== currentUser) {
@@ -343,11 +363,21 @@ class NotificationSystem {
                 `${addedBy} yeni bir hedef ekledi: "${itemName}" 🎯`,
                 '🌟'
             );
+            
+            // FCM ile push notification gönder
+            if (window.fcmManager) {
+                await window.fcmManager.sendNotificationToUser(
+                    currentUser,
+                    '🌈 Yeni Hedef Eklendi!',
+                    `${addedBy} yeni bir hedef ekledi: "${itemName}" 🎯`,
+                    { url: '/bucket-list.html', type: 'bucket', icon: '🌈' }
+                );
+            }
         }
     }
     
     // Yeni quiz eklendi
-    notifyNewQuiz(quizTitle, createdBy) {
+    async notifyNewQuiz(quizTitle, createdBy) {
         const currentUser = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
         
         if (createdBy !== currentUser) {
@@ -356,6 +386,16 @@ class NotificationSystem {
                 `${createdBy} yeni bir quiz hazırladı: "${quizTitle}" Hadi oyna! 🎮`,
                 '🎲'
             );
+            
+            // FCM ile push notification gönder
+            if (window.fcmManager) {
+                await window.fcmManager.sendNotificationToUser(
+                    currentUser,
+                    '🎯 Yeni Quiz!',
+                    `${createdBy} yeni bir quiz hazırladı: "${quizTitle}"`,
+                    { url: '/quiz.html', type: 'quiz', icon: '🎯' }
+                );
+            }
         }
     }
     

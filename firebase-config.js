@@ -2,6 +2,7 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getFirestore, collection, doc, setDoc, getDoc, getDocs, updateDoc, deleteDoc, onSnapshot, query, where, orderBy } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { getStorage, ref, uploadString, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
+import { getMessaging, getToken, onMessage } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js';
 
 // Firebase configuration
 const firebaseConfig = {
@@ -19,5 +20,35 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
+// Initialize Firebase Cloud Messaging
+let messaging = null;
+try {
+    messaging = getMessaging(app);
+    console.log('✅ Firebase Messaging başlatıldı');
+} catch (error) {
+    console.warn('⚠️ Firebase Messaging başlatılamadı:', error.message);
+}
+
 // Export Firebase instances
-export { db, storage, collection, doc, setDoc, getDoc, getDocs, updateDoc, deleteDoc, onSnapshot, query, where, orderBy, ref, uploadString, getDownloadURL, deleteObject };
+export { 
+    db, 
+    storage, 
+    messaging,
+    collection, 
+    doc, 
+    setDoc, 
+    getDoc, 
+    getDocs, 
+    updateDoc, 
+    deleteDoc, 
+    onSnapshot, 
+    query, 
+    where, 
+    orderBy, 
+    ref, 
+    uploadString, 
+    getDownloadURL, 
+    deleteObject,
+    getToken,
+    onMessage
+};
