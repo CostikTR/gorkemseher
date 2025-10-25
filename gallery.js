@@ -632,12 +632,9 @@ function processNextFile() {
                 modalTitle.textContent = `Fotoğraf ${currentFileIndex + 1} / ${pendingFiles.length}`;
             }
             
-            // Bugünün tarihini default olarak ayarla
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('uploadDate').value = today;
-            
-            // Önceki değerleri temizle
+            // Önceki değerleri temizle (tarih hariç - EXIF'ten gelecek veya sonra default set edilecek)
             document.getElementById('uploadCaption').value = '';
+            document.getElementById('uploadDate').value = ''; // Önce temizle, EXIF dolduracak
             document.getElementById('uploadCategory').value = 'diğer';
         } catch (error) {
             console.error('❌ Dosya işleme hatası:', error);
@@ -656,6 +653,16 @@ function processNextFile() {
 function readExifData(file) {
     const img = new Image();
     const reader = new FileReader();
+    
+    // Timeout: EXIF okunamazsa 2 saniye sonra default tarih kullan
+    const dateInputFallback = setTimeout(() => {
+        const dateInput = document.getElementById('uploadDate');
+        if (!dateInput.value) {
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.value = today;
+            console.log('⏱️ EXIF timeout, bugünün tarihi kullanılıyor:', today);
+        }
+    }, 2000);
     
     reader.onload = function(e) {
         img.src = e.target.result;
@@ -690,10 +697,19 @@ function readExifData(file) {
                         if (parts.length === 3) {
                             const exifDate = `${parts[0]}-${parts[1]}-${parts[2]}`;
                             document.getElementById('uploadDate').value = exifDate;
+                            console.log('📅 EXIF çekim tarihi kullanılıyor:', exifDate);
                         }
                     } catch (e) {
                         console.log('Tarih parse hatası:', e);
+                        // EXIF parse edilemezse bugünün tarihini kullan
+                        const today = new Date().toISOString().split('T')[0];
+                        document.getElementById('uploadDate').value = today;
                     }
+                } else {
+                    // EXIF tarihi yoksa bugünün tarihini kullan
+                    const today = new Date().toISOString().split('T')[0];
+                    document.getElementById('uploadDate').value = today;
+                    console.log('📅 EXIF tarihi yok, bugünün tarihi kullanılıyor:', today);
                 }
                 
                 if (lat && lon) {
@@ -719,6 +735,9 @@ function readExifData(file) {
                 } else {
                     exifInfo.style.display = 'none';
                 }
+                
+                // EXIF okuma tamamlandı, timeout'u iptal et
+                clearTimeout(dateInputFallback);
             });
         };
     };
