@@ -931,22 +931,21 @@ async function confirmUpload() {
         displayPhotos(allPhotos);
         updateStats();
         
-        // Modalı kapat
-        closeUploadModal();
-        
         // Bir sonraki dosyaya geç
         currentFileIndex++;
         
         if (currentFileIndex < pendingFiles.length) {
-            // Bir sonraki dosyayı işle
+            // Modalı kapat ve bir sonraki dosyayı işle
+            document.getElementById('uploadModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+            
             setTimeout(() => {
                 processNextFile();
             }, 500);
         } else {
-            // Tüm dosyalar işlendi
+            // Tüm dosyalar işlendi - modalı kapat ve temizle
             const totalUploaded = pendingFiles.length;
-            pendingFiles = [];
-            currentFileIndex = 0;
+            closeUploadModal();
             showNotification(`✨ ${totalUploaded} fotoğraf başarıyla eklendi!`);
         }
         
@@ -956,11 +955,16 @@ async function confirmUpload() {
         
         // Bir sonraki dosyaya geç
         currentFileIndex++;
+        
         if (currentFileIndex < pendingFiles.length) {
+            // Modalı kapat ve bir sonraki dosyayı işle
+            document.getElementById('uploadModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+            
             setTimeout(() => processNextFile(), 500);
         } else {
-            pendingFiles = [];
-            currentFileIndex = 0;
+            // Tüm dosyalar işlendi
+            closeUploadModal();
         }
     }
 }
