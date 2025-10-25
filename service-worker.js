@@ -76,6 +76,8 @@ self.addEventListener('fetch', event => {
               cache.put(event.request, responseToCache).catch(err => {
                 console.log('Cache put error:', err);
               });
+            }).catch(err => {
+              console.log('Cache open error:', err);
             });
         }
         return response;
@@ -87,10 +89,30 @@ self.addEventListener('fetch', event => {
             if (response) {
               return response;
             }
-            // Offline sayfası göster
+            // Offline için boş response
             if (event.request.mode === 'navigate') {
-              return caches.match('./index.html');
+              return caches.match('./index.html').then(indexResponse => {
+                return indexResponse || new Response('Offline', {
+                  status: 503,
+                  statusText: 'Service Unavailable',
+                  headers: new Headers({
+                    'Content-Type': 'text/html'
+                  })
+                });
+              });
             }
+            // Diğer kaynaklar için boş response
+            return new Response('Resource not available offline', {
+              status: 503,
+              statusText: 'Service Unavailable'
+            });
+          })
+          .catch(() => {
+            // Cache match başarısız olursa
+            return new Response('Offline', {
+              status: 503,
+              statusText: 'Service Unavailable'
+            });
           });
       })
   );
