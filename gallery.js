@@ -616,6 +616,12 @@ function processNextFile() {
                 const modal = document.getElementById('uploadModal');
                 modal.classList.add('active');
                 document.body.style.overflow = 'hidden';
+                
+                // Modal başlığını güncelle
+                const modalTitle = modal.querySelector('h3');
+                if (modalTitle && pendingFiles.length > 1) {
+                    modalTitle.textContent = `Fotoğraf ${currentFileIndex + 1} / ${pendingFiles.length}`;
+                }
             }).catch(error => {
                 console.error('❌ Fotoğraf sıkıştırma hatası:', error);
                 // Hata olursa orijinali kullan
@@ -624,13 +630,13 @@ function processNextFile() {
                 const modal = document.getElementById('uploadModal');
                 modal.classList.add('active');
                 document.body.style.overflow = 'hidden';
+                
+                // Modal başlığını güncelle
+                const modalTitle = modal.querySelector('h3');
+                if (modalTitle && pendingFiles.length > 1) {
+                    modalTitle.textContent = `Fotoğraf ${currentFileIndex + 1} / ${pendingFiles.length}`;
+                }
             });
-            
-            // Modal başlığını güncelle
-            const modalTitle = modal.querySelector('h3');
-            if (modalTitle && pendingFiles.length > 1) {
-                modalTitle.textContent = `Fotoğraf ${currentFileIndex + 1} / ${pendingFiles.length}`;
-            }
             
             // Önceki değerleri temizle (tarih hariç - EXIF'ten gelecek veya sonra default set edilecek)
             document.getElementById('uploadCaption').value = '';
