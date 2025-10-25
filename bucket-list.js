@@ -530,3 +530,12 @@ function showNotification(message) {
 window.addEventListener('focus', function() {
     loadBucketItems();
 });
+
+// Global fonksiyonları window'a ekle
+window.addNewItem = addNewItem;
+window.completeItem = completeItem;
+window.deleteItem = deleteItem;
+window.uncompleteItem = uncompleteItem;
+window.skipPhoto = skipPhoto;
+window.confirmPhotoUpload = confirmPhotoUpload;
+window.closePhotoModal = closePhotoModal;

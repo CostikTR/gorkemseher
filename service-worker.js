@@ -54,14 +54,14 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   // POST isteklerini cache'leme (Firebase istekleri için)
   if (event.request.method !== 'GET') {
-    event.respondWith(fetch(event.request));
+    event.respondWith(fetch(event.request).catch(() => new Response('Offline', { status: 503 })));
     return;
   }
   
   // Firebase isteklerini cache'leme
   if (event.request.url.includes('firestore.googleapis.com') || 
       event.request.url.includes('firebase')) {
-    event.respondWith(fetch(event.request));
+    event.respondWith(fetch(event.request).catch(() => new Response('Offline', { status: 503 })));
     return;
   }
   
