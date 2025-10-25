@@ -173,9 +173,12 @@ class FirebaseSync {
     }
 }
 
+// Export class
+export { FirebaseSync };
+
 // Global instance oluştur
 const firebaseSync = new FirebaseSync();
 
-// Export
+// Export default
 export default firebaseSync;
 export { FirebaseSync };

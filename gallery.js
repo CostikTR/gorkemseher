@@ -1,4 +1,10 @@
 // Modern Gallery System
+import { FirebaseSync } from './firebase-sync.js';
+
+// Firebase sync instance
+const firebaseSync = new FirebaseSync();
+window.firebaseSync = firebaseSync;
+
 let allPhotos = [];
 let currentFilter = 'all';
 let currentDateFilter = 'all';
@@ -18,23 +24,17 @@ document.addEventListener('DOMContentLoaded', async function() {
 async function loadPhotos() {
     try {
         // Önce Firebase'den yükle
-        if (window.firebaseSync) {
-            const firebasePhotos = await window.firebaseSync.getData('photos', 'list');
-            if (firebasePhotos && Array.isArray(firebasePhotos)) {
-                allPhotos = firebasePhotos;
-                // localStorage'ı da güncelle
-                localStorage.setItem('lovesite_photos', JSON.stringify(allPhotos));
-                console.log(`✅ ${allPhotos.length} fotoğraf Firebase'den yüklendi`);
-            } else {
-                // Firebase'de yoksa localStorage'dan yükle
-                const savedPhotos = localStorage.getItem('lovesite_photos');
-                allPhotos = savedPhotos ? JSON.parse(savedPhotos) : [];
-                console.log(`📦 ${allPhotos.length} fotoğraf localStorage'dan yüklendi`);
-            }
+        const firebasePhotos = await firebaseSync.getData('photos', 'list');
+        if (firebasePhotos && Array.isArray(firebasePhotos)) {
+            allPhotos = firebasePhotos;
+            // localStorage'ı da güncelle
+            localStorage.setItem('lovesite_photos', JSON.stringify(allPhotos));
+            console.log(`✅ ${allPhotos.length} fotoğraf Firebase'den yüklendi`);
         } else {
-            // Firebase yok, localStorage kullan
+            // Firebase'de yoksa localStorage'dan yükle
             const savedPhotos = localStorage.getItem('lovesite_photos');
             allPhotos = savedPhotos ? JSON.parse(savedPhotos) : [];
+            console.log(`📦 ${allPhotos.length} fotoğraf localStorage'dan yüklendi`);
         }
     } catch (error) {
         console.error('Fotoğraf yükleme hatası:', error);
@@ -542,21 +542,17 @@ async function confirmUpload() {
     localStorage.setItem('lovesite_photos', JSON.stringify(allPhotos));
     
     // Firebase'e kaydet - ZORUNLU
-    if (window.firebaseSync) {
-        try {
-            await window.firebaseSync.saveData('photos', 'list', allPhotos);
-            console.log('✅ Fotoğraf Firebase\'e kaydedildi, tüm cihazlardan erişilebilir');
-            
-            // Bildirim gönder (diğer kullanıcıya)
-            if (window.notificationSystem) {
-                window.notificationSystem.notifyNewPhoto(currentUser);
-            }
-        } catch (error) {
-            console.error('❌ Firebase kayıt hatası:', error);
-            alert('⚠️ Fotoğraf sadece bu cihaza kaydedildi. İnternet bağlantınızı kontrol edin.');
+    try {
+        await firebaseSync.saveData('photos', 'list', allPhotos);
+        console.log('✅ Fotoğraf Firebase\'e kaydedildi, tüm cihazlardan erişilebilir');
+        
+        // Bildirim gönder (diğer kullanıcıya)
+        if (window.notificationSystem) {
+            window.notificationSystem.notifyNewPhoto(currentUser);
         }
-    } else {
-        console.warn('⚠️ Firebase bağlantısı yok, sadece localStorage\'a kaydedildi');
+    } catch (error) {
+        console.error('❌ Firebase kayıt hatası:', error);
+        alert('⚠️ Fotoğraf sadece bu cihaza kaydedildi. İnternet bağlantınızı kontrol edin.');
     }
     
     // Modalı kapat ve galeriyi yenile
@@ -615,13 +611,11 @@ async function deletePhoto(index) {
     localStorage.setItem('lovesite_photos', JSON.stringify(allPhotos));
     
     // Firebase'den de sil
-    if (window.firebaseSync) {
-        try {
-            await window.firebaseSync.saveData('photos', 'list', allPhotos);
-            console.log('✅ Fotoğraf Firebase\'den silindi');
-        } catch (error) {
-            console.error('❌ Firebase silme hatası:', error);
-        }
+    try {
+        await firebaseSync.saveData('photos', 'list', allPhotos);
+        console.log('✅ Fotoğraf Firebase\'den silindi');
+    } catch (error) {
+        console.error('❌ Firebase silme hatası:', error);
     }
     
     await loadPhotos();
