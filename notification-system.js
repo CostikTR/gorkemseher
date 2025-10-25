@@ -302,21 +302,33 @@ class NotificationSystem {
     async notifyNewPhoto(uploaderName) {
         const currentUser = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
         
-        if (uploaderName !== currentUser) {
-            this.sendNotification(
-                '📸 Yeni Fotoğraf!',
-                `${uploaderName} yeni bir anı ekledi. Görmeye gitmez misin? 💕`,
-                '📷'
-            );
-            
-            // FCM ile push notification gönder
-            if (window.fcmManager) {
+        // Kendine bildirim gösterme
+        if (uploaderName === currentUser) {
+            return;
+        }
+        
+        // Browser notification (bu cihazda)
+        this.sendNotification(
+            '📸 Yeni Fotoğraf!',
+            `${uploaderName} yeni bir anı ekledi. Görmeye gitmez misin? 💕`,
+            '📷'
+        );
+        
+        // FCM push notification (diğer cihazlarda)
+        if (window.fcmManager) {
+            try {
+                // Diğer kullanıcı "Görkem" mi "Seher" mi?
+                const otherUser = currentUser === 'Görkem' ? 'Seher' : 'Görkem';
+                
                 await window.fcmManager.sendNotificationToUser(
-                    currentUser,
+                    otherUser,
                     '📸 Yeni Fotoğraf!',
                     `${uploaderName} yeni bir anı ekledi. Görmeye gitmez misin? 💕`,
                     { url: '/gallery.html', type: 'photo', icon: '📸' }
                 );
+                console.log(`✅ Fotoğraf bildirimi gönderildi: ${otherUser}`);
+            } catch (error) {
+                console.error('❌ FCM fotoğraf bildirim hatası:', error);
             }
         }
     }
@@ -325,21 +337,33 @@ class NotificationSystem {
     async notifyNewMessage(senderName, messagePreview) {
         const currentUser = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
         
-        if (senderName !== currentUser) {
-            this.sendNotification(
-                `💌 ${senderName}`,
-                messagePreview.substring(0, 50) + '...',
-                '💬'
-            );
-            
-            // FCM ile push notification gönder
-            if (window.fcmManager) {
+        // Kendine bildirim gösterme
+        if (senderName === currentUser) {
+            return;
+        }
+        
+        // Browser notification (bu cihazda)
+        this.sendNotification(
+            `💌 ${senderName}`,
+            messagePreview.substring(0, 50) + '...',
+            '💬'
+        );
+        
+        // FCM push notification (diğer cihazlarda)
+        if (window.fcmManager) {
+            try {
+                // Diğer kullanıcı "Görkem" mi "Seher" mi?
+                const otherUser = currentUser === 'Görkem' ? 'Seher' : 'Görkem';
+                
                 await window.fcmManager.sendNotificationToUser(
-                    currentUser,
+                    otherUser,
                     `💌 ${senderName}`,
                     messagePreview.substring(0, 50) + '...',
                     { url: '/chat.html', type: 'message', icon: '💌' }
                 );
+                console.log(`✅ Mesaj bildirimi gönderildi: ${otherUser}`);
+            } catch (error) {
+                console.error('❌ FCM mesaj bildirim hatası:', error);
             }
         }
     }
@@ -357,21 +381,33 @@ class NotificationSystem {
     async notifyNewBucketItem(itemName, addedBy) {
         const currentUser = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
         
-        if (addedBy !== currentUser) {
-            this.sendNotification(
-                '🌈 Yeni Hedef Eklendi!',
-                `${addedBy} yeni bir hedef ekledi: "${itemName}" 🎯`,
-                '🌟'
-            );
-            
-            // FCM ile push notification gönder
-            if (window.fcmManager) {
+        // Kendine bildirim gösterme
+        if (addedBy === currentUser) {
+            return;
+        }
+        
+        // Browser notification (bu cihazda)
+        this.sendNotification(
+            '🌈 Yeni Hedef Eklendi!',
+            `${addedBy} yeni bir hedef ekledi: "${itemName}" 🎯`,
+            '🌟'
+        );
+        
+        // FCM push notification (diğer cihazlarda)
+        if (window.fcmManager) {
+            try {
+                // Diğer kullanıcı "Görkem" mi "Seher" mi?
+                const otherUser = currentUser === 'Görkem' ? 'Seher' : 'Görkem';
+                
                 await window.fcmManager.sendNotificationToUser(
-                    currentUser,
+                    otherUser,
                     '🌈 Yeni Hedef Eklendi!',
                     `${addedBy} yeni bir hedef ekledi: "${itemName}" 🎯`,
                     { url: '/bucket-list.html', type: 'bucket', icon: '🌈' }
                 );
+                console.log(`✅ Bucket list bildirimi gönderildi: ${otherUser}`);
+            } catch (error) {
+                console.error('❌ FCM bucket bildirim hatası:', error);
             }
         }
     }
@@ -380,21 +416,33 @@ class NotificationSystem {
     async notifyNewQuiz(quizTitle, createdBy) {
         const currentUser = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
         
-        if (createdBy !== currentUser) {
-            this.sendNotification(
-                '🎯 Yeni Quiz!',
-                `${createdBy} yeni bir quiz hazırladı: "${quizTitle}" Hadi oyna! 🎮`,
-                '🎲'
-            );
-            
-            // FCM ile push notification gönder
-            if (window.fcmManager) {
+        // Kendine bildirim gösterme
+        if (createdBy === currentUser) {
+            return;
+        }
+        
+        // Browser notification (bu cihazda)
+        this.sendNotification(
+            '🎯 Yeni Quiz!',
+            `${createdBy} yeni bir quiz hazırladı: "${quizTitle}" Hadi oyna! 🎮`,
+            '🎲'
+        );
+        
+        // FCM push notification (diğer cihazlarda)
+        if (window.fcmManager) {
+            try {
+                // Diğer kullanıcı "Görkem" mi "Seher" mi?
+                const otherUser = currentUser === 'Görkem' ? 'Seher' : 'Görkem';
+                
                 await window.fcmManager.sendNotificationToUser(
-                    currentUser,
+                    otherUser,
                     '🎯 Yeni Quiz!',
                     `${createdBy} yeni bir quiz hazırladı: "${quizTitle}"`,
                     { url: '/quiz.html', type: 'quiz', icon: '🎯' }
                 );
+                console.log(`✅ Quiz bildirimi gönderildi: ${otherUser}`);
+            } catch (error) {
+                console.error('❌ FCM quiz bildirim hatası:', error);
             }
         }
     }
@@ -497,15 +545,37 @@ class NotificationSystem {
     }
     
     // Yeni hatırlatıcı eklendi
-    notifyNewReminder(description, date, addedBy) {
+    async notifyNewReminder(description, date, addedBy) {
         const currentUser = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
         
-        if (addedBy !== currentUser) {
-            this.sendNotification(
-                '📅 Yeni Hatırlatıcı Eklendi!',
-                `${addedBy} yeni bir hatırlatıcı ekledi: "${description}" (${date})`,
-                '🔔'
-            );
+        // Kendine bildirim gösterme
+        if (addedBy === currentUser) {
+            return;
+        }
+        
+        // Browser notification (bu cihazda)
+        this.sendNotification(
+            '📅 Yeni Hatırlatıcı Eklendi!',
+            `${addedBy} yeni bir hatırlatıcı ekledi: "${description}" (${date})`,
+            '🔔'
+        );
+        
+        // FCM push notification (diğer cihazlarda)
+        if (window.fcmManager) {
+            try {
+                // Diğer kullanıcı "Görkem" mi "Seher" mi?
+                const otherUser = currentUser === 'Görkem' ? 'Seher' : 'Görkem';
+                
+                await window.fcmManager.sendNotificationToUser(
+                    otherUser,
+                    '📅 Yeni Hatırlatıcı!',
+                    `${addedBy} yeni bir hatırlatıcı ekledi: "${description}" (${date})`,
+                    { url: '/reminders.html', type: 'reminder', icon: '�' }
+                );
+                console.log(`✅ Hatırlatıcı bildirimi gönderildi: ${otherUser}`);
+            } catch (error) {
+                console.error('❌ FCM hatırlatıcı bildirim hatası:', error);
+            }
         }
     }
 }
