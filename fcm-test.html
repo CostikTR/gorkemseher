@@ -72,6 +72,18 @@
     </div>
 
     <script type="module">
+        // FCM Manager'ı import et
+        import { FCMManager } from './fcm-manager.js';
+        
+        // FCM Manager'ı başlat
+        const fcmManager = new FCMManager();
+        window.fcmManager = fcmManager;
+        
+        // FCM'i başlat
+        fcmManager.init().catch(err => {
+            console.error('FCM başlatılamadı:', err);
+        });
+        
         const status = document.getElementById('status');
 
         function log(message, type = 'info') {
@@ -215,6 +227,24 @@
             log('✅ Bildirim gönderildi!', 'success');
             log('Başlık: ' + randomTitle, 'info');
             log('Mesaj: ' + randomBody, 'info');
+            
+            // FCM push notification (diğer cihazlara)
+            if (window.fcmManager) {
+                try {
+                    log('📡 FCM push notification gönderiliyor...', 'info');
+                    await window.fcmManager.sendNotificationToUser('shared', {
+                        title: randomTitle,
+                        body: randomBody,
+                        icon: '/icon-192.svg',
+                        badge: '/badge-72.svg',
+                        data: { url: '/fcm-test.html' }
+                    });
+                    log('✅ FCM push notification gönderildi!', 'success');
+                    log('💡 Diğer cihazlarınızı kontrol edin!', 'info');
+                } catch (error) {
+                    log('⚠️ FCM push hatası: ' + error.message, 'error');
+                }
+            }
         };
 
         // Sayfa yüklendiğinde otomatik kontrol
@@ -222,6 +252,15 @@
             log('🎯 FCM Test sayfası yüklendi!', 'success');
             log('Vercel HTTPS: ' + (location.protocol === 'https:' ? '✅' : '❌'), 
                 location.protocol === 'https:' ? 'success' : 'error');
+            
+            // FCM Manager başlatma kontrolü
+            setTimeout(() => {
+                if (window.fcmManager) {
+                    log('✅ FCM Manager yüklendi!', 'success');
+                } else {
+                    log('⚠️ FCM Manager yüklenemedi!', 'error');
+                }
+            }, 1000);
         };
     </script>
 </body>
