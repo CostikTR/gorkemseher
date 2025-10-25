@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💕 Hikayemiz - Zaman Çizelgesi</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="navigation.css">
+    <link rel="stylesheet" href="theme-switcher.css">
+    <style>
+        body {
+            padding-bottom: 90px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .timeline-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .timeline-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 60px;
+        }
+
+        .timeline-header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 20px rgba(0,0,0,0.3);
+        }
+
+        .timeline-header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        /* Vertical line */
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, 
+                rgba(255,255,255,0.3),
+                rgba(255,255,255,0.6),
+                rgba(255,255,255,0.3)
+            );
+            border-radius: 2px;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 60px;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .timeline-item:nth-child(even) {
+            text-align: right;
+        }
+
+        .timeline-content {
+            width: 45%;
+            display: inline-block;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .timeline-item:nth-child(even) .timeline-content {
+            text-align: left;
+        }
+
+        .timeline-content:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            background: rgba(255,255,255,0.2);
+        }
+
+        .timeline-date {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: #ffd700;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .timeline-icon {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border: 5px solid white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8em;
+            box-shadow: 0 5px 20px rgba(245, 87, 108, 0.4);
+            z-index: 10;
+        }
+
+        .timeline-title {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .timeline-description {
+            color: rgba(255,255,255,0.9);
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .timeline-image {
+            width: 100%;
+            border-radius: 15px;
+            margin-top: 15px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .timeline-image:hover {
+            transform: scale(1.05);
+        }
+
+        .add-memory-btn {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 2em;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(245, 87, 108, 0.5);
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .add-memory-btn:hover {
+            transform: scale(1.1) rotate(90deg);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .timeline::before {
+                left: 30px;
+            }
+
+            .timeline-item {
+                text-align: left !important;
+            }
+
+            .timeline-content {
+                width: calc(100% - 80px);
+                margin-left: 80px;
+                text-align: left !important;
+            }
+
+            .timeline-icon {
+                left: 30px;
+                width: 50px;
+                height: 50px;
+                font-size: 1.5em;
+            }
+
+            .add-memory-btn {
+                right: 20px;
+                bottom: 90px;
+            }
+        }
+
+        /* Modal for adding memories */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+
+        .modal-content h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .form-field {
+            margin-bottom: 20px;
+        }
+
+        .form-field label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .form-field input,
+        .form-field textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: border 0.3s ease;
+        }
+
+        .form-field input:focus,
+        .form-field textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-field textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Desktop Navigation -->
+    <nav class="desktop-nav">
+        <div class="desktop-nav-brand">💕 Bizim Hikayemiz</div>
+        <div class="desktop-nav-menu">
+            <a href="index.html" class="desktop-nav-item">🏠 Ana Sayfa</a>
+            <a href="gallery.html" class="desktop-nav-item">📸 Galeri</a>
+            <a href="timeline.html" class="desktop-nav-item active">📖 Hikayemiz</a>
+            <a href="bucket-list.html" class="desktop-nav-item">🌈 Hedefler</a>
+            <a href="quiz.html" class="desktop-nav-item">🎯 Quiz</a>
+            <a href="reminders.html" class="desktop-nav-item">📅 Hatırlatıcılar</a>
+            <button onclick="logout()" class="desktop-nav-item">🚪 Çıkış</button>
+        </div>
+    </nav>
+
+    <!-- Mobile Navigation -->
+    <nav class="floating-nav">
+        <a href="index.html" class="nav-item">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-text">Ana Sayfa</span>
+        </a>
+        <a href="gallery.html" class="nav-item">
+            <span class="nav-icon">📸</span>
+            <span class="nav-text">Galeri</span>
+        </a>
+        <a href="timeline.html" class="nav-item active">
+            <span class="nav-icon">📖</span>
+            <span class="nav-text">Hikayemiz</span>
+        </a>
+        <a href="bucket-list.html" class="nav-item">
+            <span class="nav-icon">🌈</span>
+            <span class="nav-text">Hedefler</span>
+        </a>
+    </nav>
+
+    <script src="auth.js"></script>
+    <script>if (!checkAuth()) window.location.href = 'login.html';</script>
+
+    <div class="timeline-container">
+        <div class="timeline-header">
+            <h1>💕 Bizim Hikayemiz</h1>
+            <p>Her an özel, her anı değerli</p>
+        </div>
+
+        <div class="timeline" id="timeline">
+            <!-- Timeline items will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Add Memory Button -->
+    <button class="add-memory-btn" onclick="openAddModal()" title="Yeni Anı Ekle">+</button>
+
+    <!-- Add Memory Modal -->
+    <div class="modal" id="addModal">
+        <div class="modal-content">
+            <h2>📖 Yeni Anı Ekle</h2>
+            <div class="form-field">
+                <label>📅 Tarih</label>
+                <input type="date" id="memoryDate" required>
+            </div>
+            <div class="form-field">
+                <label>💫 Başlık</label>
+                <input type="text" id="memoryTitle" placeholder="İlk buluşmamız..." required>
+            </div>
+            <div class="form-field">
+                <label>✍️ Açıklama</label>
+                <textarea id="memoryDescription" placeholder="Bu özel anımız hakkında..."></textarea>
+            </div>
+            <div class="form-field">
+                <label>😊 Emoji/İkon</label>
+                <input type="text" id="memoryIcon" placeholder="❤️" maxlength="2">
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="closeAddModal()">İptal</button>
+                <button class="btn btn-primary" onclick="addMemory()">Kaydet</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="theme-switcher.js"></script>
+    <script type="module" src="timeline.js"></script>
+</body>
+</html>

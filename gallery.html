@@ -47,6 +47,40 @@
             border-color: white;
             box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
         }
+        
+        /* Refresh button */
+        .refresh-btn {
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .refresh-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 255, 255, 0.3);
+        }
+        
+        .refresh-btn:active {
+            transform: translateY(0);
+        }
+        
+        .refresh-btn.refreshing {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -160,6 +194,42 @@
                         <span class="stat-number" id="totalMemories">0</span>
                         <span class="stat-label">Anı</span>
                     </div>
+                </div>
+                <button onclick="manualRefresh()" class="refresh-btn" title="Galeriyi yenile">
+                    🔄 Yenile
+                </button>
+            </div>
+        </div>
+
+        <!-- Search Bar & Sort Options -->
+        <div class="search-bar" style="max-width: 800px; margin: 20px auto; padding: 0 20px;">
+            <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 250px; position: relative;">
+                    <input type="text" id="searchInput" placeholder="🔍 Fotoğraflarda ara..." 
+                        style="width: 100%; padding: 15px 50px 15px 20px; border-radius: 50px; border: none; 
+                        font-size: 1em; background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); 
+                        color: white; box-shadow: 0 5px 20px rgba(0,0,0,0.1);"
+                        oninput="searchPhotos(this.value)">
+                    <button onclick="document.getElementById('searchInput').value=''; searchPhotos('');" 
+                        style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); 
+                        background: none; border: none; color: white; font-size: 1.2em; cursor: pointer; 
+                        opacity: 0.7; transition: opacity 0.3s;"
+                        onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'">
+                        ✕
+                    </button>
+                </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <select id="sortSelect" onchange="changeSortOrder(this.value)"
+                        style="padding: 12px 20px; border-radius: 25px; border: none; 
+                        background: rgba(255,255,255,0.25); backdrop-filter: blur(10px); 
+                        color: white; font-weight: 600; cursor: pointer; font-size: 0.95em;
+                        box-shadow: 0 5px 20px rgba(0,0,0,0.1); outline: none;">
+                        <option value="newest" style="background: #667eea; color: white;">📅 En Yeni</option>
+                        <option value="oldest" style="background: #667eea; color: white;">⏰ En Eski</option>
+                        <option value="random" style="background: #667eea; color: white;">🎲 Rastgele</option>
+                        <option value="name-asc" style="background: #667eea; color: white;">🔤 İsim A-Z</option>
+                        <option value="name-desc" style="background: #667eea; color: white;">🔤 İsim Z-A</option>
+                    </select>
                 </div>
             </div>
         </div>

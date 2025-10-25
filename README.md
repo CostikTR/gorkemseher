@@ -2,7 +2,17 @@
 
 
 
-Romantik bir web sitesi projesi - Sevgilinizle olan özel anlarınızı kaydedin ve paylaşın!Sevgiliniz için özel olarak hazırlanmış, interaktif bir aşk web sitesi!
+Romantik bir web sitesi projesi - Sevgilinizle olan özel anlarınızı kaydedin ve paylaşın!# 💝 Görkem & Seher - Aşk Sitemiz
+
+## 🌟 v2.1 - Yeni Özellikler! 🎉
+
+### Son Güncellemeler
+- 📊 **Fotoğraf Sıralama** - 5 farklı sıralama seçeneği
+- 📱 **PWA İyileştirmeleri** - Otomatik güncelleme, offline destek
+- 📖 **Timeline** - Hikayemizi kronolojik görüntüle
+- 🔍 **Galeri Arama** - Fotoğraflarda anında arama
+
+Sevgiliniz için özel olarak hazırlanmış, interaktif bir aşk web sitesi!
 
 
 

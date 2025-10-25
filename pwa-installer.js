@@ -11,6 +11,21 @@ class PWAInstaller {
             navigator.serviceWorker.register('./service-worker.js')
                 .then(registration => {
                     console.log('✅ Service Worker kayıtlı:', registration.scope);
+                    
+                    // Güncelleme kontrolü
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                this.showUpdateNotification(registration);
+                            }
+                        });
+                    });
+                    
+                    // Periyodik güncelleme kontrolü (her 1 saatte bir)
+                    setInterval(() => {
+                        registration.update();
+                    }, 60 * 60 * 1000);
                 })
                 .catch(error => {
                     console.error('❌ Service Worker kaydı başarısız:', error);
@@ -30,6 +45,46 @@ class PWAInstaller {
             this.hideInstallButton();
             this.showSuccessMessage();
         });
+    }
+    
+    showUpdateNotification(registration) {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            z-index: 99999;
+            max-width: 350px;
+            animation: slideInRight 0.5s ease-out;
+        `;
+        
+        notification.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div style="font-size: 2em;">🎉</div>
+                <div style="flex: 1;">
+                    <div style="font-weight: bold; margin-bottom: 5px;">Yeni Güncelleme!</div>
+                    <div style="font-size: 0.9em; opacity: 0.9;">Yeni özellikler mevcut</div>
+                </div>
+            </div>
+            <button onclick="location.reload()" 
+                style="margin-top: 15px; width: 100%; padding: 10px; background: white; 
+                color: #667eea; border: none; border-radius: 10px; font-weight: bold; 
+                cursor: pointer; transition: all 0.3s;">
+                Şimdi Güncelle
+            </button>
+            <button onclick="this.parentElement.remove()" 
+                style="margin-top: 8px; width: 100%; padding: 8px; background: rgba(255,255,255,0.2); 
+                color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 0.9em;">
+                Sonra
+            </button>
+        `;
+        
+        document.body.appendChild(notification);
     }
     
     showInstallButton() {
@@ -272,5 +327,45 @@ pwaStyles.textContent = `
         from { transform: translateX(-50%) translateY(0); opacity: 1; }
         to { transform: translateX(-50%) translateY(-100px); opacity: 0; }
     }
+    
+    @keyframes slideInRight {
+        from { transform: translateX(400px); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
 `;
 document.head.appendChild(pwaStyles);
+
+// PWA durumunu göster
+if (window.matchMedia('(display-mode: standalone)').matches) {
+    console.log('✅ PWA modunda çalışıyor');
+    
+    // Hoşgeldin mesajı (sadece ilk açılışta)
+    if (!sessionStorage.getItem('pwa-welcome-shown')) {
+        setTimeout(() => {
+            const welcome = document.createElement('div');
+            welcome.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 15px 30px;
+                border-radius: 50px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                z-index: 99999;
+                font-weight: bold;
+                animation: slideDown 0.5s ease-out;
+            `;
+            welcome.textContent = '💕 Hoşgeldin! Uygulama hazır';
+            document.body.appendChild(welcome);
+            
+            setTimeout(() => {
+                welcome.style.animation = 'slideUp 0.5s ease-out';
+                setTimeout(() => welcome.remove(), 500);
+            }, 2500);
+            
+            sessionStorage.setItem('pwa-welcome-shown', 'true');
+        }, 1000);
+    }
+}

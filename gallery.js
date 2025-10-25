@@ -10,6 +10,8 @@ window.firebaseSync = firebaseSync;
 let allPhotos = [];
 let currentFilter = 'all';
 let currentDateFilter = 'all';
+let currentSearchQuery = '';
+let currentSortOrder = 'newest'; // newest, oldest, random, name-asc, name-desc
 let currentLightboxIndex = 0;
 let pendingPhotoFile = null;
 let pendingPhotoData = null;
@@ -172,6 +174,17 @@ function setupDateFilterButtons() {
 function applyFilters() {
     let filtered = [...allPhotos];
     
+    // Apply search query
+    if (currentSearchQuery) {
+        const query = currentSearchQuery.toLowerCase();
+        filtered = filtered.filter(photo => {
+            const caption = (photo.caption || '').toLowerCase();
+            const category = (photo.category || '').toLowerCase();
+            const uploadedBy = (photo.uploadedBy || '').toLowerCase();
+            return caption.includes(query) || category.includes(query) || uploadedBy.includes(query);
+        });
+    }
+    
     // Apply category filter
     if (currentFilter !== 'all') {
         filtered = filtered.filter(photo => 
@@ -234,12 +247,8 @@ function displayPhotos(photos) {
     grid.innerHTML = '';
     console.log('✅ Grid temizlendi, fotoğraflar ekleniyor...');
     
-    // Sort by date (newest first)
-    const sortedPhotos = [...photos].sort((a, b) => {
-        const dateA = new Date(a.uploadedAt || 0);
-        const dateB = new Date(b.uploadedAt || 0);
-        return dateB - dateA;
-    });
+    // Sort photos based on current sort order
+    const sortedPhotos = sortPhotos([...photos], currentSortOrder);
     
     sortedPhotos.forEach((photo, index) => {
         const item = createPhotoItem(photo, index);
@@ -250,6 +259,37 @@ function displayPhotos(photos) {
             item.style.animationDelay = `${index * 0.1}s`;
         }, 10);
     });
+}
+
+// Sort photos function
+function sortPhotos(photos, order) {
+    switch(order) {
+        case 'newest':
+            return photos.sort((a, b) => (b.uploadedAt || 0) - (a.uploadedAt || 0));
+        case 'oldest':
+            return photos.sort((a, b) => (a.uploadedAt || 0) - (b.uploadedAt || 0));
+        case 'random':
+            // Shuffle array
+            for (let i = photos.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [photos[i], photos[j]] = [photos[j], photos[i]];
+            }
+            return photos;
+        case 'name-asc':
+            return photos.sort((a, b) => {
+                const nameA = (a.caption || 'Untitled').toLowerCase();
+                const nameB = (b.caption || 'Untitled').toLowerCase();
+                return nameA.localeCompare(nameB, 'tr');
+            });
+        case 'name-desc':
+            return photos.sort((a, b) => {
+                const nameA = (a.caption || 'Untitled').toLowerCase();
+                const nameB = (b.caption || 'Untitled').toLowerCase();
+                return nameB.localeCompare(nameA, 'tr');
+            });
+        default:
+            return photos.sort((a, b) => (b.uploadedAt || 0) - (a.uploadedAt || 0));
+    }
 }
 
 // Create photo item element
@@ -406,10 +446,8 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-// Refresh on window focus
-window.addEventListener('focus', function() {
-    loadPhotos();
-});
+// Otomatik yenileme KALDIRILDI - performans için
+// Artık sadece manuel yenileme veya yeni fotoğraf eklendiğinde güncelleme yapılır
 
 // Setup upload handlers
 function setupUploadHandlers() {
@@ -1085,3 +1123,46 @@ window.deletePhoto = deletePhoto;
 window.openLightbox = openLightbox;
 window.closeLightbox = closeLightbox;
 window.navigateLightbox = navigateLightbox;
+
+// Manuel yenileme fonksiyonu
+window.manualRefresh = async function() {
+    const btn = event.target;
+    if (btn.classList.contains('refreshing')) return; // Zaten yenileniyorsa
+    
+    btn.classList.add('refreshing');
+    btn.disabled = true;
+    
+    try {
+        console.log('🔄 Manuel yenileme başladı...');
+        await loadPhotos();
+        showNotification('✅ Galeri güncellendi!', 'success');
+    } catch (error) {
+        console.error('❌ Yenileme hatası:', error);
+        showNotification('❌ Yenileme başarısız', 'error');
+    } finally {
+        btn.classList.remove('refreshing');
+        btn.disabled = false;
+    }
+};
+
+// Arama fonksiyonu
+window.searchPhotos = function(query) {
+    currentSearchQuery = query.trim();
+    applyFilters();
+};
+
+// Sıralama değiştirme fonksiyonu
+window.changeSortOrder = function(order) {
+    currentSortOrder = order;
+    applyFilters();
+    
+    // Bildirim göster
+    const sortNames = {
+        'newest': 'En Yeni Önce',
+        'oldest': 'En Eski Önce',
+        'random': 'Rastgele Sıralama',
+        'name-asc': 'İsim A-Z',
+        'name-desc': 'İsim Z-A'
+    };
+    showNotification(`🔄 ${sortNames[order]}`, 'success');
+};

@@ -1,24 +1,32 @@
 // Service Worker - PWA Offline Desteği
-const CACHE_NAME = 'love-site-v1';
+const CACHE_NAME = 'love-site-v2.1';
 const urlsToCache = [
   './',
   './index.html',
   './gallery.html',
+  './timeline.html',
   './bucket-list.html',
   './chat.html',
+  './quiz.html',
+  './playlist.html',
+  './gifts.html',
+  './reminders.html',
   './admin.html',
   './login.html',
   './style.css',
   './gallery.css',
   './navigation.css',
+  './theme-switcher.css',
   './script.js',
   './gallery.js',
+  './timeline.js',
   './auth.js',
   './firebase-config.js',
   './firebase-sync.js',
   './notification-system.js',
   './pwa-installer.js',
-  './video-manager.js'
+  './video-manager.js',
+  './theme-switcher.js'
 ];
 
 // Install event - cache dosyaları

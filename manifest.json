@@ -1,62 +1,126 @@
 {
-  "name": "Bizim Hikayemiz 💕",
-  "short_name": "Aşkımız",
-  "description": "Bizim özel aşk hikayemiz - Sadece biz ikimizin alanı",
-  "start_url": "/",
+  "name": "Bizim Hikayemiz 💕 - Görkem & Seher",
+  "short_name": "Aşkımız 💕",
+  "description": "Bizim özel aşk hikayemiz - Her anımız değerli, her fotoğraf bir hatıra",
+  "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#667eea",
   "theme_color": "#764ba2",
-  "orientation": "portrait-primary",
+  "orientation": "any",
   "scope": "/",
+  "lang": "tr",
+  "dir": "ltr",
+  "prefer_related_applications": false,
   "icons": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23667eea'/><text x='50' y='70' font-size='60' text-anchor='middle'>💕</text></svg>",
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%23667eea;stop-opacity:1'/><stop offset='100%' style='stop-color:%23764ba2;stop-opacity:1'/></linearGradient></defs><rect width='100' height='100' fill='url(%23grad)'/><text x='50' y='70' font-size='60' text-anchor='middle'>💕</text></svg>",
+      "sizes": "72x72",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%23667eea;stop-opacity:1'/><stop offset='100%' style='stop-color:%23764ba2;stop-opacity:1'/></linearGradient></defs><rect width='100' height='100' fill='url(%23grad)'/><text x='50' y='70' font-size='60' text-anchor='middle'>💕</text></svg>",
+      "sizes": "96x96",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%23667eea;stop-opacity:1'/><stop offset='100%' style='stop-color:%23764ba2;stop-opacity:1'/></linearGradient></defs><rect width='100' height='100' fill='url(%23grad)'/><text x='50' y='70' font-size='60' text-anchor='middle'>💕</text></svg>",
+      "sizes": "128x128",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%23667eea;stop-opacity:1'/><stop offset='100%' style='stop-color:%23764ba2;stop-opacity:1'/></linearGradient></defs><rect width='100' height='100' fill='url(%23grad)'/><text x='50' y='70' font-size='60' text-anchor='middle'>💕</text></svg>",
+      "sizes": "144x144",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%23667eea;stop-opacity:1'/><stop offset='100%' style='stop-color:%23764ba2;stop-opacity:1'/></linearGradient></defs><rect width='100' height='100' fill='url(%23grad)'/><text x='50' y='70' font-size='60' text-anchor='middle'>💕</text></svg>",
+      "sizes": "152x152",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%23667eea;stop-opacity:1'/><stop offset='100%' style='stop-color:%23764ba2;stop-opacity:1'/></linearGradient></defs><rect width='100' height='100' fill='url(%23grad)'/><text x='50' y='70' font-size='60' text-anchor='middle'>💕</text></svg>",
       "sizes": "192x192",
       "type": "image/svg+xml",
       "purpose": "any maskable"
     },
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23764ba2'/><text x='50' y='70' font-size='60' text-anchor='middle'>💕</text></svg>",
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%23667eea;stop-opacity:1'/><stop offset='100%' style='stop-color:%23764ba2;stop-opacity:1'/></linearGradient></defs><rect width='100' height='100' fill='url(%23grad)'/><text x='50' y='70' font-size='60' text-anchor='middle'>💕</text></svg>",
+      "sizes": "384x384",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%23667eea;stop-opacity:1'/><stop offset='100%' style='stop-color:%23764ba2;stop-opacity:1'/></linearGradient></defs><rect width='100' height='100' fill='url(%23grad)'/><text x='50' y='70' font-size='60' text-anchor='middle'>💕</text></svg>",
       "sizes": "512x512",
       "type": "image/svg+xml",
       "purpose": "any maskable"
     }
   ],
-  "categories": ["lifestyle", "social"],
-  "screenshots": [],
+  "categories": ["lifestyle", "social", "personalization"],
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='540' height='720' viewBox='0 0 540 720'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%23667eea'/><stop offset='100%' style='stop-color:%23764ba2'/></linearGradient></defs><rect width='540' height='720' fill='url(%23bg)'/><text x='270' y='360' font-size='80' text-anchor='middle' fill='white'>💕</text><text x='270' y='440' font-size='24' text-anchor='middle' fill='white'>Bizim Hikayemiz</text></svg>",
+      "sizes": "540x720",
+      "type": "image/svg+xml",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='720' height='540' viewBox='0 0 720 540'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%23667eea'/><stop offset='100%' style='stop-color:%23764ba2'/></linearGradient></defs><rect width='720' height='540' fill='url(%23bg)'/><text x='360' y='270' font-size='80' text-anchor='middle' fill='white'>💕</text><text x='360' y='350' font-size='24' text-anchor='middle' fill='white'>Bizim Hikayemiz</text></svg>",
+      "sizes": "720x540",
+      "type": "image/svg+xml",
+      "form_factor": "wide"
+    }
+  ],
   "shortcuts": [
     {
-      "name": "Galeri",
+      "name": "📸 Galeri",
       "short_name": "Galeri",
-      "description": "Fotoğraflarımıza bak",
+      "description": "Fotoğraflarımıza göz at",
       "url": "/gallery.html",
       "icons": [
         {
-          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text x='50' y='70' font-size='60' text-anchor='middle'>📸</text></svg>",
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23667eea'/><text x='50' y='70' font-size='60' text-anchor='middle'>📸</text></svg>",
           "sizes": "96x96"
         }
       ]
     },
     {
-      "name": "Mesajlar",
-      "short_name": "Mesajlar",
-      "description": "Mesajlaşmaya git",
+      "name": "📖 Hikayemiz",
+      "short_name": "Timeline",
+      "description": "Anılarımızı zaman çizelgesinde gör",
+      "url": "/timeline.html",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23667eea'/><text x='50' y='70' font-size='60' text-anchor='middle'>📖</text></svg>",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "💌 Mesajlar",
+      "short_name": "Chat",
+      "description": "Mesajlaşmaya başla",
       "url": "/chat.html",
       "icons": [
         {
-          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text x='50' y='70' font-size='60' text-anchor='middle'>💌</text></svg>",
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23667eea'/><text x='50' y='70' font-size='60' text-anchor='middle'>💌</text></svg>",
           "sizes": "96x96"
         }
       ]
     },
     {
-      "name": "Hedefler",
-      "short_name": "Hedefler",
-      "description": "Bucket list'imize bak",
+      "name": "🌈 Hedefler",
+      "short_name": "Bucket List",
+      "description": "Hayallerimize bak",
       "url": "/bucket-list.html",
       "icons": [
         {
-          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text x='50' y='70' font-size='60' text-anchor='middle'>🌈</text></svg>",
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23667eea'/><text x='50' y='70' font-size='60' text-anchor='middle'>🌈</text></svg>",
           "sizes": "96x96"
         }
       ]
@@ -67,12 +131,24 @@
     "method": "POST",
     "enctype": "multipart/form-data",
     "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
       "files": [
         {
-          "name": "photo",
-          "accept": ["image/*"]
+          "name": "photos",
+          "accept": ["image/*", "video/*"]
         }
       ]
     }
-  }
+  },
+  "file_handlers": [
+    {
+      "action": "/gallery.html",
+      "accept": {
+        "image/*": [".jpg", ".jpeg", ".png", ".gif", ".webp"],
+        "video/*": [".mp4", ".mov", ".avi"]
+      }
+    }
+  ]
 }
