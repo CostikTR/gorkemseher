@@ -840,3 +840,6 @@ window.confirmUpload = confirmUpload;
 window.closeUploadModal = closeUploadModal;
 window.switchFilter = switchFilter;
 window.deletePhoto = deletePhoto;
+window.openLightbox = openLightbox;
+window.closeLightbox = closeLightbox;
+window.navigateLightbox = navigateLightbox;
