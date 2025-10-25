@@ -24,51 +24,12 @@ document.addEventListener('DOMContentLoaded', async function() {
         await dbStorage.migrateFromLocalStorage();
     }
     
-    // Mevcut verileri Firebase'e aktar (metadata)
-    await migrateLocalStorageToFirebase();
-    
     await loadPhotos();
     setupFilterButtons();
     setupDateFilterButtons();
     setupUploadHandlers();
     setupLightboxHandlers();
 });
-
-// localStorage'dan Firebase'e veri taşıma (sadece metadata)
-async function migrateLocalStorageToFirebase() {
-    try {
-        const migrated = await dbStorage.getSetting('metadata_migrated_to_firebase');
-        if (migrated) {
-            console.log('📋 Metadata zaten Firebase\'e taşınmış');
-            return;
-        }
-        
-        // IndexedDB'deki fotoğrafları kontrol et
-        const photos = await dbStorage.getAllPhotos();
-        if (photos && photos.length > 0) {
-            console.log(`🔄 ${photos.length} fotoğraf metadata'sı Firebase'e aktarılıyor...`);
-            
-            // Sadece metadata'yı kaydet (Base64 olmadan)
-            const photoMetadata = photos.map(p => ({
-                id: p.id,
-                caption: p.caption,
-                category: p.category,
-                uploadedAt: p.uploadedAt,
-                uploadedBy: p.uploadedBy,
-            }));
-            
-            await firebaseSync.saveData('photos', 'metadata', { 
-                data: photoMetadata,
-                count: photos.length,
-                lastUpdate: Date.now()
-            });
-            await dbStorage.saveSetting('metadata_migrated_to_firebase', true);
-            console.log('✅ Fotoğraf metadata\'sı Firebase\'e aktarıldı!');
-        }
-    } catch (error) {
-        console.error('⚠️ Migration hatası:', error);
-    }
-}
 
 // Load photos from IndexedDB (ana kaynak) ve Firebase metadata (sync kontrolü)
 async function loadPhotos() {
@@ -78,17 +39,26 @@ async function loadPhotos() {
         
         console.log(`📦 ${allPhotos.length} fotoğraf IndexedDB'den yüklendi`);
         
-        // Firebase'den metadata'yı kontrol et (sadece bilgi amaçlı)
-        try {
-            const firebaseData = await firebaseSync.getData('photos', 'metadata');
-            if (firebaseData && firebaseData.count !== undefined) {
-                console.log(`🔍 Firebase metadata: ${firebaseData.count} fotoğraf`);
-                if (firebaseData.count !== allPhotos.length) {
-                    console.warn('⚠️ IndexedDB ve Firebase sayıları uyuşmuyor');
-                }
+        // Firebase'e güncel metadata'yı kaydet (her yüklemede)
+        if (allPhotos.length > 0) {
+            try {
+                const photoMetadata = allPhotos.map(p => ({
+                    id: p.id,
+                    caption: p.caption,
+                    category: p.category,
+                    uploadedAt: p.uploadedAt,
+                    uploadedBy: p.uploadedBy,
+                }));
+                
+                await firebaseSync.saveData('photos', 'metadata', { 
+                    data: photoMetadata,
+                    count: allPhotos.length,
+                    lastUpdate: Date.now()
+                });
+                console.log(`✅ ${allPhotos.length} fotoğraf metadata'sı Firebase'e senkronize edildi`);
+            } catch (error) {
+                console.log('ℹ️ Firebase sync hatası (offline olabilirsiniz):', error.message);
             }
-        } catch (error) {
-            console.log('ℹ️ Firebase metadata yüklenemedi (normal):', error.message);
         }
     } catch (error) {
         console.error('Fotoğraf yükleme hatası:', error);
