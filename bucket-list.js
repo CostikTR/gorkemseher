@@ -224,7 +224,7 @@ function createItemCard(item) {
 }
 
 // Add new item
-function addNewItem() {
+async function addNewItem() {
     const emoji = document.getElementById('newItemEmoji').value.trim();
     const text = document.getElementById('newItemText').value.trim();
     
@@ -243,7 +243,7 @@ function addNewItem() {
     };
     
     bucketItems.push(newItem);
-    saveBucketItems();
+    await saveBucketItems();
     displayItems();
     updateStats();
     
@@ -265,7 +265,7 @@ function completeItem(id) {
 }
 
 // Uncomplete item
-function uncompleteItem(id) {
+async function uncompleteItem(id) {
     const item = bucketItems.find(item => item.id === id);
     if (!item) return;
     
@@ -273,7 +273,7 @@ function uncompleteItem(id) {
     item.completedAt = null;
     item.photo = null;
     
-    saveBucketItems();
+    await saveBucketItems();
     displayItems();
     updateStats();
     
@@ -281,11 +281,11 @@ function uncompleteItem(id) {
 }
 
 // Delete item
-function deleteItem(id) {
+async function deleteItem(id) {
     if (!confirm('Bu hedefi silmek istediğinizden emin misiniz?')) return;
     
     bucketItems = bucketItems.filter(item => item.id !== id);
-    saveBucketItems();
+    await saveBucketItems();
     displayItems();
     updateStats();
     
@@ -317,14 +317,14 @@ function setupPhotoHandler() {
 }
 
 // Skip photo upload
-function skipPhoto() {
+async function skipPhoto() {
     if (!currentCompletingItem) return;
     
     currentCompletingItem.completed = true;
     currentCompletingItem.completedAt = Date.now();
     currentCompletingItem.photo = null;
     
-    saveBucketItems();
+    await saveBucketItems();
     closePhotoModal();
     displayItems();
     updateStats();
@@ -347,7 +347,7 @@ async function confirmPhotoUpload() {
         bucketItems[itemIndex].photo = completionPhotoData;
     }
     
-    saveBucketItems();
+    await saveBucketItems();
     
     // Try to add to gallery with error handling
     const galleryAdded = await addToGallery(bucketItems[itemIndex]);

@@ -48,7 +48,12 @@ class ChatSystem {
         }
     }
 
-    addMessage(text, sender = 'me') {
+    addMessage(text, sender = null) {
+        // Eğer sender belirtilmemişse, mevcut kullanıcıyı kullan
+        if (!sender) {
+            sender = sessionStorage.getItem('currentUser') || localStorage.getItem('currentUser') || 'me';
+        }
+        
         const message = {
             id: Date.now(),
             text: text.trim(),
@@ -184,8 +189,11 @@ class ChatSystem {
     }
 
     createMessageBubble(message) {
+        const currentUser = sessionStorage.getItem('currentUser') || localStorage.getItem('currentUser') || 'me';
+        const isMyMessage = message.sender === currentUser;
+        
         const bubble = document.createElement('div');
-        bubble.className = `message-bubble ${message.sender === 'me' ? 'from-me' : ''}`;
+        bubble.className = `message-bubble ${isMyMessage ? 'from-me' : ''}`;
         
         const date = new Date(message.timestamp);
         const timeString = date.toLocaleString('tr-TR', {
@@ -196,8 +204,8 @@ class ChatSystem {
             minute: '2-digit'
         });
 
-        const senderEmoji = message.sender === 'me' ? '👤' : '💕';
-        const senderName = message.sender === 'me' ? 'Ben' : 'Sen';
+        const senderEmoji = isMyMessage ? '👤' : '💕';
+        const senderName = message.sender;
 
         bubble.innerHTML = `
             <div class="message-avatar">${senderEmoji}</div>
@@ -209,7 +217,7 @@ class ChatSystem {
                 </div>
                 <div class="message-body">
                     <div class="message-text">${this.escapeHtml(message.text)}</div>
-                    ${message.sender === 'me' ? `
+                    ${isMyMessage ? `
                         <div class="message-actions">
                             <button class="message-action-btn ${message.loved ? 'loved' : ''}" onclick="chat.toggleLove(${message.id})">
                                 ${message.loved ? '❤️' : '🤍'} ${message.loved ? 'Favorilerde' : 'Favorilere Ekle'}

@@ -163,8 +163,20 @@ async function addMessage() {
         return;
     }
     
-    const savedMessages = localStorage.getItem(STORAGE_KEYS.MESSAGES);
-    const messages = savedMessages ? JSON.parse(savedMessages) : getDefaultMessages();
+    // Önce Firebase'den mevcut mesajları al
+    let messages = [];
+    try {
+        const messagesData = await firebaseSync.getData('messages', 'list');
+        if (messagesData && messagesData.data) {
+            messages = messagesData.data;
+        } else {
+            const savedMessages = localStorage.getItem(STORAGE_KEYS.MESSAGES);
+            messages = savedMessages ? JSON.parse(savedMessages) : getDefaultMessages();
+        }
+    } catch (error) {
+        const savedMessages = localStorage.getItem(STORAGE_KEYS.MESSAGES);
+        messages = savedMessages ? JSON.parse(savedMessages) : getDefaultMessages();
+    }
     
     messages.push(newMessage);
     localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(messages));
@@ -178,7 +190,7 @@ async function addMessage() {
     }
     
     document.getElementById('newMessage').value = '';
-    loadMessages();
+    await loadMessages();
     showSuccess('messageSuccess');
 }
 
@@ -188,8 +200,20 @@ async function deleteMessage(index) {
         return;
     }
     
-    const savedMessages = localStorage.getItem(STORAGE_KEYS.MESSAGES);
-    const messages = savedMessages ? JSON.parse(savedMessages) : [];
+    // Önce Firebase'den mevcut mesajları al
+    let messages = [];
+    try {
+        const messagesData = await firebaseSync.getData('messages', 'list');
+        if (messagesData && messagesData.data) {
+            messages = messagesData.data;
+        } else {
+            const savedMessages = localStorage.getItem(STORAGE_KEYS.MESSAGES);
+            messages = savedMessages ? JSON.parse(savedMessages) : [];
+        }
+    } catch (error) {
+        const savedMessages = localStorage.getItem(STORAGE_KEYS.MESSAGES);
+        messages = savedMessages ? JSON.parse(savedMessages) : [];
+    }
     
     messages.splice(index, 1);
     localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(messages));
@@ -202,7 +226,7 @@ async function deleteMessage(index) {
         console.error('❌ Firebase güncelleme hatası:', error);
     }
     
-    loadMessages();
+    await loadMessages();
 }
 
 // Fotoğrafları yükle

@@ -565,6 +565,9 @@ async function confirmUpload() {
     // Kullanıcı bilgisi
     const currentUser = localStorage.getItem('lovesite_currentUser') || 'Anonim';
     
+    // Benzersiz ID oluştur (timestamp + random)
+    const uniqueId = Date.now() + Math.random().toString(36).substr(2, 9);
+    
     // Fotoğrafı kaydet
     const photo = {
         src: pendingPhotoData,
@@ -572,8 +575,23 @@ async function confirmUpload() {
         category: category,
         uploadedAt: uploadedAt,
         uploadedBy: currentUser,
-        id: Date.now() + currentFileIndex
+        id: uniqueId
     };
+    
+    // Çift yüklemeyi önle - aynı src varsa ekleme
+    const existingPhoto = allPhotos.find(p => p.src === pendingPhotoData);
+    if (existingPhoto) {
+        console.warn('⚠️ Bu fotoğraf zaten mevcut, tekrar eklenmedi');
+        closeUploadModal();
+        currentFileIndex++;
+        if (currentFileIndex < pendingFiles.length) {
+            setTimeout(() => processNextFile(), 500);
+        } else {
+            pendingFiles = [];
+            currentFileIndex = 0;
+        }
+        return;
+    }
     
     allPhotos.push(photo);
     localStorage.setItem('lovesite_photos', JSON.stringify(allPhotos));
