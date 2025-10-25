@@ -12,20 +12,22 @@ class PWAInstaller {
                 .then(registration => {
                     console.log('✅ Service Worker kayıtlı:', registration.scope);
                     
-                    // Güncelleme kontrolü
+                    // Güncelleme kontrolü (sadece yeni worker bulunduğunda)
                     registration.addEventListener('updatefound', () => {
                         const newWorker = registration.installing;
                         newWorker.addEventListener('statechange', () => {
                             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                this.showUpdateNotification(registration);
+                                // Sadece bir kez göster (session bazlı)
+                                if (!sessionStorage.getItem('update-shown')) {
+                                    this.showUpdateNotification(registration);
+                                    sessionStorage.setItem('update-shown', 'true');
+                                }
                             }
                         });
                     });
                     
-                    // Periyodik güncelleme kontrolü (her 1 saatte bir)
-                    setInterval(() => {
-                        registration.update();
-                    }, 60 * 60 * 1000);
+                    // KALDIRILDI: Otomatik periyodik kontrol (çok sık güncelleme mesajı veriyordu)
+                    // Tarayıcı zaten otomatik kontrol yapıyor, ekstra gerek yok
                 })
                 .catch(error => {
                     console.error('❌ Service Worker kaydı başarısız:', error);
@@ -48,7 +50,13 @@ class PWAInstaller {
     }
     
     showUpdateNotification(registration) {
+        // Zaten varsa gösterme
+        if (document.getElementById('update-notification')) {
+            return;
+        }
+        
         const notification = document.createElement('div');
+        notification.id = 'update-notification';
         notification.style.cssText = `
             position: fixed;
             top: 20px;
@@ -77,7 +85,7 @@ class PWAInstaller {
                 cursor: pointer; transition: all 0.3s;">
                 Şimdi Güncelle
             </button>
-            <button onclick="this.parentElement.remove()" 
+            <button onclick="this.parentElement.remove(); sessionStorage.setItem('update-dismissed', 'true');" 
                 style="margin-top: 8px; width: 100%; padding: 8px; background: rgba(255,255,255,0.2); 
                 color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 0.9em;">
                 Sonra

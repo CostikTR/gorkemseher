@@ -1,5 +1,5 @@
 // Service Worker - PWA Offline Desteği
-const CACHE_NAME = 'love-site-v2.1';
+const CACHE_NAME = 'love-site-v2.1.1';
 const urlsToCache = [
   './',
   './index.html',
