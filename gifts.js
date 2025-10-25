@@ -1,4 +1,6 @@
 // Gifts System
+import firebaseSync from './firebase-sync.js';
+
 class GiftsSystem {
     constructor() {
         this.gifts = [];
@@ -6,7 +8,22 @@ class GiftsSystem {
         this.loadGifts();
     }
 
-    loadGifts() {
+    async loadGifts() {
+        // Firebase'den yükle
+        try {
+            const firebaseData = await firebaseSync.getData('gifts', 'list');
+            if (firebaseData && firebaseData.items) {
+                this.gifts = firebaseData.items;
+                localStorage.setItem('gifts', JSON.stringify(this.gifts));
+                this.displayGifts();
+                this.updateStats();
+                return;
+            }
+        } catch (err) {
+            console.log('Firebase gifts yükleme hatası:', err);
+        }
+
+        // Fallback: localStorage
         const saved = localStorage.getItem('gifts');
         if (saved) {
             this.gifts = JSON.parse(saved);
@@ -15,8 +32,15 @@ class GiftsSystem {
         this.updateStats();
     }
 
-    saveGifts() {
+    async saveGifts() {
         localStorage.setItem('gifts', JSON.stringify(this.gifts));
+        
+        // Firebase'e kaydet
+        try {
+            await firebaseSync.saveData('gifts', 'list', { items: this.gifts });
+        } catch (err) {
+            console.error('Gifts Firebase kayıt hatası:', err);
+        }
     }
 
     addGift(giftData) {

@@ -1,4 +1,6 @@
 // Quiz Game System
+import firebaseSync from './firebase-sync.js';
+
 class QuizGame {
     constructor() {
         this.questions = [];
@@ -11,11 +13,27 @@ class QuizGame {
         this.timeLeft = 30;
         this.startTime = null;
         this.totalTime = 0;
-        this.loadQuestions();
-        this.loadStats();
+        this.stats = {
+            totalPlays: 0,
+            highScore: 0,
+            totalQuestions: 0
+        };
     }
 
-    loadQuestions() {
+    async loadQuestions() {
+        // Firebase'den yükle
+        try {
+            const firebaseData = await firebaseSync.getData('quiz', 'questions');
+            if (firebaseData && firebaseData.list) {
+                this.questions = firebaseData.list;
+                localStorage.setItem('quizQuestions', JSON.stringify(this.questions));
+                return;
+            }
+        } catch (err) {
+            console.log('Firebase quiz yükleme hatası:', err);
+        }
+
+        // Fallback: localStorage
         const saved = localStorage.getItem('quizQuestions');
         if (saved) {
             this.questions = JSON.parse(saved);
@@ -67,11 +85,31 @@ class QuizGame {
         }
     }
 
-    saveQuestions() {
+    async saveQuestions() {
         localStorage.setItem('quizQuestions', JSON.stringify(this.questions));
+        
+        // Firebase'e kaydet
+        try {
+            await firebaseSync.saveData('quiz', 'questions', { list: this.questions });
+        } catch (err) {
+            console.error('Quiz Firebase kayıt hatası:', err);
+        }
     }
 
-    loadStats() {
+    async loadStats() {
+        // Firebase'den yükle
+        try {
+            const firebaseStats = await firebaseSync.getData('quiz', 'stats');
+            if (firebaseStats) {
+                this.stats = firebaseStats;
+                localStorage.setItem('quizStats', JSON.stringify(this.stats));
+                return;
+            }
+        } catch (err) {
+            console.log('Firebase quiz stats yükleme hatası:', err);
+        }
+
+        // Fallback: localStorage
         const stats = localStorage.getItem('quizStats');
         if (stats) {
             this.stats = JSON.parse(stats);
@@ -84,13 +122,20 @@ class QuizGame {
         }
     }
 
-    saveStats() {
+    async saveStats() {
         this.stats.totalPlays++;
         if (this.score > this.stats.highScore) {
             this.stats.highScore = this.score;
         }
         this.stats.totalQuestions = this.questions.length;
         localStorage.setItem('quizStats', JSON.stringify(this.stats));
+        
+        // Firebase'e kaydet
+        try {
+            await firebaseSync.saveData('quiz', 'stats', this.stats);
+        } catch (err) {
+            console.error('Quiz stats Firebase kayıt hatası:', err);
+        }
     }
 
     startGame(difficulty) {
@@ -342,7 +387,7 @@ class QuizGame {
                         <span>✗ ${q.wrong3}</span>
                     </div>
                 </div>
-                <button class="delete-question-btn" onclick="quiz.deleteQuestion(${q.id})">
+                <button class="delete-question-btn" onclick="window.deleteQuizQuestion(${q.id})">
                     🗑️ Sil
                 </button>
             `;
@@ -354,9 +399,19 @@ class QuizGame {
 // Initialize quiz
 let quiz;
 
-document.addEventListener('DOMContentLoaded', () => {
+// Global fonksiyonlar (HTML'den erişilebilir)
+window.deleteQuizQuestion = function(id) {
+    if (quiz) {
+        quiz.deleteQuestion(id);
+    }
+};
+
+document.addEventListener('DOMContentLoaded', async () => {
     quiz = new QuizGame();
+    await quiz.loadQuestions();
+    await quiz.loadStats();
     quiz.displayStats();
+    quiz.displayQuestions();
 
     // Difficulty buttons
     const easyBtn = document.getElementById('easy-btn');

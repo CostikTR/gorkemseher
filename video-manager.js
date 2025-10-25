@@ -4,13 +4,29 @@
 
 class VideoManager {
     constructor() {
-        this.videos = this.loadVideos();
+        this.videos = [];
         this.currentVideoIndex = 0;
+        this.loadVideos();
     }
     
-    loadVideos() {
+    async loadVideos() {
+        // Firebase'den yükle
+        if (window.firebaseSync) {
+            try {
+                const firebaseData = await window.firebaseSync.getData('videos', 'list');
+                if (firebaseData && Array.isArray(firebaseData)) {
+                    this.videos = firebaseData;
+                    localStorage.setItem('lovesite_videos', JSON.stringify(this.videos));
+                    return;
+                }
+            } catch (err) {
+                console.log('Firebase video yükleme hatası:', err);
+            }
+        }
+
+        // Fallback: localStorage
         const saved = localStorage.getItem('lovesite_videos');
-        return saved ? JSON.parse(saved) : [];
+        this.videos = saved ? JSON.parse(saved) : [];
     }
     
     saveVideos() {

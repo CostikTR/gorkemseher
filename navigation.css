@@ -1,7 +1,82 @@
 /* ==========================================
-   MODERN BOTTOM NAVIGATION - SADECE MOBİL
+   MODERN NAVIGATION SYSTEM
+   Desktop: Top navbar
+   Mobile: Bottom navbar with "More" menu
    ========================================== */
 
+/* DESKTOP NAVIGATION - Üst Bar */
+.desktop-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.95) 0%, rgba(118, 75, 162, 0.95) 100%);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+    padding: 15px 30px;
+    z-index: 1000;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 
+                0 2px 8px rgba(255, 255, 255, 0.1) inset;
+    display: none;
+}
+
+@media (min-width: 1025px) {
+    .desktop-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    body {
+        padding-top: 80px !important;
+    }
+}
+
+.desktop-nav-brand {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.desktop-nav-menu {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.desktop-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.desktop-nav-item:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(255, 255, 255, 0.3);
+}
+
+.desktop-nav-item.active {
+    background: linear-gradient(135deg, rgba(240, 147, 251, 0.4), rgba(245, 87, 108, 0.4));
+    box-shadow: 0 4px 16px rgba(240, 147, 251, 0.5);
+}
+
+/* MOBILE NAVIGATION - Alt Bar */
 .floating-nav {
     position: fixed;
     bottom: 0;
@@ -19,7 +94,7 @@
                 0 -2px 8px rgba(255, 255, 255, 0.1) inset;
     max-width: 100vw;
     max-height: 85px;
-    overflow: hidden;
+    overflow: visible;
     contain: layout style paint;
     
     /* Desktop'ta gizle */
@@ -31,6 +106,82 @@
     .floating-nav {
         display: flex;
     }
+}
+
+/* More Menu Popup */
+.more-menu {
+    position: fixed;
+    bottom: 90px;
+    right: 10px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.98) 0%, rgba(118, 75, 162, 0.98) 100%);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border-radius: 20px;
+    padding: 15px;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.5), 
+                0 2px 16px rgba(255, 255, 255, 0.2) inset;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 180px;
+    z-index: 1001;
+    animation: slideUpMenu 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.more-menu.active {
+    display: flex;
+}
+
+@keyframes slideUpMenu {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.more-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    color: white;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 0.95em;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.more-menu-item:hover,
+.more-menu-item:active {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateX(-3px);
+}
+
+.more-menu-item .menu-icon {
+    font-size: 1.3em;
+}
+
+/* Overlay for closing menu */
+.more-menu-overlay {
+    position: fixed;
+    inset: 0;
+    background: transparent;
+    z-index: 999;
+    display: none;
+}
+
+.more-menu-overlay.active {
+    display: block;
 }
 
 .nav-item {

@@ -1,4 +1,6 @@
 // Playlist System with YouTube Player
+import firebaseSync from './firebase-sync.js';
+
 class PlaylistSystem {
     constructor() {
         this.songs = [];
@@ -8,7 +10,22 @@ class PlaylistSystem {
         this.loadSongs();
     }
 
-    loadSongs() {
+    async loadSongs() {
+        // Firebase'den yükle
+        try {
+            const firebaseData = await firebaseSync.getData('playlist', 'songs');
+            if (firebaseData && firebaseData.list) {
+                this.songs = firebaseData.list;
+                localStorage.setItem('playlist', JSON.stringify(this.songs));
+                this.displaySongs();
+                this.updateStats();
+                return;
+            }
+        } catch (err) {
+            console.log('Firebase playlist yükleme hatası:', err);
+        }
+
+        // Fallback: localStorage
         const saved = localStorage.getItem('playlist');
         if (saved) {
             this.songs = JSON.parse(saved);
@@ -17,8 +34,15 @@ class PlaylistSystem {
         this.updateStats();
     }
 
-    saveSongs() {
+    async saveSongs() {
         localStorage.setItem('playlist', JSON.stringify(this.songs));
+        
+        // Firebase'e kaydet
+        try {
+            await firebaseSync.saveData('playlist', 'songs', { list: this.songs });
+        } catch (err) {
+            console.error('Playlist Firebase kayıt hatası:', err);
+        }
     }
 
     addSong(songData) {

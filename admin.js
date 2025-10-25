@@ -14,6 +14,13 @@ const STORAGE_KEYS = {
     BUCKET: 'lovesite_bucket'
 };
 
+// Global fonksiyonlar (HTML'den erişilebilir)
+window.updateDate = updateDate;
+window.addMessage = addMessage;
+window.deleteMessage = deleteMessage;
+window.deletePhoto = deletePhoto;
+window.deleteBucketItem = deleteBucketItem;
+
 // Sayfa yüklendiğinde verileri yükle
 document.addEventListener('DOMContentLoaded', async function() {
     await loadDates();

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Fotoğraf Temizleme</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        button {
+            background: rgba(255,255,255,0.3);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: rgba(255,255,255,0.4);
+        }
+        .danger {
+            background: rgba(255,0,0,0.5);
+        }
+        .danger:hover {
+            background: rgba(255,0,0,0.7);
+        }
+        #output {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧹 Firebase Fotoğraf Temizleme</h1>
+        <p>Eski metadata yapısını temizle ve yeni sistemle başla</p>
+        
+        <button onclick="checkFirebase()">📋 Firebase'i Kontrol Et</button>
+        <button onclick="clearAllPhotos()" class="danger">🗑️ Tüm Fotoğrafları Sil</button>
+        <button onclick="clearOldMetadata()" class="danger">🧹 Eski Metadata'yı Temizle</button>
+        
+        <div id="output"></div>
+    </div>
+
+    <script type="module">
+        import { db, collection, getDocs, deleteDoc, doc } from './firebase-config.js';
+
+        const output = document.getElementById('output');
+
+        function log(message) {
+            output.textContent += message + '\n';
+            console.log(message);
+        }
+
+        window.checkFirebase = async function() {
+            output.textContent = '';
+            log('🔍 Firebase Firestore kontrol ediliyor...\n');
+            
+            try {
+                const photosRef = collection(db, 'users/shared/photos');
+                const snapshot = await getDocs(photosRef);
+                
+                log(`📦 Toplam ${snapshot.size} döküman bulundu:\n`);
+                
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    log(`ID: ${doc.id}`);
+                    log(`  - updatedAt: ${data.updatedAt || 'yok'}`);
+                    log(`  - updatedBy: ${data.updatedBy || 'yok'}`);
+                    log(`  - src: ${data.src ? 'VAR ✅' : 'YOK ❌'}`);
+                    log(`  - data array: ${data.data ? `VAR (${data.data.length} item)` : 'YOK'}`);
+                    log('---');
+                });
+            } catch (error) {
+                log('❌ Hata: ' + error.message);
+            }
+        };
+
+        window.clearAllPhotos = async function() {
+            if (!confirm('⚠️ TÜM FOTOĞRAFLARI SİLMEK İSTEDİĞİNİZDEN EMİN MİSİNİZ?\n\nBu işlem geri alınamaz!')) {
+                return;
+            }
+            
+            output.textContent = '';
+            log('🗑️ Tüm fotoğraflar siliniyor...\n');
+            
+            try {
+                const photosRef = collection(db, 'users/shared/photos');
+                const snapshot = await getDocs(photosRef);
+                
+                let deleted = 0;
+                for (const document of snapshot.docs) {
+                    await deleteDoc(doc(db, 'users/shared/photos', document.id));
+                    log(`✅ Silindi: ${document.id}`);
+                    deleted++;
+                }
+                
+                log(`\n🎉 Toplam ${deleted} döküman silindi!`);
+                log('✨ Artık yeni fotoğraflar yükleyebilirsiniz.');
+            } catch (error) {
+                log('❌ Hata: ' + error.message);
+            }
+        };
+
+        window.clearOldMetadata = async function() {
+            if (!confirm('Base64 formatındaki eski fotoğrafları silmek istediğinizden emin misiniz?\n\nBu fotoğrafları tekrar yüklemeniz gerekecek.')) {
+                return;
+            }
+            
+            output.textContent = '';
+            log('🧹 Base64 fotoğraflar temizleniyor...\n');
+            
+            try {
+                const photosRef = collection(db, 'users/shared/photos');
+                const snapshot = await getDocs(photosRef);
+                
+                let deleted = 0;
+                for (const document of snapshot.docs) {
+                    const data = document.data();
+                    
+                    // Base64 fotoğrafları sil (src'si data:image ile başlayan)
+                    if (data.src && (data.src.startsWith('data:image') || data.src.startsWith('data:video'))) {
+                        await deleteDoc(doc(db, 'users/shared/photos', document.id));
+                        log(`✅ Base64 fotoğraf silindi: ${document.id}`);
+                        deleted++;
+                    }
+                    // Eski metadata yapısı da sil (data array olan)
+                    else if (data.data && Array.isArray(data.data) && !data.src) {
+                        await deleteDoc(doc(db, 'users/shared/photos', document.id));
+                        log(`✅ Eski metadata silindi: ${document.id}`);
+                        deleted++;
+                    }
+                }
+                
+                log(`\n🎉 Toplam ${deleted} eski fotoğraf/metadata silindi!`);
+                log('✨ Artık yeni fotoğrafları Firebase Storage ile yükleyebilirsiniz.');
+            } catch (error) {
+                log('❌ Hata: ' + error.message);
+            }
+        };
+    </script>
+</body>
+</html>

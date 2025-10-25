@@ -10,42 +10,92 @@
     <link rel="stylesheet" href="reminders.css">
 </head>
 <body>
-    <div class="reminders-wrapper">
-        <nav class="floating-nav">
-            <a href="index.html" class="nav-item">
-                <span class="nav-icon">🏠</span>
-                <span class="nav-text">Ana Sayfa</span>
-            </a>
-            <a href="stats.html" class="nav-item">
-                <span class="nav-icon">📊</span>
-                <span class="nav-text">İstatistikler</span>
-            </a>
-            <a href="quiz.html" class="nav-item">
-                <span class="nav-icon">🎯</span>
-                <span class="nav-text">Quiz</span>
-            </a>
-            <a href="chat.html" class="nav-item">
-                <span class="nav-icon">💌</span>
-                <span class="nav-text">Mesajlar</span>
-            </a>
-            <a href="playlist.html" class="nav-item">
-                <span class="nav-icon">🎵</span>
-                <span class="nav-text">Müzik</span>
-            </a>
-            <a href="gifts.html" class="nav-item">
-                <span class="nav-icon">🎁</span>
-                <span class="nav-text">Hediyeler</span>
-            </a>
-            <a href="gallery.html" class="nav-item">
-                <span class="nav-icon">📸</span>
-                <span class="nav-text">Galeri</span>
-            </a>
-            <button onclick="logout()" class="nav-item">
-                <span class="nav-icon">🚪</span>
-                <span class="nav-text">Çıkış</span>
-            </button>
-        </nav>
+    <!-- Desktop Navigation -->
+    <nav class="desktop-nav">
+        <div class="desktop-nav-brand">💕 Bizim Hikayemiz</div>
+        <div class="desktop-nav-menu">
+            <a href="index.html" class="desktop-nav-item">🏠 Ana Sayfa</a>
+            <a href="gallery.html" class="desktop-nav-item">📸 Galeri</a>
+            <a href="bucket-list.html" class="desktop-nav-item">🌈 Hedefler</a>
+            <a href="quiz.html" class="desktop-nav-item">🎯 Quiz</a>
+            <a href="playlist.html" class="desktop-nav-item">🎵 Müzik</a>
+            <a href="gifts.html" class="desktop-nav-item">🎁 Hediyeler</a>
+            <a href="reminders.html" class="desktop-nav-item active">📅 Hatırlatıcılar</a>
+            <a href="admin.html" class="desktop-nav-item">⚙️ Ayarlar</a>
+            <button onclick="logout()" class="desktop-nav-item">🚪 Çıkış</button>
+        </div>
+    </nav>
 
+    <!-- Mobile Navigation -->
+    <div class="more-menu-overlay" id="moreMenuOverlay"></div>
+    <div class="more-menu" id="moreMenu">
+        <a href="quiz.html" class="more-menu-item">
+            <span class="menu-icon">🎯</span>
+            <span>Quiz</span>
+        </a>
+        <a href="playlist.html" class="more-menu-item">
+            <span class="menu-icon">🎵</span>
+            <span>Müzik</span>
+        </a>
+        <a href="gifts.html" class="more-menu-item">
+            <span class="menu-icon">🎁</span>
+            <span>Hediyeler</span>
+        </a>
+        <a href="admin.html" class="more-menu-item">
+            <span class="menu-icon">⚙️</span>
+            <span>Ayarlar</span>
+        </a>
+        <button onclick="logout()" class="more-menu-item">
+            <span class="menu-icon">🚪</span>
+            <span>Çıkış</span>
+        </button>
+    </div>
+
+    <nav class="floating-nav">
+        <a href="index.html" class="nav-item">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-text">Ana Sayfa</span>
+        </a>
+        <a href="gallery.html" class="nav-item">
+            <span class="nav-icon">📸</span>
+            <span class="nav-text">Galeri</span>
+        </a>
+        <a href="bucket-list.html" class="nav-item">
+            <span class="nav-icon">🌈</span>
+            <span class="nav-text">Hedefler</span>
+        </a>
+        <a href="reminders.html" class="nav-item active">
+            <span class="nav-icon">📅</span>
+            <span class="nav-text">Hatırlatıcılar</span>
+        </a>
+        <button class="nav-item" id="moreBtn">
+            <span class="nav-icon">⋯</span>
+            <span class="nav-text">Diğer</span>
+        </button>
+    </nav>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const moreBtn = document.getElementById('moreBtn');
+            const moreMenu = document.getElementById('moreMenu');
+            const moreMenuOverlay = document.getElementById('moreMenuOverlay');
+            
+            if (moreBtn && moreMenu && moreMenuOverlay) {
+                moreBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    moreMenu.classList.toggle('active');
+                    moreMenuOverlay.classList.toggle('active');
+                });
+                
+                moreMenuOverlay.addEventListener('click', () => {
+                    moreMenu.classList.remove('active');
+                    moreMenuOverlay.classList.remove('active');
+                });
+            }
+        });
+    </script>
+
+    <div class="reminders-wrapper">
         <div class="reminders-header">
             <h1>📅 Özel Günlerimiz</h1>
             <p class="subtitle">Unutulması gereken değil, hatırlanması gereken günler</p>

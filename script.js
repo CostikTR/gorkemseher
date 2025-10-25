@@ -4,6 +4,9 @@
 
 import firebaseSync from './firebase-sync.js';
 
+// Firebase'i global olarak kullanılabilir yap
+window.firebaseSync = firebaseSync;
+
 window.nextImage = function() { console.log('next'); };
 window.previousImage = function() { console.log('prev'); };
 window.showRandomMessage = function() { console.log('msg'); };
@@ -64,9 +67,20 @@ document.addEventListener('DOMContentLoaded', async function() {
 async function loadPhotosFromFirebase() {
     try {
         console.log('📸 Ana sayfa fotoğrafları yükleniyor...');
+        console.log('🔍 firebaseSync instance:', window.firebaseSync);
+        
+        // Window.firebaseSync kullan (index.html'den set ediliyor)
+        if (!window.firebaseSync || typeof window.firebaseSync.loadData !== 'function') {
+            console.warn('⚠️ firebaseSync.loadData bulunamadı, placeholder gösteriliyor');
+            photos = [{
+                src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400'%3E%3Crect width='600' height='400' fill='%23667eea'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='24' fill='white'%3EGaleri\'den Fotoğraf Ekleyin 📸%3C/text%3E%3C/svg%3E",
+                caption: 'Galeri sayfasından fotoğraf ekleyin'
+            }];
+            return;
+        }
         
         // Firebase'den fotoğrafları yükle
-        const firestorePhotos = await firebaseSync.loadData('photos');
+        const firestorePhotos = await window.firebaseSync.loadData('photos');
         
         if (firestorePhotos && Object.keys(firestorePhotos).length > 0) {
             // Firestore'dan gelen fotoğrafları array'e çevir
@@ -76,6 +90,8 @@ async function loadPhotosFromFirebase() {
                 .sort((a, b) => (b.uploadedAt || 0) - (a.uploadedAt || 0));
             
             console.log(`☁️ ${photos.length} fotoğraf Firebase\'den yüklendi`);
+            console.log('📷 İlk fotoğrafın src\'si:', photos[0]?.src?.substring(0, 100) + '...');
+            console.log('📷 Fotoğraflar:', photos);
         } else {
             console.log('ℹ️ Firebase\'de fotoğraf bulunamadı');
             // Placeholder fotoğraf
@@ -95,8 +111,14 @@ async function loadPhotosFromFirebase() {
 
 async function loadSavedData() {
     try {
+        // window.firebaseSync kullan
+        if (!window.firebaseSync) {
+            console.warn('⚠️ firebaseSync henüz yüklenmedi');
+            return;
+        }
+        
         // Tarihleri Firebase'den yükle
-        const datesData = await firebaseSync.getData('dates', 'main');
+        const datesData = await window.firebaseSync.getData('dates', 'main');
         let dates = null;
         
         if (datesData && datesData.data) {
@@ -175,7 +197,23 @@ async function loadSavedData() {
     }
 }
 
-function initializeProfilePhotos() {
+async function initializeProfilePhotos() {
+    // Firebase'den profil fotoğraflarını yükle
+    try {
+        const profile1Data = await firebaseSync.getData('profiles', 'profile1');
+        const profile2Data = await firebaseSync.getData('profiles', 'profile2');
+        
+        if (profile1Data && profile1Data.image) {
+            localStorage.setItem('lovesite_profile1', profile1Data.image);
+        }
+        if (profile2Data && profile2Data.image) {
+            localStorage.setItem('lovesite_profile2', profile2Data.image);
+        }
+    } catch (error) {
+        console.warn('⚠️ Profil fotoğrafları Firebase\'den yüklenemedi:', error);
+    }
+    
+    // localStorage'dan göster
     const profile1 = localStorage.getItem('lovesite_profile1');
     const profile2 = localStorage.getItem('lovesite_profile2');
     
@@ -234,7 +272,19 @@ function handleProfileUpload(event, profileNum) {
             ctx.drawImage(img, 0, 0, width, height);
             
             const compressed = canvas.toDataURL('image/jpeg', 0.7);
+            
+            // localStorage'a kaydet (backup)
             localStorage.setItem(`lovesite_profile${profileNum}`, compressed);
+            
+            // Firebase'e kaydet
+            firebaseSync.saveData('profiles', `profile${profileNum}`, {
+                image: compressed,
+                updatedAt: Date.now()
+            }).then(() => {
+                console.log(`✅ Profil ${profileNum} Firebase'e kaydedildi`);
+            }).catch(error => {
+                console.error(`❌ Profil ${profileNum} Firebase kayıt hatası:`, error);
+            });
             
             const imgElement = document.getElementById(`profileImg${profileNum}`);
             const placeholder = document.getElementById(`placeholder${profileNum}`);
@@ -434,20 +484,22 @@ function loadBucketListPreview() {
     if (!container) return;
     
     container.innerHTML = '';
-    const previewItems = items.slice(0, 6);
+    
+    // Sadece tamamlanmamış hedefleri göster
+    const activeItems = items.filter(item => !item.completed);
+    const previewItems = activeItems.slice(0, 6);
     
     if (previewItems.length === 0) {
-        container.innerHTML = '<p style="text-align: center; opacity: 0.7;">Henüz hedef eklenmemiş</p>';
+        container.innerHTML = '<p style="text-align: center; opacity: 0.7;">Henüz aktif hedef yok 🎯</p>';
         return;
     }
     
     previewItems.forEach(item => {
         const card = document.createElement('div');
-        card.className = 'bucket-item' + (item.completed ? ' completed' : '');
+        card.className = 'bucket-item';
         card.innerHTML = `
             <span class="bucket-emoji">${item.emoji}</span>
             <span class="bucket-text">${item.text}</span>
-            ${item.completed ? '<span class="bucket-check">✓</span>' : ''}
         `;
         container.appendChild(card);
     });

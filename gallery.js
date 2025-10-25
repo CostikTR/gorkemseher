@@ -44,9 +44,21 @@ async function loadPhotos() {
             
             if (firestorePhotos && Object.keys(firestorePhotos).length > 0) {
                 // Firestore'dan gelen fotoğrafları array'e çevir
-                allPhotos = Object.entries(firestorePhotos)
+                const rawPhotos = Object.entries(firestorePhotos)
                     .filter(([key, value]) => key !== 'metadata' && value && typeof value === 'object')
-                    .map(([_, photo]) => photo)
+                    .map(([_, photo]) => photo);
+                
+                console.log('📦 Firebase\'den gelen ham fotoğraflar:', rawPhotos);
+                
+                // Sadece src'si olan fotoğrafları al
+                allPhotos = rawPhotos
+                    .filter(photo => {
+                        if (!photo.src) {
+                            console.warn('⚠️ src olmayan fotoğraf bulundu:', photo);
+                            return false;
+                        }
+                        return true;
+                    })
                     .sort((a, b) => (b.uploadedAt || 0) - (a.uploadedAt || 0));
                 
                 console.log(`☁️ ${allPhotos.length} fotoğraf Firebase\'den yüklendi`);
@@ -54,6 +66,12 @@ async function loadPhotos() {
                 // Firebase'den yüklenen fotoğrafları IndexedDB'ye cache'le
                 try {
                     for (const photo of allPhotos) {
+                        // Fotoğrafın geçerli olduğundan emin ol
+                        if (!photo.id || !photo.src) {
+                            console.warn('⚠️ Photo ID veya src yok, cache atlanıyor:', photo);
+                            continue;
+                        }
+                        
                         // Eğer cache'de yoksa veya URL farklıysa güncelle
                         const cached = await dbStorage.getAllPhotos();
                         const cachedPhoto = cached.find(p => p.id === photo.id);
@@ -68,7 +86,12 @@ async function loadPhotos() {
                                 await new Promise((resolve) => {
                                     reader.onloadend = async () => {
                                         const base64 = reader.result;
-                                        await dbStorage.savePhoto({ ...photo, src: base64 });
+                                        const photoToCache = {
+                                            ...photo,
+                                            src: base64,
+                                            id: photo.id
+                                        };
+                                        await dbStorage.savePhoto(photoToCache);
                                         resolve();
                                     };
                                     reader.readAsDataURL(blob);
@@ -432,6 +455,79 @@ function handleFileSelect(event) {
 let pendingFiles = [];
 let currentFileIndex = 0;
 
+// Fotoğrafı otomatik küçült (Firestore limiti için)
+async function compressImageIfNeeded(base64Data, mimeType) {
+    return new Promise((resolve, reject) => {
+        // Video ise sıkıştırma
+        if (mimeType.startsWith('video/')) {
+            resolve(base64Data);
+            return;
+        }
+        
+        // Boyutu kontrol et
+        const sizeKB = Math.round(base64Data.length / 1024);
+        const MAX_SIZE_KB = 800; // Firestore limiti için güvenli boyut
+        
+        console.log(`📏 Orijinal boyut: ${sizeKB} KB`);
+        
+        if (sizeKB <= MAX_SIZE_KB) {
+            console.log('✅ Boyut uygun, sıkıştırma gerekmiyor');
+            resolve(base64Data);
+            return;
+        }
+        
+        console.log(`🔄 Fotoğraf sıkıştırılıyor (${sizeKB} KB → ${MAX_SIZE_KB} KB)...`);
+        
+        // Canvas ile yeniden boyutlandır
+        const img = new Image();
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Yeni boyutları hesapla (aspect ratio koru)
+            let width = img.width;
+            let height = img.height;
+            const maxDimension = 1920; // Max genişlik/yükseklik
+            
+            if (width > maxDimension || height > maxDimension) {
+                if (width > height) {
+                    height = (height / width) * maxDimension;
+                    width = maxDimension;
+                } else {
+                    width = (width / height) * maxDimension;
+                    height = maxDimension;
+                }
+            }
+            
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            // Kaliteyi ayarla (0.1 - 1.0)
+            let quality = 0.8;
+            let compressedData = canvas.toDataURL(mimeType, quality);
+            let compressedSizeKB = Math.round(compressedData.length / 1024);
+            
+            // Hala büyükse kaliteyi daha da düşür
+            while (compressedSizeKB > MAX_SIZE_KB && quality > 0.3) {
+                quality -= 0.1;
+                compressedData = canvas.toDataURL(mimeType, quality);
+                compressedSizeKB = Math.round(compressedData.length / 1024);
+            }
+            
+            console.log(`✅ Sıkıştırma tamamlandı: ${compressedSizeKB} KB (kalite: ${Math.round(quality * 100)}%)`);
+            resolve(compressedData);
+        };
+        
+        img.onerror = () => {
+            console.error('❌ Resim yüklenemedi, orijinal kullanılacak');
+            resolve(base64Data);
+        };
+        
+        img.src = base64Data;
+    });
+}
+
 // Handle files
 function handleFiles(files) {
     // Tüm dosyaları kuyruğa ekle
@@ -503,15 +599,29 @@ function processNextFile() {
                 throw new Error('Geçersiz dosya formatı');
             }
             
-            document.getElementById('previewImage').src = pendingPhotoData;
-            
-            // EXIF bilgilerini oku
-            readExifData(file);
-            
-            // Modalı aç
-            const modal = document.getElementById('uploadModal');
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
+            // Fotoğraf boyutunu kontrol et ve gerekirse küçült
+            compressImageIfNeeded(pendingPhotoData, file.type).then(compressedData => {
+                pendingPhotoData = compressedData;
+                
+                // Önizleme göster
+                document.getElementById('previewImage').src = pendingPhotoData;
+                
+                // EXIF bilgilerini oku
+                readExifData(file);
+                
+                // Modalı aç
+                const modal = document.getElementById('uploadModal');
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }).catch(error => {
+                console.error('❌ Fotoğraf sıkıştırma hatası:', error);
+                // Hata olursa orijinali kullan
+                document.getElementById('previewImage').src = pendingPhotoData;
+                readExifData(file);
+                const modal = document.getElementById('uploadModal');
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
             
             // Modal başlığını güncelle
             const modalTitle = modal.querySelector('h3');
@@ -678,35 +788,51 @@ async function confirmUpload() {
         // Benzersiz ID oluştur (timestamp + random)
         const uniqueId = Date.now() + Math.random().toString(36).substr(2, 9);
         
-        // Firebase Storage'a yükle
-        let photoURL = null;
-        try {
-            console.log('☁️ Fotoğraf Firebase Storage\'a yükleniyor...');
-            
-            // Storage referansı oluştur
-            const storageRef = ref(storage, `photos/${currentUser}/${uniqueId}`);
-            
-            // Base64 string'i yükle
-            await uploadString(storageRef, pendingPhotoData, 'data_url');
-            
-            // Download URL al
-            photoURL = await getDownloadURL(storageRef);
-            console.log('✅ Fotoğraf Storage\'a yüklendi:', photoURL);
-            
-        } catch (storageError) {
-            console.error('❌ Storage yükleme hatası:', storageError);
-            throw new Error('Fotoğraf yüklenemedi. İnternet bağlantınızı kontrol edin.');
+        // Firebase Storage'a yükle (isteğe bağlı, hata olursa IndexedDB kullan)
+        let photoURL = pendingPhotoData; // Base64 kullan
+        let useStorage = false; // Storage kullanma, Firestore kullan
+        
+        // Firebase Storage YERINE Firestore Database kullan
+        const USE_FIREBASE_STORAGE = false; // Storage kapalı, Firestore'a Base64 kaydet
+        
+        if (USE_FIREBASE_STORAGE) {
+            try {
+                console.log('☁️ Fotoğraf Firebase Storage\'a yükleniyor...');
+                
+                // Storage referansı oluştur
+                const storageRef = ref(storage, `photos/${currentUser}/${uniqueId}`);
+                
+                // Base64 string'i yükle (5 saniye timeout)
+                const uploadPromise = uploadString(storageRef, pendingPhotoData, 'data_url');
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Timeout')), 5000)
+                );
+                
+                await Promise.race([uploadPromise, timeoutPromise]);
+                
+                // Download URL al
+                photoURL = await getDownloadURL(storageRef);
+                useStorage = true;
+                console.log('✅ Fotoğraf Storage\'a yüklendi:', photoURL);
+                
+            } catch (storageError) {
+                console.warn('⚠️ Storage yükleme hatası, IndexedDB kullanılacak:', storageError.message);
+                photoURL = pendingPhotoData; // Base64'ü direkt kullan
+                useStorage = false;
+            }
+        } else {
+            console.log('📦 IndexedDB kullanılıyor (Firebase Storage devre dışı)');
         }
         
-        // Fotoğraf objesini oluştur (URL ile)
+        // Fotoğraf objesini oluştur
         const photo = {
-            src: photoURL, // Firebase Storage URL
+            src: photoURL, // Firebase Storage URL veya Base64
             caption: caption || 'İsimsiz Anı',
             category: category,
             uploadedAt: uploadedAt,
             uploadedBy: currentUser,
             id: uniqueId,
-            storageRef: `photos/${currentUser}/${uniqueId}` // Silme için
+            storageRef: useStorage ? `photos/${currentUser}/${uniqueId}` : null // Silme için
         };
         
         // Çift yüklemeyi önle
@@ -738,14 +864,23 @@ async function confirmUpload() {
             // Cache hatası kritik değil, devam et
         }
         
-        // Firebase Firestore'a metadata kaydet
+        // Firebase Firestore'a Base64 ile kaydet
         try {
-            console.log('🔄 Firestore\'a kayıt ediliyor...');
+            console.log('🔄 Firestore\'a Base64 ile kayıt ediliyor...');
             
-            // Fotoğrafı Firestore collection'a ekle
+            // Base64 boyutunu kontrol et (Firestore limiti ~1MB)
+            const photoSizeKB = Math.round(pendingPhotoData.length / 1024);
+            console.log(`📏 Fotoğraf boyutu: ${photoSizeKB} KB`);
+            
+            if (photoSizeKB > 900) {
+                console.warn('⚠️ Fotoğraf çok büyük (>900KB), Firestore limiti aşabilir');
+                showNotification(`⚠️ Fotoğraf büyük (${photoSizeKB}KB). Sorun olursa daha küçük yükleyin.`, 'warning');
+            }
+            
+            // Fotoğrafı Firestore collection'a ekle (Base64 dahil)
             await firebaseSync.saveData('photos', uniqueId, photo);
             
-            console.log('✅ Firestore\'a kaydedildi');
+            console.log('✅ Firestore\'a kaydedildi (Base64 dahil)');
             
             // Bildirim gönder
             if (window.notificationSystem) {
@@ -755,7 +890,13 @@ async function confirmUpload() {
             showNotification(`✅ "${fileName}" başarıyla eklendi!`, 'success');
         } catch (firestoreError) {
             console.error('❌ Firestore kayıt hatası:', firestoreError);
-            showNotification(`⚠️ "${fileName}" yüklendi ama senkronize edilemedi.`, 'warning');
+            
+            // Firestore limiti aşıldıysa özel mesaj
+            if (firestoreError.message.includes('maximum size') || firestoreError.message.includes('too large')) {
+                showNotification(`❌ Fotoğraf çok büyük! Daha küçük bir fotoğraf seçin (max 800KB)`, 'error');
+            } else {
+                showNotification(`⚠️ "${fileName}" yüklendi ama senkronize edilemedi.`, 'warning');
+            }
         }
         
         // Galeriyi hemen güncelle
@@ -882,7 +1023,6 @@ async function deletePhoto(index) {
 // Global fonksiyonları window'a ekle
 window.confirmUpload = confirmUpload;
 window.closeUploadModal = closeUploadModal;
-window.switchFilter = switchFilter;
 window.deletePhoto = deletePhoto;
 window.openLightbox = openLightbox;
 window.closeLightbox = closeLightbox;

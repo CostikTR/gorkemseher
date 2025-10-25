@@ -1,5 +1,10 @@
 // Bucket List Management System
 import firebaseSync from './firebase-sync.js';
+import dbStorage from './indexeddb-storage.js';
+
+// Global olarak erişilebilir yap
+window.dbStorage = dbStorage;
+window.firebaseSync = firebaseSync;
 
 let bucketItems = [];
 let currentCompletingItem = null;
@@ -366,46 +371,52 @@ async function confirmPhotoUpload() {
 // Add completed item photo to gallery with quota handling
 async function addToGallery(item) {
     try {
-        const photos = JSON.parse(localStorage.getItem('lovesite_photos') || '[]');
-        const currentUser = localStorage.getItem('lovesite_currentUser') || 'Anonim';
+        // IndexedDB ve Firebase'e kaydet (gallery.js mantığıyla aynı)
+        const currentUser = sessionStorage.getItem('currentUser') || localStorage.getItem('currentUser') || 'Anonim';
         
-        // Compress image further if needed
+        // Fotoğrafı sıkıştır (800KB max)
         let compressedPhoto = item.photo;
+        try {
+            compressedPhoto = await compressImage(item.photo, 1920, 0.7);
+        } catch (error) {
+            console.warn('Sıkıştırma hatası, orijinal kullanılacak:', error);
+        }
+        
+        const uniqueId = Date.now() + Math.random().toString(36).substr(2, 9);
         
         const photo = {
-            src: compressedPhoto,
+            src: compressedPhoto, // Base64
             caption: `${item.emoji} ${item.text}`,
             category: 'özel',
             uploadedAt: item.completedAt,
             uploadedBy: currentUser,
-            id: Date.now(),
-            bucketListItem: true
+            id: uniqueId,
+            bucketListItem: true,
+            storageRef: null
         };
         
-        photos.push(photo);
-        
-        try {
-            localStorage.setItem('lovesite_photos', JSON.stringify(photos));
-            return true; // Success
-        } catch (quotaError) {
-            if (quotaError.name === 'QuotaExceededError') {
-                // Try with more aggressive compression
-                console.warn('Storage quota exceeded, trying higher compression...');
-                compressedPhoto = await compressImage(item.photo, 800, 0.5);
-                photo.src = compressedPhoto;
-                
-                try {
-                    localStorage.setItem('lovesite_photos', JSON.stringify(photos));
-                    return true; // Success with higher compression
-                } catch (secondError) {
-                    // Still failed - remove last photo and notify user
-                    console.error('Failed to save photo even with compression:', secondError);
-                    alert('⚠️ Galeri kapasitesi dolu! Lütfen eski fotoğraflardan bazılarını silin.\n\nHedef yine de tamamlandı olarak işaretlendi.');
-                    return false; // Failed to add to gallery
-                }
+        // IndexedDB'ye kaydet
+        if (window.dbStorage) {
+            try {
+                await window.dbStorage.savePhoto(photo);
+                console.log('💾 Bucket list fotoğrafı IndexedDB\'ye kaydedildi');
+            } catch (error) {
+                console.error('IndexedDB kayıt hatası:', error);
             }
-            throw quotaError; // Re-throw if not quota error
         }
+        
+        // Firebase'e kaydet
+        if (window.firebaseSync) {
+            try {
+                await window.firebaseSync.saveData('photos', uniqueId, photo);
+                console.log('✅ Bucket list fotoğrafı Firebase\'e kaydedildi');
+            } catch (error) {
+                console.error('Firebase kayıt hatası:', error);
+            }
+        }
+        
+        return true; // Success
+        
     } catch (error) {
         console.error('Error adding photo to gallery:', error);
         alert('Fotoğraf galeriye eklenirken bir hata oluştu. Hedef yine de tamamlandı.');

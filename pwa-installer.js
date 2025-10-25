@@ -33,14 +33,28 @@ class PWAInstaller {
     }
     
     showInstallButton() {
+        // Eğer kullanıcı daha önce kapattıysa gösterme
+        if (localStorage.getItem('pwa-install-dismissed') === 'true') {
+            return;
+        }
+
         // Install butonu göster
+        const installContainer = document.createElement('div');
+        installContainer.id = 'pwa-install-container';
+        installContainer.style.cssText = `
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            z-index: 9999;
+        `;
+
         const installBtn = document.createElement('button');
         installBtn.id = 'pwa-install-btn';
         installBtn.innerHTML = '📱 Uygulamayı Yükle';
         installBtn.style.cssText = `
-            position: fixed;
-            bottom: 100px;
-            right: 20px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
@@ -50,21 +64,46 @@ class PWAInstaller {
             font-weight: bold;
             cursor: pointer;
             box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
-            z-index: 9999;
             animation: pulse 2s infinite;
         `;
         
+        const closeBtn = document.createElement('button');
+        closeBtn.innerHTML = '✕';
+        closeBtn.style.cssText = `
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 50%;
+            font-size: 1.2em;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        `;
+
         installBtn.onclick = () => this.promptInstall();
+        closeBtn.onclick = () => {
+            localStorage.setItem('pwa-install-dismissed', 'true');
+            installContainer.remove();
+        };
+
+        installContainer.appendChild(installBtn);
+        installContainer.appendChild(closeBtn);
         
-        // Butonu ekle (eğer zaten yoksa)
-        if (!document.getElementById('pwa-install-btn')) {
-            document.body.appendChild(installBtn);
+        // Container'ı ekle (eğer zaten yoksa)
+        if (!document.getElementById('pwa-install-container')) {
+            document.body.appendChild(installContainer);
         }
         
         console.log('✅ PWA Install butonu eklendi');
     }
     
     hideInstallButton() {
+        const container = document.getElementById('pwa-install-container');
+        if (container) container.remove();
         const btn = document.getElementById('pwa-install-btn');
         if (btn) btn.remove();
     }
@@ -199,7 +238,9 @@ pwaInstaller.handleConnectionChange();
 
 // Manuel install butonu ekle (her zaman görünsün)
 setTimeout(() => {
-    if (!document.getElementById('pwa-install-btn') && !window.matchMedia('(display-mode: standalone)').matches) {
+    if (!document.getElementById('pwa-install-container') && 
+        !window.matchMedia('(display-mode: standalone)').matches &&
+        localStorage.getItem('pwa-install-dismissed') !== 'true') {
         pwaInstaller.showInstallButton();
     }
 }, 2000);
