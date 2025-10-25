@@ -1,0 +1,24 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Shared user data - herkes okuyabilir ve yazabilir
+    match /users/shared/{document=**} {
+      allow read, write: if true;
+    }
+    
+    // FCM tokens - herkes okuyabilir ve yazabilir
+    match /fcm_tokens/{userId} {
+      allow read, write: if true;
+    }
+    
+    // Notifications - herkes okuyabilir ve yazabilir
+    match /notifications/{notificationId} {
+      allow read, write: if true;
+    }
+    
+    // Pending notifications - herkes okuyabilir ve yazabilir
+    match /pending_notifications/{notificationId} {
+      allow read, write: if true;
+    }
+  }
+}
