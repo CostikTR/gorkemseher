@@ -300,12 +300,19 @@ class NotificationSystem {
     
     // Yeni fotoğraf bildirim
     async notifyNewPhoto(uploaderName) {
+        console.log('🔔 notifyNewPhoto çağrıldı - uploaderName:', uploaderName);
         const currentUser = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
+        console.log('📱 currentUser:', currentUser);
         
-        // Kendine bildirim gösterme
-        if (uploaderName === currentUser) {
+        const TEST_MODE = true; // Test modu: kendine de bildirim gönder
+        
+        // Kendine bildirim gösterme (TEST_MODE hariç)
+        if (uploaderName === currentUser && !TEST_MODE) {
+            console.log('⏭️ Kendi fotoğrafı, bildirim gönderilmiyor');
             return;
         }
+        
+        console.log('✅ Bildirim gönderilecek!');
         
         // Browser notification (bu cihazda)
         this.sendNotification(
