@@ -212,6 +212,9 @@ let giftsSystem;
 
 document.addEventListener('DOMContentLoaded', () => {
     giftsSystem = new GiftsSystem();
+    
+    // Global olarak erişilebilir yap
+    window.giftsSystem = giftsSystem;
 
     const form = document.getElementById('add-gift-form');
     if (form) {
@@ -244,6 +247,3 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.onclick = () => giftsSystem.setFilter(btn.dataset.filter);
     });
 });
-
-// Global export
-window.giftsSystem = giftsSystem;

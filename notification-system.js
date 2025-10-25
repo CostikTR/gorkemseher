@@ -4,7 +4,19 @@
 
 class NotificationSystem {
     constructor() {
-        this.checkPermission();
+        this.init();
+    }
+    
+    async init() {
+        // İzin kontrolü ve isteme
+        const hasPermission = await this.checkPermission();
+        
+        if (!hasPermission && Notification.permission === 'default') {
+            // Kullanıcıya bildirimleri açmasını öner
+            this.showPermissionPrompt();
+        }
+        
+        // Kontrolleri başlat
         this.checkSpecialDates();
         this.checkReminders(); // Hatırlatıcıları kontrol et
         
@@ -18,22 +30,107 @@ class NotificationSystem {
         setInterval(() => this.checkReminders(), 6 * 60 * 60 * 1000);
     }
     
+    // Bildirim izni isteme popup'ı
+    showPermissionPrompt() {
+        const alreadyAsked = localStorage.getItem('notification-permission-asked');
+        if (alreadyAsked === 'true') return;
+        
+        setTimeout(() => {
+            const prompt = document.createElement('div');
+            prompt.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 30px;
+                border-radius: 20px;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+                z-index: 999999;
+                max-width: 400px;
+                text-align: center;
+            `;
+            
+            prompt.innerHTML = `
+                <div style="font-size: 3em; margin-bottom: 15px;">🔔</div>
+                <div style="font-size: 1.3em; font-weight: bold; margin-bottom: 15px;">
+                    Bildirimleri Aktifleştir
+                </div>
+                <div style="font-size: 0.95em; margin-bottom: 20px; line-height: 1.5;">
+                    Özel günlerinizi, hatırlatmalarınızı ve sevgilinizin paylaşımlarını kaçırmayın! 💕
+                </div>
+                <button id="enable-notifications" style="
+                    background: white;
+                    color: #667eea;
+                    border: none;
+                    padding: 12px 30px;
+                    border-radius: 25px;
+                    font-size: 1em;
+                    font-weight: bold;
+                    cursor: pointer;
+                    margin-right: 10px;
+                ">
+                    ✓ Aç
+                </button>
+                <button id="maybe-later" style="
+                    background: rgba(255, 255, 255, 0.2);
+                    color: white;
+                    border: none;
+                    padding: 12px 30px;
+                    border-radius: 25px;
+                    font-size: 1em;
+                    cursor: pointer;
+                ">
+                    Daha Sonra
+                </button>
+            `;
+            
+            document.body.appendChild(prompt);
+            
+            document.getElementById('enable-notifications').onclick = async () => {
+                const permission = await Notification.requestPermission();
+                localStorage.setItem('notification-permission-asked', 'true');
+                prompt.remove();
+                
+                if (permission === 'granted') {
+                    this.sendNotification(
+                        '🎉 Bildirimler Aktif!',
+                        'Artık tüm özel anları ve hatırlatmaları alacaksınız! 💕',
+                        '✅'
+                    );
+                }
+            };
+            
+            document.getElementById('maybe-later').onclick = () => {
+                localStorage.setItem('notification-permission-asked', 'true');
+                prompt.remove();
+            };
+        }, 3000); // 3 saniye sonra sor
+    }
+    
     // Bildirim izni kontrol et
     async checkPermission() {
         if (!('Notification' in window)) {
-            console.log('Bu tarayıcı bildirimleri desteklemiyor');
+            console.log('❌ Bu tarayıcı bildirimleri desteklemiyor');
             return false;
         }
         
+        console.log('📢 Bildirim durumu:', Notification.permission);
+        
         if (Notification.permission === 'granted') {
+            console.log('✅ Bildirim izni var');
             return true;
         }
         
         if (Notification.permission !== 'denied') {
+            console.log('⏳ Bildirim izni isteniyor...');
             const permission = await Notification.requestPermission();
+            console.log('📢 Kullanıcı cevabı:', permission);
             return permission === 'granted';
         }
         
+        console.log('❌ Bildirim izni reddedilmiş');
         return false;
     }
     
