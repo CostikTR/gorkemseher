@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 FCM Hızlı Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            max-width: 500px;
+            background: rgba(255,255,255,0.1);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+        button {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 14px;
+            text-align: left;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .success { color: #4ade80; }
+        .error { color: #f87171; }
+        .info { color: #60a5fa; }
+        h1 { font-size: 2.5em; margin-bottom: 10px; }
+        .emoji { font-size: 4em; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="emoji">🔔</div>
+        <h1>FCM Hızlı Test</h1>
+        <p>Firebase Cloud Messaging Testi</p>
+        
+        <button onclick="quickTest()">⚡ Hızlı Test</button>
+        <button onclick="testToken()">🔑 Token Kontrol</button>
+        <button onclick="sendTestNotif()">📤 Test Bildirimi</button>
+        
+        <div class="status" id="status">Hazır... 🚀</div>
+    </div>
+
+    <script type="module">
+        const status = document.getElementById('status');
+
+        function log(message, type = 'info') {
+            const time = new Date().toLocaleTimeString('tr-TR');
+            const colors = {
+                success: '#4ade80',
+                error: '#f87171',
+                info: '#60a5fa'
+            };
+            status.innerHTML += `<div style="color: ${colors[type]}">[${time}] ${message}</div>`;
+            status.scrollTop = status.scrollHeight;
+            console.log(message);
+        }
+
+        window.quickTest = async function() {
+            status.innerHTML = '';
+            log('🚀 Hızlı test başlatılıyor...', 'info');
+            
+            // 1. Notification API
+            if (!('Notification' in window)) {
+                log('❌ Tarayıcı bildirimleri desteklemiyor!', 'error');
+                return;
+            }
+            log('✅ Notification API destekleniyor', 'success');
+            
+            // 2. Service Worker
+            if (!('serviceWorker' in navigator)) {
+                log('❌ Service Worker desteklenmiyor!', 'error');
+                return;
+            }
+            log('✅ Service Worker destekleniyor', 'success');
+            
+            // 3. HTTPS kontrolü
+            if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+                log('⚠️ HTTPS gerekli! (Şu an: ' + location.protocol + ')', 'error');
+                return;
+            }
+            log('✅ HTTPS aktif', 'success');
+            
+            // 4. İzin durumu
+            log('📋 İzin durumu: ' + Notification.permission, 'info');
+            
+            if (Notification.permission === 'default') {
+                log('⏳ İzin isteniyor...', 'info');
+                const permission = await Notification.requestPermission();
+                log('📢 Kullanıcı cevabı: ' + permission, permission === 'granted' ? 'success' : 'error');
+            }
+            
+            if (Notification.permission === 'granted') {
+                log('✅ Bildirim izni var!', 'success');
+                
+                // 5. Test bildirimi gönder
+                log('📤 Test bildirimi gönderiliyor...', 'info');
+                new Notification('🎉 FCM Testi Başarılı!', {
+                    body: 'Tüm sistemler çalışıyor! Vercel HTTPS aktif! 💕',
+                    icon: '/icon-192.svg',
+                    badge: '/badge-72.svg',
+                    vibrate: [200, 100, 200, 100, 200]
+                });
+                log('✅ Test bildirimi gönderildi!', 'success');
+            } else {
+                log('❌ Bildirim izni gerekli!', 'error');
+            }
+            
+            // 6. FCM Manager kontrolü
+            setTimeout(() => {
+                if (window.fcmManager) {
+                    log('✅ FCM Manager yüklü!', 'success');
+                    if (window.fcmManager.currentToken) {
+                        log('✅ FCM Token var: ' + window.fcmManager.currentToken.substring(0, 30) + '...', 'success');
+                    } else {
+                        log('⏳ FCM Token alınıyor...', 'info');
+                    }
+                } else {
+                    log('⚠️ FCM Manager henüz yüklenmedi. Ana sayfayı açın.', 'error');
+                }
+            }, 2000);
+        };
+
+        window.testToken = async function() {
+            status.innerHTML = '';
+            log('🔑 FCM Token kontrol ediliyor...', 'info');
+            
+            if (!window.fcmManager) {
+                log('❌ FCM Manager yüklü değil! Ana sayfayı açın.', 'error');
+                return;
+            }
+            
+            if (window.fcmManager.currentToken) {
+                log('✅ Token mevcut:', 'success');
+                log('Token: ' + window.fcmManager.currentToken.substring(0, 50) + '...', 'info');
+                log('Uzunluk: ' + window.fcmManager.currentToken.length + ' karakter', 'info');
+            } else {
+                log('⏳ Token alınıyor...', 'info');
+                const token = await window.fcmManager.requestPermissionAndGetToken();
+                if (token) {
+                    log('✅ Token alındı: ' + token.substring(0, 50) + '...', 'success');
+                } else {
+                    log('❌ Token alınamadı! VAPID key kontrol edin.', 'error');
+                }
+            }
+        };
+
+        window.sendTestNotif = async function() {
+            status.innerHTML = '';
+            log('📤 Test bildirimi hazırlanıyor...', 'info');
+            
+            if (Notification.permission !== 'granted') {
+                log('❌ Önce izin verin!', 'error');
+                return;
+            }
+            
+            const titles = [
+                '💕 Seni Seviyorum!',
+                '🌟 Özel Bir Anı',
+                '🎉 Kutlama Zamanı!',
+                '🌈 Harika Bir Gün!',
+                '✨ Sihirli Bir An'
+            ];
+            
+            const bodies = [
+                'Bu bir test bildirimidir ama sen yine de harikasın! 💕',
+                'FCM sistemi mükemmel çalışıyor! 🚀',
+                'Vercel HTTPS ile bildirimler süper hızlı! ⚡',
+                'Telefonuna düşen her bildirim bir öpücük! 😘',
+                'Artık WhatsApp gibi gerçek bildirimler var! 🎊'
+            ];
+            
+            const randomTitle = titles[Math.floor(Math.random() * titles.length)];
+            const randomBody = bodies[Math.floor(Math.random() * bodies.length)];
+            
+            new Notification(randomTitle, {
+                body: randomBody,
+                icon: '/icon-192.svg',
+                badge: '/badge-72.svg',
+                vibrate: [300, 100, 300, 100, 300],
+                requireInteraction: false,
+                tag: 'test-' + Date.now()
+            });
+            
+            log('✅ Bildirim gönderildi!', 'success');
+            log('Başlık: ' + randomTitle, 'info');
+            log('Mesaj: ' + randomBody, 'info');
+        };
+
+        // Sayfa yüklendiğinde otomatik kontrol
+        window.onload = () => {
+            log('🎯 FCM Test sayfası yüklendi!', 'success');
+            log('Vercel HTTPS: ' + (location.protocol === 'https:' ? '✅' : '❌'), 
+                location.protocol === 'https:' ? 'success' : 'error');
+        };
+    </script>
+</body>
+</html>

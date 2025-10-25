@@ -33,9 +33,8 @@ class FCMManager {
 
             console.log('✅ Bildirim izni alındı, FCM token isteniyor...');
 
-            // VAPID key - Firebase Console'dan alınacak
-            // Firebase Console → Project Settings → Cloud Messaging → Web Push certificates
-            const vapidKey = 'BNxK7OqHJ9YVL8UqQJ0hF5vGqP2XK3jN4mR6sT8uV9wX0yZ1aB2cD3eF4gH5iJ6kL7mN8oP9qR0sT1uV2wX3yZ4'; // PLACEHOLDER - Gerçek key ile değiştirin
+            // VAPID key - Firebase Console'dan alındı
+            const vapidKey = 'BF8KbpaZqsQl_1gz04TQ3n8Wnim1PLeMgVoQVc5g2WcpEOSZU_ZTpo28JSVqwiqjV7W1JCWY5KGGxB56JEht2Qc';
             
             try {
                 const currentToken = await getToken(messaging, { 
@@ -127,8 +126,8 @@ class FCMManager {
             if (Notification.permission === 'granted') {
                 new Notification(title, {
                     body: body,
-                    icon: '/icon-192.png',
-                    badge: '/badge-72.png',
+                    icon: '/icon-192.svg',
+                    badge: '/badge-72.svg',
                     tag: payload.data?.tag || 'fcm-notification',
                     vibrate: [200, 100, 200],
                     data: payload.data

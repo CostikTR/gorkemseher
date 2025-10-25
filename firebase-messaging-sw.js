@@ -27,8 +27,8 @@ messaging.onBackgroundMessage((payload) => {
     const notificationTitle = payload.notification?.title || payload.data?.title || 'Yeni Bildirim 💕';
     const notificationOptions = {
         body: payload.notification?.body || payload.data?.body || 'Yeni bir güncelleme var!',
-        icon: payload.notification?.icon || '/icon-192.png',
-        badge: '/badge-72.png',
+        icon: '/icon-192.svg',
+        badge: '/badge-72.svg',
         tag: payload.data?.tag || 'notification',
         requireInteraction: false,
         vibrate: [200, 100, 200],
@@ -40,7 +40,7 @@ messaging.onBackgroundMessage((payload) => {
             {
                 action: 'open',
                 title: 'Aç',
-                icon: '/icon-192.png'
+                icon: '/icon-192.svg'
             },
             {
                 action: 'close',
