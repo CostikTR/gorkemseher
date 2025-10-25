@@ -3,21 +3,64 @@ class RemindersSystem {
     constructor() {
         this.reminders = [];
         this.currentFilter = 'all';
+        this.firebaseSync = null;
         this.loadReminders();
         this.startCountdown();
     }
 
-    loadReminders() {
-        const saved = localStorage.getItem('reminders');
-        if (saved) {
-            this.reminders = JSON.parse(saved);
+    async loadReminders() {
+        // Firebase'den yükle
+        try {
+            // Firebase sync modülünü dinamik olarak yükle
+            if (window.firebaseSync) {
+                this.firebaseSync = window.firebaseSync;
+                const remindersData = await this.firebaseSync.getData('reminders', 'list');
+                
+                if (remindersData && remindersData.data) {
+                    this.reminders = remindersData.data;
+                    console.log('✅ Hatırlatmalar Firebase\'den yüklendi:', this.reminders.length);
+                } else {
+                    // Firebase'de yoksa localStorage'dan al
+                    const saved = localStorage.getItem('reminders');
+                    if (saved) {
+                        this.reminders = JSON.parse(saved);
+                        // Firebase'e kaydet
+                        await this.saveReminders();
+                    }
+                }
+            } else {
+                // Firebase sync yoksa localStorage kullan
+                const saved = localStorage.getItem('reminders');
+                if (saved) {
+                    this.reminders = JSON.parse(saved);
+                }
+            }
+        } catch (error) {
+            console.error('❌ Hatırlatma yükleme hatası:', error);
+            // Hata durumunda localStorage'dan yükle
+            const saved = localStorage.getItem('reminders');
+            if (saved) {
+                this.reminders = JSON.parse(saved);
+            }
         }
+        
         this.displayUpcoming();
         this.displayReminders();
     }
 
-    saveReminders() {
+    async saveReminders() {
+        // localStorage'a kaydet (backup)
         localStorage.setItem('reminders', JSON.stringify(this.reminders));
+        
+        // Firebase'e kaydet
+        try {
+            if (this.firebaseSync) {
+                await this.firebaseSync.saveData('reminders', 'list', { data: this.reminders });
+                console.log('✅ Hatırlatmalar Firebase\'e kaydedildi');
+            }
+        } catch (error) {
+            console.error('❌ Firebase kayıt hatası:', error);
+        }
     }
 
     addReminder(data) {
@@ -268,7 +311,30 @@ class RemindersSystem {
 
 let remindersSystem;
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    // Firebase sync yüklenene kadar bekle
+    if (window.firebaseSync) {
+        console.log('✅ Firebase sync hazır');
+    } else {
+        console.log('⏳ Firebase sync bekleniyor...');
+        await new Promise(resolve => {
+            const checkFirebase = setInterval(() => {
+                if (window.firebaseSync) {
+                    clearInterval(checkFirebase);
+                    console.log('✅ Firebase sync yüklendi');
+                    resolve();
+                }
+            }, 100);
+            
+            // 5 saniye timeout
+            setTimeout(() => {
+                clearInterval(checkFirebase);
+                console.warn('⚠️ Firebase sync timeout, localStorage kullanılacak');
+                resolve();
+            }, 5000);
+        });
+    }
+    
     remindersSystem = new RemindersSystem();
 
     const form = document.getElementById('add-reminder-form');

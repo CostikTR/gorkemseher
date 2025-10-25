@@ -277,6 +277,9 @@ function createPhotoItem(photo, index) {
              alt="${photo.caption || 'Fotoğraf'}" 
              loading="lazy"
              onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27400%27 height=%27600%27%3E%3Crect width=%27400%27 height=%27600%27 fill=%27%23667eea%27/%3E%3Ctext x=%2750%25%27 y=%2750%25%27 dominant-baseline=%27middle%27 text-anchor=%27middle%27 font-family=%27Arial%27 font-size=%2748%27 fill=%27white%27%3E📸%3C/text%3E%3Ctext x=%2750%25%27 y=%2760%25%27 dominant-baseline=%27middle%27 text-anchor=%27middle%27 font-family=%27Arial%27 font-size=%2716%27 fill=%27white%27%3EYüklenemedi%3C/text%3E%3C/svg%3E'">
+        <button class="photo-delete-btn" onclick="event.stopPropagation(); deletePhoto(${index})" title="Sil">
+            🗑️
+        </button>
         <div class="photo-overlay">
             <div class="photo-title">${photo.caption || 'İsimsiz Anı'}</div>
             ${infoParts ? `<div class="photo-info">${infoParts}</div>` : ''}
@@ -985,7 +988,19 @@ async function deletePhoto(index) {
         return;
     }
     
+    if (index < 0 || index >= allPhotos.length) {
+        console.error('❌ Geçersiz fotoğraf index:', index);
+        return;
+    }
+    
     const photoToDelete = allPhotos[index];
+    
+    if (!photoToDelete || !photoToDelete.id) {
+        console.error('❌ Fotoğraf bulunamadı veya ID yok:', photoToDelete);
+        return;
+    }
+    
+    console.log('🗑️ Siliniyor:', photoToDelete.id);
     
     // Firebase Storage'dan sil
     if (photoToDelete.storageRef) {
@@ -994,14 +1009,18 @@ async function deletePhoto(index) {
             await deleteObject(storageRef);
             console.log('☁️ Firebase Storage\'dan silindi');
         } catch (error) {
-            console.error('❌ Storage silme hatası:', error);
+            console.warn('⚠️ Storage silme hatası (devam ediliyor):', error);
         }
     }
     
     // Firestore'dan sil
     try {
-        await firebaseSync.deleteData('photos', photoToDelete.id);
-        console.log('✅ Firestore\'dan silindi');
+        const deleted = await firebaseSync.deleteData('photos', photoToDelete.id);
+        if (deleted) {
+            console.log('✅ Firestore\'dan silindi');
+        } else {
+            console.warn('⚠️ Firestore silme işlemi başarısız');
+        }
     } catch (error) {
         console.error('❌ Firestore silme hatası:', error);
     }
@@ -1011,11 +1030,13 @@ async function deletePhoto(index) {
         await dbStorage.deletePhoto(photoToDelete.id);
         console.log('💾 Cache\'den silindi');
     } catch (error) {
-        console.error('❌ Cache silme hatası:', error);
+        console.warn('⚠️ Cache silme hatası (devam ediliyor):', error);
     }
     
+    // Array'den sil
     allPhotos.splice(index, 1);
     
+    // Galeriyi yeniden yükle
     await loadPhotos();
     showNotification('🗑️ Fotoğraf silindi');
 }

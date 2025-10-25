@@ -142,6 +142,11 @@
     </div>
 
     <script src="theme-switcher.js"></script>
+    <script type="module">
+        // Firebase Sync'i import et
+        import firebaseSync from './firebase-sync.js';
+        window.firebaseSync = firebaseSync;
+    </script>
     <script src="reminders.js"></script>
     <script src="auth.js"></script>
 </body>
