@@ -172,36 +172,49 @@ class FCMManager {
     // Diğer kullanıcıya bildirim gönder
     async sendNotificationToUser(targetUser, title, body, data = {}) {
         try {
+            console.log(`📤 ${targetUser} için bildirim hazırlanıyor...`);
+            
             // Hedef kullanıcının FCM token'ını al
             const userTokenRef = doc(db, 'fcm_tokens', targetUser);
             const tokenDoc = await getDoc(userTokenRef);
             
             if (!tokenDoc.exists()) {
-                console.warn(`⚠️ ${targetUser} için FCM token bulunamadı`);
+                console.warn(`⚠️ ${targetUser} için FCM token bulunamadı. PWA yüklemediyse bildirim gitmez.`);
                 return false;
             }
 
             const targetToken = tokenDoc.data().token;
+            console.log(`✅ ${targetUser} token bulundu: ${targetToken.substring(0, 20)}...`);
             
-            // Bildirimi notification koleksiyonuna kaydet
-            // Cloud Function bu bildirimi alıp FCM ile gönderecek
-            const notificationRef = doc(db, 'pending_notifications', Date.now().toString());
+            // ÇÖZÜM 1: Firestore'a bildirim ekle
+            // Diğer cihaz bunu dinleyip kendi Service Worker'ından gösterecek
+            const notificationRef = doc(db, 'notifications', Date.now().toString());
             
             await setDoc(notificationRef, {
+                targetUser: targetUser,
+                targetToken: targetToken,
+                title: title,
+                body: body,
+                icon: data.icon || '💕',
+                url: data.url || '/',
+                type: data.type || 'general',
+                timestamp: new Date().toISOString(),
+                read: false
+            });
+
+            console.log(`✅ ${targetUser} için bildirim Firestore'a kaydedildi`);
+            
+            // ÇÖZÜM 2: Cloud Function varsa (opsiyonel)
+            // pending_notifications koleksiyonuna da ekle
+            const pendingRef = doc(db, 'pending_notifications', Date.now().toString());
+            await setDoc(pendingRef, {
                 to: targetToken,
-                notification: {
-                    title: title,
-                    body: body
-                },
-                data: {
-                    ...data,
-                    timestamp: new Date().toISOString()
-                },
+                notification: { title, body },
+                data: { ...data, timestamp: new Date().toISOString() },
                 createdAt: new Date().toISOString(),
                 status: 'pending'
             });
 
-            console.log('✅ Bildirim kuyruğa eklendi');
             return true;
 
         } catch (error) {

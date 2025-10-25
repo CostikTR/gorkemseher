@@ -83,4 +83,38 @@ self.addEventListener('notificationclick', (event) => {
     }
 });
 
+// postMessage ile gelen bildirimleri dinle (notification-listener.js'den)
+self.addEventListener('message', (event) => {
+    console.log('📨 Service Worker mesaj aldı:', event.data);
+    
+    if (event.data && event.data.type === 'SHOW_NOTIFICATION') {
+        const { notification } = event.data;
+        
+        const notificationTitle = notification.title || 'Yeni Bildirim 💕';
+        const notificationOptions = {
+            body: notification.body || 'Yeni bir güncelleme var!',
+            icon: '/icon-192.svg',
+            badge: '/badge-72.svg',
+            tag: 'custom-notification-' + Date.now(),
+            requireInteraction: false,
+            vibrate: [200, 100, 200, 100, 200],
+            data: {
+                url: notification.url || '/'
+            },
+            actions: [
+                {
+                    action: 'open',
+                    title: 'Aç'
+                },
+                {
+                    action: 'close',
+                    title: 'Kapat'
+                }
+            ]
+        };
+
+        self.registration.showNotification(notificationTitle, notificationOptions);
+    }
+});
+
 console.log('✅ Firebase Messaging Service Worker yüklendi');
