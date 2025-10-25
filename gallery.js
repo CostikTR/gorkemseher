@@ -241,7 +241,7 @@ function createPhotoItem(photo, index) {
         <img src="${photo.src}" 
              alt="${photo.caption || 'Fotoğraf'}" 
              loading="lazy"
-             onerror="this.src='https://via.placeholder.com/400x600/667eea/ffffff?text=📸+Yüklenemedi'">
+             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27400%27 height=%27600%27%3E%3Crect width=%27400%27 height=%27600%27 fill=%27%23667eea%27/%3E%3Ctext x=%2750%25%27 y=%2750%25%27 dominant-baseline=%27middle%27 text-anchor=%27middle%27 font-family=%27Arial%27 font-size=%2748%27 fill=%27white%27%3E📸%3C/text%3E%3Ctext x=%2750%25%27 y=%2760%25%27 dominant-baseline=%27middle%27 text-anchor=%27middle%27 font-family=%27Arial%27 font-size=%2716%27 fill=%27white%27%3EYüklenemedi%3C/text%3E%3C/svg%3E'">
         <div class="photo-overlay">
             <div class="photo-title">${photo.caption || 'İsimsiz Anı'}</div>
             ${infoParts ? `<div class="photo-info">${infoParts}</div>` : ''}
