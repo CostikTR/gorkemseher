@@ -486,7 +486,11 @@ function loadBucketListPreview() {
     container.innerHTML = '';
     
     // Sadece tamamlanmamış hedefleri göster
-    const activeItems = items.filter(item => !item.completed);
+    // Destek: farklı veri modelleri (completed, done, status) olabileceği için hepsini kontrol et
+    const activeItems = items.filter(item => {
+        const isCompleted = Boolean(item.completed) || Boolean(item.done) || (item.status && item.status.toString().toLowerCase() === 'completed');
+        return !isCompleted;
+    });
     const previewItems = activeItems.slice(0, 6);
     
     if (previewItems.length === 0) {
