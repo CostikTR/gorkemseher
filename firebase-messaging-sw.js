@@ -1,5 +1,27 @@
-// Firebase Messaging Service Worker
+// Firebase Messaging Service Worker v2.0
 // Bu dosya public root'da olmalı ve firebase-messaging-sw.js adında olmalı
+
+const CACHE_VERSION = 'v2.0.0';
+
+// Activate event - eski cache'leri temizle
+self.addEventListener('activate', (event) => {
+    console.log('🔄 Service Worker aktivasyonu:', CACHE_VERSION);
+    event.waitUntil(
+        caches.keys().then((cacheNames) => {
+            return Promise.all(
+                cacheNames.map((cacheName) => {
+                    if (cacheName !== CACHE_VERSION) {
+                        console.log('🗑️ Eski cache siliniyor:', cacheName);
+                        return caches.delete(cacheName);
+                    }
+                })
+            );
+        }).then(() => {
+            console.log('✅ Service Worker aktif:', CACHE_VERSION);
+            return self.clients.claim();
+        })
+    );
+});
 
 importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js');
