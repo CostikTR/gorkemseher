@@ -58,15 +58,24 @@ self.addEventListener('fetch', event => {
     return;
   }
   
+  // Firebase isteklerini cache'leme
+  if (event.request.url.includes('firestore.googleapis.com') || 
+      event.request.url.includes('firebase')) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+  
   event.respondWith(
     fetch(event.request)
       .then(response => {
-        // Başarılı response'u cache'e kaydet
-        if (response && response.status === 200) {
+        // Başarılı response'u cache'e kaydet (sadece GET istekleri için)
+        if (response && response.status === 200 && event.request.method === 'GET') {
           const responseToCache = response.clone();
           caches.open(CACHE_NAME)
             .then(cache => {
-              cache.put(event.request, responseToCache);
+              cache.put(event.request, responseToCache).catch(err => {
+                console.log('Cache put error:', err);
+              });
             });
         }
         return response;
