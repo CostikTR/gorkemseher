@@ -161,20 +161,23 @@ function applyFilters() {
     displayPhotos(filtered);
 }
 
-// Display photos in masonry grid
+// Display photos in grid
 function displayPhotos(photos) {
-    const grid = document.getElementById('photoGrid');
+    console.log('🖼️ displayPhotos çağrıldı, fotoğraf sayısı:', photos.length);
+    const grid = document.getElementById('photosGrid');
     const emptyState = document.getElementById('emptyState');
     
-    if (photos.length === 0) {
+    if (!photos || photos.length === 0) {
+        console.log('⚠️ Gösterilecek fotoğraf yok');
         grid.style.display = 'none';
-        emptyState.style.display = 'block';
+        emptyState.style.display = 'flex';
         return;
     }
     
     grid.style.display = 'block';
     emptyState.style.display = 'none';
     grid.innerHTML = '';
+    console.log('✅ Grid temizlendi, fotoğraflar ekleniyor...');
     
     // Sort by date (newest first)
     const sortedPhotos = [...photos].sort((a, b) => {
@@ -616,7 +619,7 @@ async function confirmUpload() {
         const uploadedAt = dateObj.getTime();
         
         // Kullanıcı bilgisi
-        const currentUser = localStorage.getItem('lovesite_currentUser') || 'Anonim';
+        const currentUser = sessionStorage.getItem('currentUser') || localStorage.getItem('currentUser') || 'Anonim';
         
         // Benzersiz ID oluştur (timestamp + random)
         const uniqueId = Date.now() + Math.random().toString(36).substr(2, 9);
@@ -648,10 +651,13 @@ async function confirmUpload() {
         }
         
         allPhotos.push(photo);
+        console.log('📸 Fotoğraf array\'e eklendi. Toplam:', allPhotos.length);
         localStorage.setItem('lovesite_photos', JSON.stringify(allPhotos));
+        console.log('💾 localStorage güncellendi');
         
         // Firebase'e kaydet - ZORUNLU (obje içinde array olarak)
         try {
+            console.log('🔄 Firebase\'e kaydediliyor...');
             await firebaseSync.saveData('photos', 'list', { data: allPhotos });
             console.log('✅ Fotoğraf Firebase\'e kaydedildi, tüm cihazlardan erişilebilir');
             console.log('📊 Toplam fotoğraf sayısı:', allPhotos.length);
@@ -667,9 +673,12 @@ async function confirmUpload() {
             showNotification(`⚠️ "${fileName}" sadece bu cihaza kaydedildi. İnternet bağlantınızı kontrol edin.`, 'warning');
         }
         
-        // Modalı kapat ve galeriyi yenile
+        // Galeriyi hemen güncelle
+        displayPhotos(allPhotos);
+        updateStats();
+        
+        // Modalı kapat
         closeUploadModal();
-        await loadPhotos(); // Yeniden Firebase'den yükle
         
         // Bir sonraki dosyaya geç
         currentFileIndex++;
