@@ -244,3 +244,6 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.onclick = () => giftsSystem.setFilter(btn.dataset.filter);
     });
 });
+
+// Global export
+window.giftsSystem = giftsSystem;

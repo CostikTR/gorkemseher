@@ -238,13 +238,16 @@ async function addNewItem() {
         return;
     }
     
+    const currentUser = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser') || 'Anonim';
+    
     const newItem = {
         id: Date.now(),
         emoji: emoji || '🎯',
         text: text,
         completed: false,
         completedAt: null,
-        photo: null
+        photo: null,
+        addedBy: currentUser
     };
     
     bucketItems.push(newItem);
@@ -257,6 +260,11 @@ async function addNewItem() {
     document.getElementById('newItemText').value = '';
     
     showNotification('✨ Yeni hedef eklendi!');
+    
+    // Bildirim gönder
+    if (window.notificationSystem) {
+        window.notificationSystem.notifyNewBucketItem(text, currentUser);
+    }
 }
 
 // Complete item

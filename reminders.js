@@ -64,6 +64,8 @@ class RemindersSystem {
     }
 
     addReminder(data) {
+        const currentUser = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser') || 'Anonim';
+        
         const reminder = {
             id: Date.now(),
             title: data.title.trim(),
@@ -71,13 +73,19 @@ class RemindersSystem {
             type: data.type,
             note: data.note.trim(),
             recurring: data.recurring,
-            createdDate: new Date().toISOString()
+            createdDate: new Date().toISOString(),
+            addedBy: currentUser
         };
         
         this.reminders.push(reminder);
         this.saveReminders();
         this.displayUpcoming();
         this.displayReminders();
+        
+        // Bildirim gönder
+        if (window.notificationSystem) {
+            window.notificationSystem.notifyNewReminder(reminder.title, reminder.date, currentUser);
+        }
     }
 
     deleteReminder(id) {

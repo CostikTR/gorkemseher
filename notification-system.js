@@ -6,12 +6,16 @@ class NotificationSystem {
     constructor() {
         this.checkPermission();
         this.checkSpecialDates();
+        this.checkReminders(); // Hatırlatıcıları kontrol et
         
         // Her gün bir kere kontrol et
         setInterval(() => this.checkSpecialDates(), 24 * 60 * 60 * 1000);
         
         // Her saat başı kontrol et
         setInterval(() => this.checkHourlyReminders(), 60 * 60 * 1000);
+        
+        // Her 6 saatte bir hatırlatıcıları kontrol et
+        setInterval(() => this.checkReminders(), 6 * 60 * 60 * 1000);
     }
     
     // Bildirim izni kontrol et
@@ -230,6 +234,142 @@ class NotificationSystem {
             `"${itemName}" hedefinizi gerçekleştirdiniz! Tebrikler! 🌟`,
             '✅'
         );
+    }
+    
+    // Yeni bucket list item eklendi
+    notifyNewBucketItem(itemName, addedBy) {
+        const currentUser = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
+        
+        if (addedBy !== currentUser) {
+            this.sendNotification(
+                '🌈 Yeni Hedef Eklendi!',
+                `${addedBy} yeni bir hedef ekledi: "${itemName}" 🎯`,
+                '🌟'
+            );
+        }
+    }
+    
+    // Yeni quiz eklendi
+    notifyNewQuiz(quizTitle, createdBy) {
+        const currentUser = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
+        
+        if (createdBy !== currentUser) {
+            this.sendNotification(
+                '🎯 Yeni Quiz!',
+                `${createdBy} yeni bir quiz hazırladı: "${quizTitle}" Hadi oyna! 🎮`,
+                '🎲'
+            );
+        }
+    }
+    
+    // Hatırlatıcıları kontrol et
+    async checkReminders() {
+        try {
+            // Firebase'den veya localStorage'dan hatırlatıcıları al
+            let reminders = [];
+            
+            // Firebase'den yükle
+            if (window.firebaseSync) {
+                try {
+                    const data = await window.firebaseSync.getData('reminders', 'list');
+                    if (data && Array.isArray(data)) {
+                        reminders = data;
+                    }
+                } catch (err) {
+                    console.log('Firebase reminders yükleme hatası:', err);
+                }
+            }
+            
+            // Fallback: localStorage
+            if (reminders.length === 0) {
+                const saved = localStorage.getItem('reminders');
+                if (saved) {
+                    reminders = JSON.parse(saved);
+                }
+            }
+            
+            if (!reminders || reminders.length === 0) return;
+            
+            const now = new Date();
+            const today = now.toISOString().split('T')[0];
+            
+            reminders.forEach(reminder => {
+                if (!reminder.date) return;
+                
+                const reminderDate = new Date(reminder.date);
+                const reminderDateStr = reminderDate.toISOString().split('T')[0];
+                
+                // Bugün hatırlatıcı günü mü?
+                if (reminderDateStr === today) {
+                    const alreadyNotified = localStorage.getItem(`notified_${reminder.date}_${reminder.description}`);
+                    
+                    if (!alreadyNotified) {
+                        this.sendNotification(
+                            '📅 Bugün Özel Bir Gün!',
+                            reminder.description || 'Hatırlatıcınız bugün!',
+                            '🎉'
+                        );
+                        
+                        // Bir kez bildirildi olarak işaretle
+                        localStorage.setItem(`notified_${reminder.date}_${reminder.description}`, 'true');
+                    }
+                }
+                
+                // Yarın hatırlatıcı günü mü? (1 gün önceden uyar)
+                const tomorrow = new Date(now);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                const tomorrowStr = tomorrow.toISOString().split('T')[0];
+                
+                if (reminderDateStr === tomorrowStr) {
+                    const alreadyNotified = localStorage.getItem(`notified_tomorrow_${reminder.date}_${reminder.description}`);
+                    
+                    if (!alreadyNotified) {
+                        this.sendNotification(
+                            '⏰ Yarın Özel Bir Gün!',
+                            `Yarın: ${reminder.description}`,
+                            '📢'
+                        );
+                        
+                        localStorage.setItem(`notified_tomorrow_${reminder.date}_${reminder.description}`, 'true');
+                    }
+                }
+                
+                // 3 gün önceden uyar
+                const threeDaysLater = new Date(now);
+                threeDaysLater.setDate(threeDaysLater.getDate() + 3);
+                const threeDaysStr = threeDaysLater.toISOString().split('T')[0];
+                
+                if (reminderDateStr === threeDaysStr) {
+                    const alreadyNotified = localStorage.getItem(`notified_3days_${reminder.date}_${reminder.description}`);
+                    
+                    if (!alreadyNotified) {
+                        this.sendNotification(
+                            '📆 Yaklaşan Özel Gün',
+                            `3 gün sonra: ${reminder.description}`,
+                            '🔔'
+                        );
+                        
+                        localStorage.setItem(`notified_3days_${reminder.date}_${reminder.description}`, 'true');
+                    }
+                }
+            });
+            
+        } catch (error) {
+            console.error('Hatırlatıcı kontrol hatası:', error);
+        }
+    }
+    
+    // Yeni hatırlatıcı eklendi
+    notifyNewReminder(description, date, addedBy) {
+        const currentUser = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
+        
+        if (addedBy !== currentUser) {
+            this.sendNotification(
+                '📅 Yeni Hatırlatıcı Eklendi!',
+                `${addedBy} yeni bir hatırlatıcı ekledi: "${description}" (${date})`,
+                '🔔'
+            );
+        }
     }
 }
 
