@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     setupFilterButtons();
     setupDateFilterButtons();
     setupUploadHandlers();
+    setupLightboxHandlers();
 });
 
 // localStorage'dan Firebase'e veri taşıma (sadece metadata)
@@ -324,10 +325,39 @@ function navigateLightbox(direction) {
     openLightbox(currentLightboxIndex);
 }
 
+// Setup lightbox button handlers
+function setupLightboxHandlers() {
+    const lightboxClose = document.getElementById('lightboxClose');
+    const lightboxPrev = document.getElementById('lightboxPrev');
+    const lightboxNext = document.getElementById('lightboxNext');
+    const lightbox = document.getElementById('lightbox');
+    
+    if (lightboxClose) {
+        lightboxClose.addEventListener('click', closeLightbox);
+    }
+    
+    if (lightboxPrev) {
+        lightboxPrev.addEventListener('click', () => navigateLightbox(-1));
+    }
+    
+    if (lightboxNext) {
+        lightboxNext.addEventListener('click', () => navigateLightbox(1));
+    }
+    
+    // Close on overlay click
+    if (lightbox) {
+        lightbox.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeLightbox();
+            }
+        });
+    }
+}
+
 // Keyboard navigation
 document.addEventListener('keydown', function(e) {
     const lightbox = document.getElementById('lightbox');
-    if (lightbox.classList.contains('active')) {
+    if (lightbox && lightbox.classList.contains('active')) {
         if (e.key === 'Escape') {
             closeLightbox();
         } else if (e.key === 'ArrowLeft') {
@@ -335,13 +365,6 @@ document.addEventListener('keydown', function(e) {
         } else if (e.key === 'ArrowRight') {
             navigateLightbox(1);
         }
-    }
-});
-
-// Close lightbox on overlay click
-document.getElementById('lightbox').addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeLightbox();
     }
 });
 
