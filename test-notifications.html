@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔔 Bildirim Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        button {
+            background: rgba(255,255,255,0.3);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 5px;
+            width: 100%;
+        }
+        button:hover {
+            background: rgba(255,255,255,0.4);
+        }
+        .success {
+            background: rgba(74, 222, 128, 0.5);
+        }
+        .error {
+            background: rgba(255, 0, 0, 0.5);
+        }
+        #status {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            font-size: 14px;
+        }
+        .info-box {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔔 Bildirim Test Merkezi</h1>
+        <p>Tüm bildirim türlerini test edin</p>
+        
+        <div class="info-box">
+            <strong>📌 Önemli:</strong><br>
+            • Mobilde çalışması için PWA olarak yüklenmiş olmalı<br>
+            • Tarayıcı bildirim iznine izin vermelisiniz<br>
+            • Bazı telefonlarda "Sessiz mod" kapalı olmalı
+        </div>
+        
+        <h3>1️⃣ İzin Kontrolü</h3>
+        <button onclick="checkPermission()">📋 Bildirim İzni Kontrol Et</button>
+        <button onclick="requestPermission()">🔓 Bildirim İzni İste</button>
+        
+        <h3>2️⃣ Test Bildirimleri</h3>
+        <button onclick="testBasicNotification()">📢 Basit Bildirim</button>
+        <button onclick="testPhotoNotification()">📸 Yeni Fotoğraf Bildirimi</button>
+        <button onclick="testReminderNotification()">📅 Hatırlatıcı Bildirimi</button>
+        <button onclick="testBucketNotification()">🌈 Bucket List Bildirimi</button>
+        <button onclick="testAnniversary()">🎉 Yıldönümü Bildirimi</button>
+        
+        <h3>3️⃣ Sistem Testi</h3>
+        <button onclick="testServiceWorker()">⚙️ Service Worker Kontrol</button>
+        <button onclick="testPushAPI()">🔔 Push API Desteği</button>
+        
+        <div id="status">Hazır... Test için butona tıklayın! 🚀</div>
+    </div>
+
+    <script>
+        const status = document.getElementById('status');
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString('tr-TR');
+            const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : '📋';
+            status.textContent += `\n[${timestamp}] ${icon} ${message}`;
+            status.scrollTop = status.scrollHeight;
+            console.log(message);
+        }
+
+        async function checkPermission() {
+            status.textContent = '';
+            
+            if (!('Notification' in window)) {
+                log('Bu tarayıcı bildirimleri desteklemiyor! 😢', 'error');
+                return;
+            }
+            
+            const permission = Notification.permission;
+            log(`Bildirim İzni: ${permission}`);
+            
+            if (permission === 'granted') {
+                log('Bildirimler aktif! 🎉', 'success');
+            } else if (permission === 'denied') {
+                log('Bildirim izni reddedilmiş! Tarayıcı ayarlarından açın.', 'error');
+            } else {
+                log('Bildirim izni henüz sorulmamış. "İzin İste" butonuna tıklayın.', 'info');
+            }
+        }
+
+        async function requestPermission() {
+            status.textContent = '';
+            
+            if (!('Notification' in window)) {
+                log('Bu tarayıcı bildirimleri desteklemiyor!', 'error');
+                return;
+            }
+            
+            log('Bildirim izni isteniyor...');
+            
+            try {
+                const permission = await Notification.requestPermission();
+                log(`Kullanıcı cevabı: ${permission}`);
+                
+                if (permission === 'granted') {
+                    log('İzin verildi! 🎉', 'success');
+                    testBasicNotification();
+                } else {
+                    log('İzin reddedildi! ❌', 'error');
+                }
+            } catch (error) {
+                log(`Hata: ${error.message}`, 'error');
+            }
+        }
+
+        async function testBasicNotification() {
+            status.textContent = '';
+            
+            if (Notification.permission !== 'granted') {
+                log('Önce bildirim izni verin!', 'error');
+                return;
+            }
+            
+            log('Basit bildirim gönderiliyor...');
+            
+            try {
+                const notification = new Notification('🎉 Test Bildirimi', {
+                    body: 'Bu bir test bildirimidir. Görüyorsanız her şey çalışıyor! 💕',
+                    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="75" font-size="75">💕</text></svg>',
+                    tag: 'test-notification',
+                    vibrate: [200, 100, 200],
+                    requireInteraction: false
+                });
+                
+                notification.onclick = () => {
+                    log('Bildirime tıklandı!', 'success');
+                    notification.close();
+                    window.focus();
+                };
+                
+                setTimeout(() => notification.close(), 5000);
+                
+                log('Bildirim gönderildi! 📤', 'success');
+            } catch (error) {
+                log(`Bildirim hatası: ${error.message}`, 'error');
+            }
+        }
+
+        async function testPhotoNotification() {
+            status.textContent = '';
+            log('Fotoğraf bildirimi gönderiliyor...');
+            
+            if (Notification.permission !== 'granted') {
+                log('Önce bildirim izni verin!', 'error');
+                return;
+            }
+            
+            const notification = new Notification('📸 Yeni Fotoğraf!', {
+                body: 'Sevgilin yeni bir anı ekledi. Görmeye gitmez misin? 💕',
+                icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="75" font-size="75">📸</text></svg>',
+                vibrate: [200, 100, 200, 100, 200]
+            });
+            
+            setTimeout(() => notification.close(), 5000);
+            log('Fotoğraf bildirimi gönderildi!', 'success');
+        }
+
+        async function testReminderNotification() {
+            status.textContent = '';
+            log('Hatırlatıcı bildirimi gönderiliyor...');
+            
+            if (Notification.permission !== 'granted') {
+                log('Önce bildirim izni verin!', 'error');
+                return;
+            }
+            
+            const notification = new Notification('📅 Bugün Özel Bir Gün!', {
+                body: 'Yıldönümünüz! Mutlu yıllar! 🎉💕',
+                icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="75" font-size="75">🎉</text></svg>',
+                vibrate: [300, 100, 300, 100, 300],
+                requireInteraction: true
+            });
+            
+            setTimeout(() => notification.close(), 10000);
+            log('Hatırlatıcı bildirimi gönderildi!', 'success');
+        }
+
+        async function testBucketNotification() {
+            status.textContent = '';
+            log('Bucket list bildirimi gönderiliyor...');
+            
+            if (Notification.permission !== 'granted') {
+                log('Önce bildirim izni verin!', 'error');
+                return;
+            }
+            
+            const notification = new Notification('🌈 Yeni Hedef Eklendi!', {
+                body: 'Sevgilin yeni bir hedef ekledi: "Birlikte gün doğumu izlemek" 🎯',
+                icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="75" font-size="75">🌈</text></svg>',
+                vibrate: [200, 100, 200]
+            });
+            
+            setTimeout(() => notification.close(), 5000);
+            log('Bucket list bildirimi gönderildi!', 'success');
+        }
+
+        async function testAnniversary() {
+            status.textContent = '';
+            log('Yıldönümü bildirimi gönderiliyor...');
+            
+            if (Notification.permission !== 'granted') {
+                log('Önce bildirim izni verin!', 'error');
+                return;
+            }
+            
+            const notification = new Notification('🎊 1. Yıl Dönümünüz! 🎊', {
+                body: 'İlk tanışma tarihinin 1. yılı! Mutlu yıldönümü! 💕✨',
+                icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="75" font-size="75">🎊</text></svg>',
+                vibrate: [300, 100, 300, 100, 300, 100, 300],
+                requireInteraction: true
+            });
+            
+            setTimeout(() => notification.close(), 10000);
+            log('Yıldönümü bildirimi gönderildi!', 'success');
+        }
+
+        async function testServiceWorker() {
+            status.textContent = '';
+            log('Service Worker kontrol ediliyor...');
+            
+            if (!('serviceWorker' in navigator)) {
+                log('Service Worker desteklenmiyor!', 'error');
+                return;
+            }
+            
+            try {
+                const registration = await navigator.serviceWorker.getRegistration();
+                
+                if (registration) {
+                    log(`Service Worker kayıtlı! ✅`, 'success');
+                    log(`Scope: ${registration.scope}`);
+                    log(`Active: ${registration.active ? 'Evet' : 'Hayır'}`);
+                } else {
+                    log('Service Worker kayıtlı değil!', 'error');
+                    log('PWA olarak yüklemeyi deneyin.');
+                }
+            } catch (error) {
+                log(`Hata: ${error.message}`, 'error');
+            }
+        }
+
+        async function testPushAPI() {
+            status.textContent = '';
+            log('Push API kontrol ediliyor...');
+            
+            if (!('PushManager' in window)) {
+                log('Push API desteklenmiyor!', 'error');
+                log('Bu tarayıcıda push notification çalışmaz.');
+                return;
+            }
+            
+            log('Push API destekleniyor! ✅', 'success');
+            
+            if ('serviceWorker' in navigator) {
+                try {
+                    const registration = await navigator.serviceWorker.ready;
+                    const subscription = await registration.pushManager.getSubscription();
+                    
+                    if (subscription) {
+                        log('Push subscription var! ✅', 'success');
+                        log(`Endpoint: ${subscription.endpoint.substring(0, 50)}...`);
+                    } else {
+                        log('Push subscription yok.', 'info');
+                        log('Push notification için VAPID key gerekli.');
+                    }
+                } catch (error) {
+                    log(`Push API hatası: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        // Sayfa yüklendiğinde otomatik kontrol
+        window.onload = () => {
+            log('Test sayfası yüklendi! 🚀');
+            log('Bildirim testi için butona tıklayın.');
+            checkPermission();
+        };
+    </script>
+</body>
+</html>
