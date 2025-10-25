@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #1a1a2e;
+            color: white;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 { color: #ff6b6b; }
+        .status {
+            background: #0f3460;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            margin: 10px 5px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+        .success { color: #00ff00; }
+        .error { color: #ff0000; }
+        .info { color: #00bfff; }
+    </style>
+</head>
+<body>
+    <h1>🔥 Firebase Bağlantı Testi</h1>
+    
+    <div>
+        <button id="test1">1️⃣ Bağlantıyı Test Et</button>
+        <button id="test2">2️⃣ Fotoğrafları Kontrol Et</button>
+        <button id="test3">3️⃣ Test Fotoğrafı Yükle</button>
+        <button id="test4">4️⃣ Temizle</button>
+    </div>
+    
+    <div class="status" id="output">Yükleniyor...</div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, doc, setDoc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        const output = document.getElementById('output');
+        
+        function log(msg, type = 'info') {
+            const p = document.createElement('p');
+            p.className = type;
+            p.textContent = msg;
+            output.appendChild(p);
+            output.scrollTop = output.scrollHeight;
+        }
+        
+        output.innerHTML = '';
+        log('🚀 Sayfa yüklendi, Firebase başlatılıyor...');
+
+        // Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyAsQsyb6VebOmcI9TFsc-IIqXVYFiCwVIo",
+            authDomain: "bebegim-5e848.firebaseapp.com",
+            projectId: "bebegim-5e848",
+            storageBucket: "bebegim-5e848.firebasestorage.app",
+            messagingSenderId: "1073954837331",
+            appId: "1:1073954837331:web:8fe594a86542966f2147a6"
+        };
+
+        let app, db;
+        
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            log('✅ Firebase başlatıldı!', 'success');
+        } catch (error) {
+            log('❌ Firebase başlatma hatası: ' + error.message, 'error');
+        }
+
+        // Test 1: Bağlantıyı test et
+        document.getElementById('test1').addEventListener('click', async () => {
+            log('\n🔄 Test 1: Bağlantı testi başlıyor...');
+            try {
+                const testRef = doc(db, 'users/shared/test', 'connection');
+                await setDoc(testRef, {
+                    test: 'connection',
+                    timestamp: new Date().toISOString()
+                });
+                log('✅ Yazma başarılı!', 'success');
+                
+                const docSnap = await getDoc(testRef);
+                if (docSnap.exists()) {
+                    log('✅ Okuma başarılı!', 'success');
+                    log('📦 Veri: ' + JSON.stringify(docSnap.data()), 'info');
+                } else {
+                    log('❌ Okuma başarısız!', 'error');
+                }
+            } catch (error) {
+                log('❌ Hata: ' + error.message, 'error');
+            }
+        });
+
+        // Test 2: Fotoğrafları kontrol et
+        document.getElementById('test2').addEventListener('click', async () => {
+            log('\n🔄 Test 2: Fotoğraflar kontrol ediliyor...');
+            try {
+                const photosRef = doc(db, 'users/shared/photos', 'list');
+                const docSnap = await getDoc(photosRef);
+                
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    log('📦 Firebase\'den dönen veri: ' + JSON.stringify(data).substring(0, 200) + '...', 'info');
+                    
+                    const photos = data.data || data;
+                    if (Array.isArray(photos)) {
+                        log(`✅ ${photos.length} fotoğraf bulundu!`, 'success');
+                        photos.forEach((p, i) => {
+                            log(`  ${i+1}. ${p.caption || 'İsimsiz'} (${p.category})`, 'info');
+                        });
+                    } else {
+                        log('⚠️ Veri array değil: ' + typeof photos, 'error');
+                    }
+                } else {
+                    log('❌ Firebase\'de fotoğraf yok!', 'error');
+                    
+                    // localStorage kontrol
+                    const local = localStorage.getItem('lovesite_photos');
+                    if (local) {
+                        const photos = JSON.parse(local);
+                        log(`📋 localStorage\'da ${photos.length} fotoğraf var`, 'info');
+                    } else {
+                        log('📋 localStorage\'da da yok', 'info');
+                    }
+                }
+            } catch (error) {
+                log('❌ Hata: ' + error.message, 'error');
+            }
+        });
+
+        // Test 3: Test fotoğrafı yükle
+        document.getElementById('test3').addEventListener('click', async () => {
+            log('\n🔄 Test 3: Test fotoğrafı yükleniyor...');
+            try {
+                const testPhoto = [{
+                    id: Date.now(),
+                    caption: 'Test Fotoğraf ' + new Date().getSeconds(),
+                    category: 'moments',
+                    uploadedAt: new Date().toISOString(),
+                    uploadedBy: 'Test',
+                    src: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzY2N2VlYSIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1zaXplPSIyMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iIGZpbGw9IndoaXRlIj5URVNUPC90ZXh0Pjwvc3ZnPg=='
+                }];
+                
+                const photosRef = doc(db, 'users/shared/photos', 'list');
+                await setDoc(photosRef, { 
+                    data: testPhoto,
+                    updatedAt: new Date().toISOString()
+                }, { merge: true });
+                
+                log('✅ Test fotoğrafı yüklendi!', 'success');
+                log('🔄 Şimdi "2️⃣ Fotoğrafları Kontrol Et" butonuna bas', 'info');
+            } catch (error) {
+                log('❌ Hata: ' + error.message, 'error');
+            }
+        });
+
+        // Test 4: Temizle
+        document.getElementById('test4').addEventListener('click', async () => {
+            if (!confirm('Firebase temizlensin mi?')) return;
+            
+            log('\n🔄 Test 4: Firebase temizleniyor...');
+            try {
+                const photosRef = doc(db, 'users/shared/photos', 'list');
+                await setDoc(photosRef, { data: [] });
+                log('✅ Firebase temizlendi!', 'success');
+                localStorage.removeItem('photos_migrated_to_firebase');
+            } catch (error) {
+                log('❌ Hata: ' + error.message, 'error');
+            }
+        });
+
+        // Otomatik test
+        setTimeout(async () => {
+            log('\n🎯 Otomatik test başlıyor...');
+            document.getElementById('test1').click();
+        }, 1000);
+    </script>
+</body>
+</html>

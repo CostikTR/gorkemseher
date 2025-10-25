@@ -1,9 +1,11 @@
-﻿// ============================================console.log('Love site loaded');
+﻿// ============================================
+// AŞK SİTESİ - ANA SCRIPT
+// ============================================
 
-// AŞK SİTESİ - ANA SCRIPTwindow.nextImage = function() { console.log('next'); };
+import firebaseSync from './firebase-sync.js';
 
-// ============================================window.previousImage = function() { console.log('prev'); };
-
+window.nextImage = function() { console.log('next'); };
+window.previousImage = function() { console.log('prev'); };
 window.showRandomMessage = function() { console.log('msg'); };
 
 let relationshipStartDate = new Date('2024-01-01T00:00:00');
@@ -30,14 +32,14 @@ const loveMessages = [
 
 let currentPhotoIndex = 0;
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     const currentUser = getCurrentUser();
     if (currentUser) {
         const welcomeEl = document.getElementById('welcomeUser');
         if (welcomeEl) welcomeEl.textContent = `Hoş geldin, ${currentUser} 💕`;
     }
     
-    loadSavedData();
+    await loadSavedData();
     initializeCounters();
     updateTimeCounter();
     setInterval(updateTimeCounter, 1000);
@@ -60,47 +62,85 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-function loadSavedData() {
-    const savedDates = localStorage.getItem('lovesite_dates');
-    if (savedDates) {
-        const dates = JSON.parse(savedDates);
-        // Admin panelden gelen format: dates.firstMeet.date
-        if (dates.firstMeet && dates.firstMeet.date) {
-            specialDates.firstMeet = new Date(dates.firstMeet.date);
-        } else if (dates.firstMeet) {
-            specialDates.firstMeet = new Date(dates.firstMeet);
+async function loadSavedData() {
+    try {
+        // Tarihleri Firebase'den yükle
+        const datesData = await firebaseSync.getData('dates', 'main');
+        let dates = null;
+        
+        if (datesData && datesData.data) {
+            dates = datesData.data;
+        } else {
+            // Firebase'de yoksa localStorage'dan al
+            const savedDates = localStorage.getItem('lovesite_dates');
+            dates = savedDates ? JSON.parse(savedDates) : null;
         }
         
-        if (dates.relationship && dates.relationship.date) {
-            specialDates.relationship = new Date(dates.relationship.date);
-            // İlişki başlangıç tarihi güncelle (sayaç için)
-            relationshipStartDate = new Date(dates.relationship.date);
-        } else if (dates.relationship) {
-            specialDates.relationship = new Date(dates.relationship);
-            relationshipStartDate = new Date(dates.relationship);
+        if (dates) {
+            // Admin panelden gelen format: dates.firstMeet.date
+            if (dates.firstMeet && dates.firstMeet.date) {
+                specialDates.firstMeet = new Date(dates.firstMeet.date);
+            } else if (dates.firstMeet) {
+                specialDates.firstMeet = new Date(dates.firstMeet);
+            }
+            
+            if (dates.relationship && dates.relationship.date) {
+                specialDates.relationship = new Date(dates.relationship.date);
+                // İlişki başlangıç tarihi güncelle (sayaç için)
+                relationshipStartDate = new Date(dates.relationship.date);
+            } else if (dates.relationship) {
+                specialDates.relationship = new Date(dates.relationship);
+                relationshipStartDate = new Date(dates.relationship);
+            }
+            
+            if (dates.firstKiss && dates.firstKiss.date) {
+                specialDates.firstKiss = new Date(dates.firstKiss.date);
+            } else if (dates.firstKiss) {
+                specialDates.firstKiss = new Date(dates.firstKiss);
+            }
+            
+            if (dates.specialDay && dates.specialDay.date) {
+                specialDates.specialDay = new Date(dates.specialDay.date);
+            } else if (dates.specialDay) {
+                specialDates.specialDay = new Date(dates.specialDay);
+            }
+            
+            console.log('✅ Tarihler Firebase\'den yüklendi:', {
+                relationship: relationshipStartDate,
+                specialDates: specialDates
+            });
         }
-        
-        if (dates.firstKiss && dates.firstKiss.date) {
-            specialDates.firstKiss = new Date(dates.firstKiss.date);
-        } else if (dates.firstKiss) {
-            specialDates.firstKiss = new Date(dates.firstKiss);
+    } catch (error) {
+        console.error('❌ Tarih yükleme hatası:', error);
+        // Hata durumunda localStorage'dan yükle
+        const savedDates = localStorage.getItem('lovesite_dates');
+        if (savedDates) {
+            const dates = JSON.parse(savedDates);
+            // Yukarıdaki ile aynı işlem
+            if (dates.relationship && dates.relationship.date) {
+                relationshipStartDate = new Date(dates.relationship.date);
+            }
         }
-        
-        if (dates.specialDay && dates.specialDay.date) {
-            specialDates.specialDay = new Date(dates.specialDay.date);
-        } else if (dates.specialDay) {
-            specialDates.specialDay = new Date(dates.specialDay);
-        }
-        
-        console.log('Tarihler yüklendi:', {
-            relationship: relationshipStartDate,
-            specialDates: specialDates
-        });
     }
     
-    const savedPhotos = localStorage.getItem('lovesite_photos');
-    if (savedPhotos) {
-        photos = JSON.parse(savedPhotos);
+    // Fotoğrafları Firebase'den yükle
+    try {
+        const photosData = await firebaseSync.getData('photos', 'list');
+        if (photosData && photosData.data && Array.isArray(photosData.data)) {
+            photos = photosData.data;
+            console.log(`✅ ${photos.length} fotoğraf Firebase'den yüklendi`);
+        } else {
+            const savedPhotos = localStorage.getItem('lovesite_photos');
+            if (savedPhotos) {
+                photos = JSON.parse(savedPhotos);
+            }
+        }
+    } catch (error) {
+        console.error('❌ Fotoğraf yükleme hatası:', error);
+        const savedPhotos = localStorage.getItem('lovesite_photos');
+        if (savedPhotos) {
+            photos = JSON.parse(savedPhotos);
+        }
     }
 }
 

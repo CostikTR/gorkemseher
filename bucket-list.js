@@ -1,4 +1,6 @@
 // Bucket List Management System
+import firebaseSync from './firebase-sync.js';
+
 let bucketItems = [];
 let currentCompletingItem = null;
 let completionPhotoData = null;
@@ -32,24 +34,41 @@ function compressImage(base64Data, maxWidth = 1200, quality = 0.7) {
 }
 
 // Initialize on page load
-document.addEventListener('DOMContentLoaded', function() {
-    loadBucketItems();
+document.addEventListener('DOMContentLoaded', async function() {
+    await loadBucketItems();
     setupPhotoHandler();
     updateStats();
 });
 
-// Load bucket items from localStorage
-function loadBucketItems() {
-    const saved = localStorage.getItem('lovesite_bucketlist');
-    bucketItems = saved ? JSON.parse(saved) : getDefaultItems();
-    
-    // If no items exist, save default items
-    if (!saved) {
-        saveBucketItems();
+// Load bucket items from Firebase (önce) ve localStorage (fallback)
+async function loadBucketItems() {
+    try {
+        // Önce Firebase'den yükle
+        const bucketData = await firebaseSync.getData('bucketlist', 'items');
+        
+        if (bucketData && bucketData.data) {
+            bucketItems = bucketData.data;
+        } else {
+            // Firebase'de yoksa localStorage'dan al
+            const saved = localStorage.getItem('lovesite_bucketlist');
+            bucketItems = saved ? JSON.parse(saved) : getDefaultItems();
+            
+            // If no items exist, save default items
+            if (!saved) {
+                await saveBucketItems();
+            }
+        }
+        
+        displayItems();
+        updateStats();
+    } catch (error) {
+        console.error('❌ Bucket list yükleme hatası:', error);
+        // Hata durumunda localStorage'dan yükle
+        const saved = localStorage.getItem('lovesite_bucketlist');
+        bucketItems = saved ? JSON.parse(saved) : getDefaultItems();
+        displayItems();
+        updateStats();
     }
-    
-    displayItems();
-    updateStats();
 }
 
 // Get default bucket items
@@ -65,8 +84,16 @@ function getDefaultItems() {
 }
 
 // Save bucket items to localStorage
-function saveBucketItems() {
+async function saveBucketItems() {
     localStorage.setItem('lovesite_bucketlist', JSON.stringify(bucketItems));
+    
+    // Firebase'e kaydet
+    try {
+        await firebaseSync.saveData('bucketlist', 'items', { data: bucketItems });
+        console.log('✅ Bucket list Firebase\'e kaydedildi');
+    } catch (error) {
+        console.error('❌ Firebase kayıt hatası:', error);
+    }
     
     // Trigger custom event for other pages to update
     window.dispatchEvent(new Event('bucketListUpdated'));

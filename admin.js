@@ -100,31 +100,47 @@ async function updateDate(dateType) {
     localStorage.setItem(STORAGE_KEYS.DATES, JSON.stringify(dates));
     
     // Firebase'e kaydet
-    if (window.firebaseSync) {
-        await window.firebaseSync.saveData('dates', 'main', { data: dates });
-        console.log('Tarih Firebase kayded');
+    try {
+        await firebaseSync.saveData('dates', 'main', { data: dates });
+        console.log('✅ Tarihler Firebase\'e kaydedildi');
+    } catch (error) {
+        console.error('❌ Firebase kayıt hatası:', error);
     }
     
     showSuccess('dateSuccess');
 }
 
 // Mesajları yükle
-function loadMessages() {
-    const savedMessages = localStorage.getItem(STORAGE_KEYS.MESSAGES);
-    const messages = savedMessages ? JSON.parse(savedMessages) : getDefaultMessages();
-    
-    const messageList = document.getElementById('messageList');
-    messageList.innerHTML = '';
-    
-    messages.forEach((message, index) => {
-        const item = document.createElement('div');
-        item.className = 'message-item';
-        item.innerHTML = `
-            <span>${message}</span>
-            <button class="btn btn-secondary" onclick="deleteMessage(${index})">🗑️</button>
-        `;
-        messageList.appendChild(item);
-    });
+// Mesajları yükle (Firebase'den)
+async function loadMessages() {
+    try {
+        // Önce Firebase'den dene
+        const messagesData = await firebaseSync.getData('messages', 'list');
+        let messages = null;
+        
+        if (messagesData && messagesData.data) {
+            messages = messagesData.data;
+        } else {
+            // Firebase'de yoksa localStorage'dan al
+            const savedMessages = localStorage.getItem(STORAGE_KEYS.MESSAGES);
+            messages = savedMessages ? JSON.parse(savedMessages) : getDefaultMessages();
+        }
+        
+        const messageList = document.getElementById('messageList');
+        messageList.innerHTML = '';
+        
+        messages.forEach((message, index) => {
+            const item = document.createElement('div');
+            item.className = 'message-item';
+            item.innerHTML = `
+                <span>${message}</span>
+                <button class="btn btn-secondary" onclick="deleteMessage(${index})">🗑️</button>
+            `;
+            messageList.appendChild(item);
+        });
+    } catch (error) {
+        console.error('❌ Mesaj yükleme hatası:', error);
+    }
 }
 
 // Varsayılan mesajlar
@@ -154,8 +170,11 @@ async function addMessage() {
     localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(messages));
     
     // Firebase'e kaydet
-    if (window.firebaseSync) {
-        await window.firebaseSync.saveData('messages', 'list', { data: messages });
+    try {
+        await firebaseSync.saveData('messages', 'list', { data: messages });
+        console.log('✅ Mesajlar Firebase\'e kaydedildi');
+    } catch (error) {
+        console.error('❌ Firebase kayıt hatası:', error);
     }
     
     document.getElementById('newMessage').value = '';
@@ -176,8 +195,11 @@ async function deleteMessage(index) {
     localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(messages));
     
     // Firebase'e kaydet
-    if (window.firebaseSync) {
-        await window.firebaseSync.saveData('messages', 'list', { data: messages });
+    try {
+        await firebaseSync.saveData('messages', 'list', { data: messages });
+        console.log('✅ Mesaj silindi ve Firebase güncellendi');
+    } catch (error) {
+        console.error('❌ Firebase güncelleme hatası:', error);
     }
     
     loadMessages();

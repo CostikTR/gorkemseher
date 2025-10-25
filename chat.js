@@ -1,4 +1,6 @@
 // Chat System
+import firebaseSync from './firebase-sync.js';
+
 class ChatSystem {
     constructor() {
         this.messages = [];
@@ -7,17 +9,43 @@ class ChatSystem {
         this.loadMessages();
     }
 
-    loadMessages() {
-        const saved = localStorage.getItem('chatMessages');
-        if (saved) {
-            this.messages = JSON.parse(saved);
+    async loadMessages() {
+        try {
+            // Önce Firebase'den yükle
+            const chatData = await firebaseSync.getData('chat', 'messages');
+            
+            if (chatData && chatData.data) {
+                this.messages = chatData.data;
+            } else {
+                // Firebase'de yoksa localStorage'dan al
+                const saved = localStorage.getItem('chatMessages');
+                if (saved) {
+                    this.messages = JSON.parse(saved);
+                }
+            }
+        } catch (error) {
+            console.error('❌ Chat yükleme hatası:', error);
+            // Hata durumunda localStorage'dan yükle
+            const saved = localStorage.getItem('chatMessages');
+            if (saved) {
+                this.messages = JSON.parse(saved);
+            }
         }
+        
         this.displayMessages();
         this.updateStats();
     }
 
-    saveMessages() {
+    async saveMessages() {
         localStorage.setItem('chatMessages', JSON.stringify(this.messages));
+        
+        // Firebase'e kaydet
+        try {
+            await firebaseSync.saveData('chat', 'messages', { data: this.messages });
+            console.log('✅ Chat Firebase\'e kaydedildi');
+        } catch (error) {
+            console.error('❌ Firebase kayıt hatası:', error);
+        }
     }
 
     addMessage(text, sender = 'me') {

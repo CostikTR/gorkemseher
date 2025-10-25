@@ -14,18 +14,55 @@ let pendingPhotoData = null;
 
 // Initialize gallery on page load
 document.addEventListener('DOMContentLoaded', async function() {
+    // Mevcut localStorage verilerini Firebase'e aktar (ilk çalıştırmada)
+    await migrateLocalStorageToFirebase();
+    
     await loadPhotos();
     setupFilterButtons();
     setupDateFilterButtons();
     setupUploadHandlers();
 });
 
+// localStorage'dan Firebase'e veri taşıma (sadece ilk kez)
+async function migrateLocalStorageToFirebase() {
+    try {
+        const migrated = localStorage.getItem('photos_migrated_to_firebase');
+        if (migrated) {
+            console.log('📋 Veriler zaten Firebase\'e taşınmış');
+            return;
+        }
+        
+        // localStorage'daki fotoğrafları kontrol et
+        const localPhotos = localStorage.getItem('lovesite_photos');
+        if (localPhotos) {
+            const photos = JSON.parse(localPhotos);
+            if (photos && photos.length > 0) {
+                console.log(`🔄 ${photos.length} fotoğraf Firebase'e aktarılıyor...`);
+                await firebaseSync.saveData('photos', 'list', { data: photos });
+                localStorage.setItem('photos_migrated_to_firebase', 'true');
+                console.log('✅ Fotoğraflar Firebase\'e aktarıldı!');
+            }
+        }
+    } catch (error) {
+        console.error('⚠️ Migration hatası:', error);
+    }
+}
+
 // Load photos from Firebase (önce) ve localStorage (fallback)
 async function loadPhotos() {
     try {
         // Önce Firebase'den yükle
-        const firebasePhotos = await firebaseSync.getData('photos', 'list');
-        if (firebasePhotos && Array.isArray(firebasePhotos)) {
+        const firebaseData = await firebaseSync.getData('photos', 'list');
+        console.log('🔍 Firebase\'den gelen data:', firebaseData);
+        
+        // Firebase data obje içinde array olarak geliyor, kontrol et
+        let firebasePhotos = null;
+        if (firebaseData) {
+            // Eğer data property'si varsa onu kullan, yoksa direkt data'yı kullan
+            firebasePhotos = firebaseData.data || firebaseData;
+        }
+        
+        if (firebasePhotos && Array.isArray(firebasePhotos) && firebasePhotos.length > 0) {
             allPhotos = firebasePhotos;
             // localStorage'ı da güncelle
             localStorage.setItem('lovesite_photos', JSON.stringify(allPhotos));
@@ -541,10 +578,11 @@ async function confirmUpload() {
     allPhotos.push(photo);
     localStorage.setItem('lovesite_photos', JSON.stringify(allPhotos));
     
-    // Firebase'e kaydet - ZORUNLU
+    // Firebase'e kaydet - ZORUNLU (obje içinde array olarak)
     try {
-        await firebaseSync.saveData('photos', 'list', allPhotos);
+        await firebaseSync.saveData('photos', 'list', { data: allPhotos });
         console.log('✅ Fotoğraf Firebase\'e kaydedildi, tüm cihazlardan erişilebilir');
+        console.log('📊 Toplam fotoğraf sayısı:', allPhotos.length);
         
         // Bildirim gönder (diğer kullanıcıya)
         if (window.notificationSystem) {
@@ -610,9 +648,9 @@ async function deletePhoto(index) {
     allPhotos.splice(index, 1);
     localStorage.setItem('lovesite_photos', JSON.stringify(allPhotos));
     
-    // Firebase'den de sil
+    // Firebase'den de sil (obje içinde array olarak)
     try {
-        await firebaseSync.saveData('photos', 'list', allPhotos);
+        await firebaseSync.saveData('photos', 'list', { data: allPhotos });
         console.log('✅ Fotoğraf Firebase\'den silindi');
     } catch (error) {
         console.error('❌ Firebase silme hatası:', error);
